@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>DeskApp - Bootstrap Admin Dashboard HTML Template</title>
+
+		<!-- Site favicon -->
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="vendors/images/apple-touch-icon.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="vendors/images/favicon-32x32.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="vendors/images/favicon-16x16.png"
+		/>
+
+		<!-- Mobile Specific Metas -->
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=1"
+		/>
+
+		<!-- Google Font -->
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+		<!-- CSS -->
+		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/core.css') }}" />
+        
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='vendors/styles/icon-font.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
+		/>
+		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
+		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script
+			async
+			src="https://www.googletagmanager.com/gtag/js?id=G-GBZ3SGGX85"
+		></script>
+		<script
+			async
+			src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2973766580778258"
+			crossorigin="anonymous"
+		></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag("js", new Date());
+
+			gtag("config", "G-GBZ3SGGX85");
+		</script>
+		<!-- Google Tag Manager -->
+		<script>
+			(function (w, d, s, l, i) {
+				w[l] = w[l] || [];
+				w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+				var f = d.getElementsByTagName(s)[0],
+					j = d.createElement(s),
+					dl = l != "dataLayer" ? "&l=" + l : "";
+				j.async = true;
+				j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+				f.parentNode.insertBefore(j, f);
+			})(window, document, "script", "dataLayer", "GTM-NXZMQSS");
+		</script>
+		<!-- End Google Tag Manager -->
+	</head>
+	<body>
+		<div class="pre-loader">
+			<div class="pre-loader-box">
+				<div class="loader-logo">
+					<img src="vendors/images/deskapp-logo.svg" alt="" />
+				</div>
+				<div class="loader-progress" id="progress_div">
+					<div class="bar" id="bar1"></div>
+				</div>
+				<div class="percent" id="percent1">0%</div>
+				<div class="loading-text">Loading...</div>
+			</div>
+		</div>
+
+		<div class="header">
+			<div class="header-left">
+				<div class="menu-icon bi bi-list"></div>
+				<div
+					class="search-toggle-icon bi bi-search"
+					data-toggle="header_search"
+				></div>
+				<div class="header-search">
+					<form>
+						<div class="form-group mb-0">
+							<i class="dw dw-search2 search-icon"></i>
+							<input
+								type="text"
+								class="form-control search-input"
+								placeholder="Search Here"
+								id="deploySearch" 
+								oninput="searchDeploy()"
+							/>
+							<div class="dropdown">
+								<a
+									class="dropdown-toggle no-arrow"
+									href="#"
+									role="button"
+									data-toggle="dropdown"
+								>
+									<i class="ion-arrow-down-c"></i>
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<div class="form-group row">
+										<label class="col-sm-12 col-md-2 col-form-label"
+											>From</label
+										>
+										<div class="col-sm-12 col-md-10">
+											<input
+												class="form-control form-control-sm form-control-line"
+												type="text"
+											/>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-sm-12 col-md-2 col-form-label">To</label>
+										<div class="col-sm-12 col-md-10">
+											<input
+												class="form-control form-control-sm form-control-line"
+												type="text"
+											/>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-sm-12 col-md-2 col-form-label"
+											>Subject</label
+										>
+										<div class="col-sm-12 col-md-10">
+											<input
+												class="form-control form-control-sm form-control-line"
+												type="text"
+											/>
+										</div>
+									</div>
+									<div class="text-right">
+										<button class="btn btn-primary">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="header-right">
+				<div class="dashboard-setting user-notification">
+					<div class="dropdown">
+						<a
+							class="dropdown-toggle no-arrow"
+							href="javascript:;"
+							data-toggle="right-sidebar"
+						>
+							<i class="dw dw-settings2"></i>
+						</a>
+					</div>
+				</div>
+				<div class="user-notification">
+					<div class="dropdown">
+						<a
+							class="dropdown-toggle no-arrow"
+							href="#"
+							role="button"
+							data-toggle="dropdown"
+						>
+							<i class="icon-copy dw dw-notification"></i>
+							<span class="badge notification-active"></span>
+						</a>
+						<div class="dropdown-menu dropdown-menu-right">
+							<div class="notification-list mx-h-350 customscroll">
+								<ul>
+									<li>
+										<a href="#">
+											<img src="vendors/images/img.jpg" alt="" />
+											<h3>John Doe</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo1.jpg" alt="" />
+											<h3>Lea R. Frith</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo2.jpg" alt="" />
+											<h3>Erik L. Richards</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo3.jpg" alt="" />
+											<h3>John Doe</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo4.jpg" alt="" />
+											<h3>Renee I. Hansen</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/img.jpg" alt="" />
+											<h3>Vicki M. Coleman</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="user-info-dropdown">
+					<div class="dropdown">
+						<a
+							class="dropdown-toggle"
+							href="#"
+							role="button"
+							data-toggle="dropdown"
+						>
+							<span class="user-icon">
+								<img src="vendors/images/photo1.jpg" alt="" />
+							</span>
+							<span class="user-name">Cluster</span>
+						</a>
+						<div
+							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
+						>
+							<a class="dropdown-item" href="profile.html"
+								><i class="dw dw-user1"></i> Profile</a
+							>
+							<a class="dropdown-item" href="profile.html"
+								><i class="dw dw-settings2"></i> Setting</a
+							>
+							<a class="dropdown-item" href="faq.html"
+								><i class="dw dw-help"></i> Help</a
+							>
+							<a class="dropdown-item" href="login.html"
+								><i class="dw dw-logout"></i> Log Out</a
+							>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="left-side-bar">
+			<div class="">
+				<a href="/home">
+					<img src="{{ url_for('static', filename='images/logo.png') }}" style="height:200px; width: 230px;" alt="" class="dark-logo pd-20 mb-0 rounded-circle" />
+				</a>
+				<div class="close-sidebar" data-toggle="left-sidebar-close">
+					<i class="ion-close-round"></i>
+				</div>
+			</div>
+			<div class="menu-block customscroll">
+				<div class="sidebar-menu">
+					<ul id="accordion-menu">
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-display"></span
+								><span class="mtext">Nodes</span>
+							</a>
+						</li>
+						<li>
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-file-earmark-text-fill"></span
+								><span class="mtext">Namespace</span>
+							</a>
+						</li>	
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-wrench"></span
+								><span class="mtext">charge de travail</span>
+							</a>
+							<ul class="submenu">
+                                <li><a href="/globale">Vue global</a></li>
+								<li><a href="/pods">Pods</a></li>
+								<li>
+									<a href="/deployment">Déploiements</a>
+								</li>
+								<li><a href="/statefullset">StatefulSets</a></li>
+								<li><a href="/replicatset">RepilcaSets</a></li>
+								<li><a href="/jobs">Jobs</a></li>
+								<li><a href="/cronjobs">CronJobs</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-server"></span
+								><span class="mtext">Storage</span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/pvc">Persistent Volume Claim</a></li>
+								<li><a href="/pv">Persistent Volumes</a></li>
+								<li><a href="/storage">Storage Classes</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-gear-fill"></span
+								><span class="mtext">Configurations</span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/configmap">ConfigMaps</a></li>
+								<li><a href="/secret">Secrets</a></li>
+								<li><a href="/ressource">Ressource Quotas</a></li>
+								<li><a href="/range">Limit Ranges</a></li>
+								<li><a href="/hpa">HPA</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-broadcast-pin"></span
+								><span class="mtext"> Réseaux </span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/service">Service</a></li>
+								<li><a href="/endpoint">Endpoints</a></li>
+								<li><a href="/ingress">Ingress</a></li>
+								<li><a href="/policies">Network Policies</li>
+							</ul>
+						</li>
+						<li>
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-calendar-check"></span
+								><span class="mtext">Events</span>
+							</a>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi-download"></span
+								><span class="mtext">Plugins</span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/chart">chart</a></li>
+								<li><a href="release">Release</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-terminal"></span
+								><span class="mtext">Terminale</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="mobile-menu-overlay"></div>
+                <div class="main-container">
+                    <div class="xs-pd-20-10 pd-ltr-20">
+						<div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="title pb-20">
+                            <h2 class="h3 mb-0">Listes des déployments</h2>
+                        </div>
+						<div class="d-flex add-box ml-3">
+							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un Déploiement</a>
+						</div>
+					</div>
+        
+                        <div class="card-box pb-10">
+
+							<div class="d-flex justify-content-between align-items-center mb-3">
+								<div class="h5 pd-20 mb-0">Recente deploiment</div>
+								<!-- Barre de recherche -->
+								<div class="form-group pd-20 row align-items-center">
+									<label class="col-form-label" for="namespace">Namespace:</label>
+									<div class="col">
+										<select class="custom-select col-12" id="namespace" name="namespace" onchange="changeNamespace(this)">
+											{% for ns in namespaces %}
+											<option value="{{ ns }}" {% if ns == selected_namespace %}selected{% endif %}>{{ ns }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+							</div>
+
+                            <table class="data-table table nowrap">
+                                <thead>
+                                    <tr>
+                                        <th class="table-plus">deploiment name</th>
+                                        <th>Version </th>
+                                        <th>Date d'ajout</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for deployment in deployments %}
+                                    <tr>
+                                        <td class="table-plus">
+                                            <div class="name-avatar d-flex align-items-center">
+                                                <div class="avatar mr-2 flex-shrink-0">
+                                                    <img
+                                                        src="{{ url_for('static', filename='images/deploy.png') }}"
+                                                        class="border-radius-100 shadow"
+                                                        width="40"
+                                                        height="40"
+                                                        alt=""
+                                                    />
+                                                </div>
+                                                <div class="txt">
+                                                    <div class="weight-600">{{deployment.metadata.name }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ deployment.metadata.resource_version }}</td>
+                                        <td>{{ deployment.metadata.creation_timestamp }}</td>
+										<td>
+											<div class="dropdown">
+												<a
+													class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+													data-color="#1b3133"
+													href="#"
+													role="button"
+													data-toggle="dropdown"
+												>
+													<i class="dw dw-more"></i>
+												</a>
+												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+													<a class="dropdown-item" href="#"><i class="dw dw-eye"></i> logs</a>
+													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i> shell</a>
+													<a
+														class="dropdown-item"
+														href="#"
+														onclick="deleteDeployment('{{ deployment.metadata.namespace }}', '{{ deployment.metadata.name }}')"
+													>
+														<i class="dw dw-delete-3"></i> supprimer
+													</a>
+												</div>
+											</div>
+											<!-- Formulaire caché pour la suppression -->
+											<form
+												id="deleteForm_{{ deployment.metadata.namespace }}_{{ deployment.metadata.name }}"
+												action="/delete_deployment"
+												method="POST"
+												style="display: none;"
+											>
+												<input
+													type="hidden"
+													name="namespace"
+													value="{{ deployment.metadata.namespace }}"
+												/>
+												<input
+													type="hidden"
+													name="name"
+													value="{{ deployment.metadata.name }}"
+												/>
+											</form>
+										</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+	<!-- modale ajout -->
+	
+	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<form action="/install_yaml" method="post" enctype="multipart/form-data">
+					<div class="pd-20 card-box">
+						<h5 class="h4 text-blue mb-20">Ajout d'un nouveau pod</h5>
+						<div class="tab">
+							<ul class="nav nav-pills justify-content-end" role="tablist">
+								<li class="nav-item">
+									<a
+										class="nav-link active text-blue"
+										data-toggle="tab"
+										href="#home6"
+										role="tab"
+										aria-selected="true"
+										>Importer</a
+									>
+								</li>
+								<li class="nav-item">
+									<a
+										class="nav-link text-blue"
+										data-toggle="tab"
+										href="#profile6"
+										role="tab"
+										aria-selected="false"
+										>Editer</a
+									>
+								</li>
+								<li class="nav-item">
+									<a
+										class="nav-link text-blue"
+										data-toggle="tab"
+										href="#contact6"
+										role="tab"
+										aria-selected="false"
+										>Template</a
+									>
+								</li>
+							</ul>
+							<div class="tab-content">
+								<div
+									class="tab-pane fade show active"
+									id="home6"
+									role="tabpanel"
+								><br>
+								<form action="/install_yaml" method="POST" enctype="multipart/form-data">
+									<div class="custom-file">
+									<label class="custom-file-label" for="yaml_file">Sélectionnez un fichier YAML à installer :</label>
+									<input class="custom-file-input" type="file" name="yaml_file" id="yaml_file"><br><br>
+									<input  class="btn btn-primary" type="submit" value="Installer">
+								</div>
+								</form>
+								</form>
+								</div>
+								<div class="tab-pane fade" id="profile6" role="tabpanel">
+									<div class="pd-20">
+										<label>Textarea</label>
+										<textarea class="form-control"></textarea>
+									</div>
+								</div>
+								<div class="tab-pane fade" id="contact6" role="tabpanel">
+									<div class="pd-20">
+										Lorem ipsum dolor sit amet, consectetur adipisicing
+										elit, sed do eiusmod tempor incididunt ut labore et
+										dolore magna aliqua. Ut enim ad minim veniam, quis
+										nostrud exercitation ullamco laboris nisi ut aliquip ex
+										ea commodo consequat. Duis aute irure dolor in
+										reprehenderit in voluptate velit esse cillum dolore eu
+										fugiat nulla pariatur. Excepteur sint occaecat cupidatat
+										non proident, sunt in culpa qui officia deserunt mollit
+										anim id est laborum.
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+			</form>
+			</div>
+		</div>
+	</div>
+
+				<div class="title pb-20 pt-20">
+				</div>
+
+		<!-- welcome modal start -->
+
+				<!-- welcome modal end -->
+		<!-- js -->
+		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/script.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/process.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/layout-settings.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/apexcharts/apexcharts.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/jquery.dataTables.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.bootstrap4.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
+
+		<script>
+			function deleteDeployment(namespace, name) {
+				var formId = 'deleteForm_' + namespace + '_' + name;
+				if (confirm("Êtes-vous sûr de vouloir supprimer ce déploiement ?")) {
+					document.getElementById(formId).submit();
+				}
+			}
+
+			function changeNamespace(select) {
+            const selectedNamespace = select.value;
+            window.location.href = `/deployment?namespace=${selectedNamespace}`;
+		}
+
+		function searchDeploy() {
+        const input = document.getElementById('deploySearch');
+        const filter = input.value.toLowerCase();
+        const table = document.querySelector('table tbody');
+        const rows = table.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const podName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+            if (podName.includes(filter)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+		</script>
+
+        
+		<!-- Google Tag Manager (noscript) -->
+		<noscript
+			><iframe
+				src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS"
+				height="0"
+				width="0"
+				style="display: none; visibility: hidden"
+			></iframe
+		></noscript>
+
+	</body>
+	</html>

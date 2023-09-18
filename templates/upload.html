@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Installation de fichiers YAML Kubernetes</title>
+</head>
+<body>
+    <h1>Installation de fichiers YAML Kubernetes</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <label for="file">Sélectionnez un fichier YAML :</label>
+        {{ form.file() }}
+        <button type="submit">Installer</button>
+    </form>
+</body>
+</html>

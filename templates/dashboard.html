@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tableau de bord Kubernetes</title>
+</head>
+<body>
+    <h1>Tableau de bord Kubernetes</h1>
+
+    <h2>Déploiements:</h2>
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Namespace</th>
+            
+        </tr>
+        {% for deployment in deployments %}
+        <tr>
+            <td>{{ deployment.metadata.name }}</td>
+            <td>{{ deployment.metadata.namespace }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Pods:</h2>
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Namespace</th>
+            <th>Action</th>
+        </tr>
+        {% for pod in pods %}
+        <tr>
+            <td>{{ pod.metadata.name }}</td>
+            <td>{{ pod.metadata.namespace }}</td>
+            <td><button type="submit">modifier</button></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Services:</h2>
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Namespace</th>
+        </tr>
+        {% for service in services %}
+        <tr>
+            <td>{{ service.metadata.name }}</td>
+            <td>{{ service.metadata.namespace }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>StatefulSets:</h2>
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Namespace</th>
+        </tr>
+        {% for statefulset in statefulsets %}
+        <tr>
+            <td>{{ statefulset.metadata.name }}</td>
+            <td>{{ statefulset.metadata.namespace }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Ingresses:</h2>
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Namespace</th>
+        </tr>
+        {% for ingress in ingresses %}
+        <tr>
+            <td>{{ ingress.metadata.name }}</td>
+            <td>{{ ingress.metadata.namespace }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>

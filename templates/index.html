@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cluster Connect</title>
+</head>
+<body>
+    <h1>Clusters disponibles</h1>
+    <form method="POST" action="/connect">
+        <label for="cluster">Sélectionnez un cluster:</label>
+        <select id="cluster" name="cluster">
+            {% for cluster in clusters %}
+                <option value="{{ cluster }}">{{ cluster }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Se connecter</button>
+    </form>
+</body>
+</html>

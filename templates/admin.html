@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>DeskApp - Bootstrap Admin Dashboard HTML Template</title>
+
+		<!-- Site favicon -->
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="vendors/images/apple-touch-icon.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="vendors/images/favicon-32x32.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="vendors/images/favicon-16x16.png"
+		/>
+
+		<!-- Mobile Specific Metas -->
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=1"
+		/>
+
+		<!-- Google Font -->
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+		<!-- CSS -->
+		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/core.css') }}" />
+        
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='vendors/styles/icon-font.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
+		/>
+		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
+		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
+		<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<link
+		rel="stylesheet"
+		type="text/css"
+		href="src/plugins/sweetalert2/sweetalert2.css"
+	    /> 
+
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script
+			async
+			src="https://www.googletagmanager.com/gtag/js?id=G-GBZ3SGGX85"
+		></script>
+		<script
+			async
+			src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2973766580778258"
+			crossorigin="anonymous"
+		></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag("js", new Date());
+
+			gtag("config", "G-GBZ3SGGX85");
+		</script>
+		<!-- Google Tag Manager -->
+		<script>
+			(function (w, d, s, l, i) {
+				w[l] = w[l] || [];
+				w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+				var f = d.getElementsByTagName(s)[0],
+					j = d.createElement(s),
+					dl = l != "dataLayer" ? "&l=" + l : "";
+				j.async = true;
+				j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+				f.parentNode.insertBefore(j, f);
+			})(window, document, "script", "dataLayer", "GTM-NXZMQSS");
+		</script>
+		<!-- End Google Tag Manager -->
+	</head>
+	<body>
+		<div class="pre-loader">
+			<div class="pre-loader-box">
+				<div class="loader-logo">
+					<img src="vendors/images/deskapp-logo.svg" alt="" />
+				</div>
+				<div class="loader-progress" id="progress_div">
+					<div class="bar" id="bar1"></div>
+				</div>
+				<div class="percent" id="percent1">0%</div>
+				<div class="loading-text">Loading...</div>
+			</div>
+		</div>
+
+		<div class="header">
+			<div class="header-left">
+				<div class="menu-icon bi bi-list"></div>
+				<div
+					class="search-toggle-icon bi bi-search"
+					data-toggle="header_search"
+				></div>
+				<div class="header-search">
+					<form>
+						<div class="form-group mb-0">
+							<i class="dw dw-search2 search-icon"></i>
+							<input
+								type="text"
+								class="form-control search-input"
+								placeholder="Search Here"
+							/>
+							<div class="dropdown">
+								<a
+									class="dropdown-toggle no-arrow"
+									href="#"
+									role="button"
+									data-toggle="dropdown"
+								>
+									<i class="ion-arrow-down-c"></i>
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<div class="form-group row">
+										<label class="col-sm-12 col-md-2 col-form-label"
+											>From</label
+										>
+										<div class="col-sm-12 col-md-10">
+											<input
+												class="form-control form-control-sm form-control-line"
+												type="text"
+											/>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-sm-12 col-md-2 col-form-label">To</label>
+										<div class="col-sm-12 col-md-10">
+											<input
+												class="form-control form-control-sm form-control-line"
+												type="text"
+											/>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-sm-12 col-md-2 col-form-label"
+											>Subject</label
+										>
+										<div class="col-sm-12 col-md-10">
+											<input
+												class="form-control form-control-sm form-control-line"
+												type="text"
+											/>
+										</div>
+									</div>
+									<div class="text-right">
+										<button class="btn btn-primary">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="header-right">
+				<div class="dashboard-setting user-notification">
+					<div class="dropdown">
+						<a
+							class="dropdown-toggle no-arrow"
+							href="javascript:;"
+							data-toggle="right-sidebar"
+						>
+							<i class="dw dw-settings2"></i>
+						</a>
+					</div>
+				</div>
+				<div class="user-notification">
+					<div class="dropdown">
+						<a
+							class="dropdown-toggle no-arrow"
+							href="#"
+							role="button"
+							data-toggle="dropdown"
+						>
+							<i class="icon-copy dw dw-notification"></i>
+							<span class="badge notification-active"></span>
+						</a>
+						<div class="dropdown-menu dropdown-menu-right">
+							<div class="notification-list mx-h-350 customscroll">
+								<ul>
+									<li>
+										<a href="#">
+											<img src="vendors/images/img.jpg" alt="" />
+											<h3>John Doe</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo1.jpg" alt="" />
+											<h3>Lea R. Frith</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo2.jpg" alt="" />
+											<h3>Erik L. Richards</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo3.jpg" alt="" />
+											<h3>John Doe</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo4.jpg" alt="" />
+											<h3>Renee I. Hansen</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/img.jpg" alt="" />
+											<h3>Vicki M. Coleman</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="user-info-dropdown">
+					<div class="dropdown">
+						<a
+							class="dropdown-toggle"
+							href="#"
+							role="button"
+							data-toggle="dropdown"
+						>
+							<span class="user-icon">
+								<img src="vendors/images/photo1.jpg" alt="" />
+							</span>
+							<span class="user-name">Cluster</span>
+						</a>
+						<div
+							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
+						>
+							<a class="dropdown-item" href="profile.html"
+								><i class="dw dw-user1"></i> Profile</a
+							>
+							<a class="dropdown-item" href="profile.html"
+								><i class="dw dw-settings2"></i> Setting</a
+							>
+							<a class="dropdown-item" href="faq.html"
+								><i class="dw dw-help"></i> Help</a
+							>
+							<a class="dropdown-item" href="login.html"
+								><i class="dw dw-logout"></i> Log Out</a
+							>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="left-side-bar">
+			<div class="">
+				<a href="/home">
+					<img src="{{ url_for('static', filename='images/logo.png') }}" style="height:200px; width: 230px;" alt="" class="dark-logo pd-20 mb-0 rounded-circle" />
+				</a>
+				<div class="close-sidebar" data-toggle="left-sidebar-close">
+					<i class="ion-close-round"></i>
+				</div>
+			</div>
+			<div class="menu-block customscroll">
+				<div class="sidebar-menu">
+					<ul id="accordion-menu">
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-display"></span
+								><span class="mtext">Nodes</span>
+							</a>
+						</li>
+						<li>
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-file-earmark-text-fill"></span
+								><span class="mtext">Namespace</span>
+							</a>
+						</li>	
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-wrench"></span
+								><span class="mtext">charge de travail</span>
+							</a>
+							<ul class="submenu">
+                                <li><a href="/globale">Vue global</a></li>
+								<li><a href="/pods">Pods</a></li>
+								<li>
+									<a href="/deployment">Déploiements</a>
+								</li>
+								<li><a href="/statefullset">StatefulSets</a></li>
+								<li><a href="/replicatset">RepilcaSets</a></li>
+								<li><a href="/jobs">Jobs</a></li>
+								<li><a href="/cronjobs">CronJobs</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-server"></span
+								><span class="mtext">Storage</span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/pvc">Persistent Volume Claim</a></li>
+								<li><a href="/pv">Persistent Volumes</a></li>
+								<li><a href="/storage">Storage Classes</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-gear-fill"></span
+								><span class="mtext">Configurations</span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/configmap">ConfigMaps</a></li>
+								<li><a href="/secret">Secrets</a></li>
+								<li><a href="/ressource">Ressource Quotas</a></li>
+								<li><a href="/range">Limit Ranges</a></li>
+								<li><a href="/hpa">HPA</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-broadcast-pin"></span
+								><span class="mtext"> Réseaux </span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/service">Service</a></li>
+								<li><a href="/endpoint">Endpoints</a></li>
+								<li><a href="/ingress">Ingress</a></li>
+								<li><a href="/policies">Network Policies</li>
+							</ul>
+						</li>
+						<li>
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-calendar-check"></span
+								><span class="mtext">Events</span>
+							</a>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi-download"></span
+								><span class="mtext">Plugins</span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/chart">chart</a></li>
+								<li><a href="release">Release</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-terminal"></span
+								><span class="mtext">Terminale</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="mobile-menu-overlay"></div>
+
+		<div class="main-container">
+			<div class="xs-pd-20-10 pd-ltr-20">
+				<div class="title pb-20">
+					<h2 class="h3 mb-0">Tableau de bord</h2>
+				</div>
+
+
+				<div class="row pb-10">
+					<div class="col-md-8 mb-20">
+						<div class="card-box height-100-p pd-20">
+							<div class="d-flex flex-wrap justify-content-between align-items-center pb-0 pb-md-3">
+								<div class="h5 mb-md-0">Processeur usage</div>
+								<div class="form-group mb-md-0">
+									<select class="form-control form-control-sm selectpicker">
+										<option value="">views</option>
+										<option value="">Last Month</option>
+										<option value="">Last 6 Month</option>
+										<option value="">Last 1 year</option>
+									</select>
+								</div>
+							</div>
+							<div id="show" class="w3-container w3-card w3-white w3-round w3-margin"><br>
+								<canvas id="cpuChart" width="600" height="400"></canvas>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 mb-20">
+						<div class="card-box min-height-200px pd-20 mb-20">
+							<div id="show" class="w3-container w3-card w3-white w3-round w3-margin"><br>
+								<canvas id="ramChart" width="260" height="200"></canvas>
+							  </div>
+						</div>
+						<div class="card-box min-height-200px pd-20">
+							<div class="d-flex justify-content-between align-items-end">
+								<div>
+									<canvas id="networkChart" width="300" height="200"></canvas>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-lg-4 col-md-6 mb-20">
+						<div class="card-box height-100-p pd-20 min-height-200px">
+							<div class="d-flex justify-content-between pb-10">
+								<div class="h5 mb-0">Top Doctors</div>
+								<div class="dropdown">
+									<a
+										class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+										data-color="#1b3133"
+										href="#"
+										role="button"
+										data-toggle="dropdown"
+									>
+										<i class="dw dw-more"></i>
+									</a>
+									<div
+										class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
+									>
+										<a class="dropdown-item" href="#"
+											><i class="dw dw-eye"></i> View</a
+										>
+										<a class="dropdown-item" href="#"
+											><i class="dw dw-edit2"></i> Edit</a
+										>
+										<a class="dropdown-item" href="#"
+											><i class="dw dw-delete-3"></i> Delete</a
+										>
+									</div>
+								</div>
+							</div>
+							<div class="user-list">
+								<ul>
+									<li class="d-flex align-items-center justify-content-between">
+										<div class="name-avatar d-flex align-items-center pr-2">
+											<div class="avatar mr-2 flex-shrink-0">
+												<img
+													src="vendors/images/photo1.jpg"
+													class="border-radius-100 box-shadow"
+													width="50"
+													height="50"
+													alt=""
+												/>
+											</div>
+											<div class="txt">
+												<span
+													class="badge badge-pill badge-sm"
+													data-bgcolor="#e7ebf5"
+													data-color="#265ed7"
+													>4.9</span
+												>
+												<div class="font-14 weight-600">Dr. Neil Wagner</div>
+												<div class="font-12 weight-500" data-color="#b2b1b6">
+													Pediatrician
+												</div>
+											</div>
+										</div>
+										<div class="cta flex-shrink-0">
+											<a href="#" class="btn btn-sm btn-outline-primary"
+												>Schedule</a
+											>
+										</div>
+									</li>
+									<li class="d-flex align-items-center justify-content-between">
+										<div class="name-avatar d-flex align-items-center pr-2">
+											<div class="avatar mr-2 flex-shrink-0">
+												<img
+													src="vendors/images/photo2.jpg"
+													class="border-radius-100 box-shadow"
+													width="50"
+													height="50"
+													alt=""
+												/>
+											</div>
+											<div class="txt">
+												<span
+													class="badge badge-pill badge-sm"
+													data-bgcolor="#e7ebf5"
+													data-color="#265ed7"
+													>4.9</span
+												>
+												<div class="font-14 weight-600">Dr. Ren Delan</div>
+												<div class="font-12 weight-500" data-color="#b2b1b6">
+													Pediatrician
+												</div>
+											</div>
+										</div>
+										<div class="cta flex-shrink-0">
+											<a href="#" class="btn btn-sm btn-outline-primary"
+												>Schedule</a
+											>
+										</div>
+									</li>
+									<li class="d-flex align-items-center justify-content-between">
+										<div class="name-avatar d-flex align-items-center pr-2">
+											<div class="avatar mr-2 flex-shrink-0">
+												<img
+													src="vendors/images/photo3.jpg"
+													class="border-radius-100 box-shadow"
+													width="50"
+													height="50"
+													alt=""
+												/>
+											</div>
+											<div class="txt">
+												<span
+													class="badge badge-pill badge-sm"
+													data-bgcolor="#e7ebf5"
+													data-color="#265ed7"
+													>4.9</span
+												>
+												<div class="font-14 weight-600">Dr. Garrett Kincy</div>
+												<div class="font-12 weight-500" data-color="#b2b1b6">
+													Pediatrician
+												</div>
+											</div>
+										</div>
+										<div class="cta flex-shrink-0">
+											<a href="#" class="btn btn-sm btn-outline-primary"
+												>Schedule</a
+											>
+										</div>
+									</li>
+									<li class="d-flex align-items-center justify-content-between">
+										<div class="name-avatar d-flex align-items-center pr-2">
+											<div class="avatar mr-2 flex-shrink-0">
+												<img
+													src="vendors/images/photo4.jpg"
+													class="border-radius-100 box-shadow"
+													width="50"
+													height="50"
+													alt=""
+												/>
+											</div>
+											<div class="txt">
+												<span
+													class="badge badge-pill badge-sm"
+													data-bgcolor="#e7ebf5"
+													data-color="#265ed7"
+													>4.9</span
+												>
+												<div class="font-14 weight-600">Dr. Callie Reed</div>
+												<div class="font-12 weight-500" data-color="#b2b1b6">
+													Pediatrician
+												</div>
+											</div>
+										</div>
+										<div class="cta flex-shrink-0">
+											<a href="#" class="btn btn-sm btn-outline-primary"
+												>Schedule</a
+											>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-4 col-md-6 mb-20">
+						<div class="card-box height-100-p pd-20 min-height-200px">
+							<div class="d-flex justify-content-between">
+								<div class="h5 mb-0">Utilisation du disque</div>
+							</div><br>
+
+							<div>
+								<canvas id="diskChart" width="400" height="400"></canvas>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-4 col-md-12 mb-20">
+						<div class="card-box height-100-p pd-20 min-height-200px">
+							<div class="max-width-300 mx-auto">
+								<img src="vendors/images/upgrade.svg" alt="" />
+							</div>
+							<div class="text-center">
+								<div class="h5 mb-1">Upgrade to Pro</div>
+								<div
+									class="font-14 weight-500 max-width-200 mx-auto pb-20"
+									data-color="#a6a6a7"
+								>
+									You can enjoy all our features by upgrading to pro.
+								</div>
+								<a href="#" class="btn btn-primary btn-lg">Upgrade</a>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card-box pb-10">
+					<div class="h5 pd-20 mb-0">Recent Patient</div>
+					<table class="data-table table nowrap">
+						<thead>
+							<tr>
+								<th class="table-plus">Namespace</th>
+								<th>Pods name</th>
+								<th>Event Type</th>
+								<th>Message</th>
+								<th>Admit Date</th>
+								<th class="datatable-nosort">Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for log in logs %}
+							<tr>
+								<td class="table-plus">
+									<div class="name-avatar d-flex align-items-center">
+										<div class="avatar mr-2 flex-shrink-0">
+											<img
+												src="vendors/images/photo1.jpg"
+												class="border-radius-100 shadow"
+												width="40"
+												height="40"
+												alt=""
+											/>
+										</div>
+										<div class="txt">
+											<div class="weight-600">{{ log['namespace'] }}</div>
+										</div>
+									</div>
+								</td>
+								<td>{{ log['pod_name'] }}</td>
+								<td>{{ log['event_type'] }}</td>
+								<td>{{ log['message'] }}</td>
+								<td>{{ log['timestamp'] }}</td>
+								<td>
+									<div class="table-actions">
+										<a href="#" data-color="#265ed7"
+											><i class="icon-copy dw dw-edit2"></i
+										></a>
+										<a href="#" data-color="#e95959"
+											><i class="icon-copy dw dw-delete-3"></i
+										></a>
+									</div>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+
+				<div class="title pb-20 pt-20">
+				</div>
+
+		<!-- welcome modal start -->
+
+				<!-- welcome modal end -->
+		<!-- js -->
+		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/script.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/process.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/layout-settings.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/apexcharts/apexcharts.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/jquery.dataTables.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.bootstrap4.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
+		<script src="src/plugins/sweetalert2/sweetalert2.all.js"></script>
+		<script src="src/plugins/sweetalert2/sweet-alert.init.js"></script>
+
+		<script>
+			$(document).ready(function() {
+				$.get("/").done(function(data) {
+					// Si le chargement du kubeconfig est réussi, data contient la liste des clusters.
+					// Vous pouvez mettre ici le code pour afficher les clusters.
+				}).fail(function(xhr) {
+					// En cas d'erreur, xhr.responseText contient le message d'erreur.
+					// Afficher une alerte SweetAlert en cas d'erreur.
+					Swal.fire({
+						icon: 'error',
+						title: 'Erreur de chargement du kubeconfig',
+						text: xhr.responseText
+					});
+				});
+			});
+		</script>
+
+        
+		<!-- Google Tag Manager (noscript) -->
+		<noscript
+			><iframe
+				src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS"
+				height="0"
+				width="0"
+				style="display: none; visibility: hidden"
+			></iframe
+		></noscript>
+
+		<script>
+
+		function getSystemData() {
+            fetch('/cpu')
+                .then(response => response.json())
+                .then(data => {
+                    updateCpuChart(data.cpu_usage);
+                });
+
+            fetch('/ram')
+                .then(response => response.json())
+                .then(data => {
+                    updateRamChart(data.ram_usage);
+                });
+
+            // Appeler cette fonction toutes les secondes
+            setTimeout(getSystemData, 2000);
+        }
+
+
+        // Créer le graphique pour le CPU
+        var cpuChart = new Chart(document.getElementById('cpuChart'), {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], // Étiquettes des points temporels (optionnel)
+                datasets: [{
+                    label: 'CPU Usage (%)',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Créer le graphique pour la RAM
+        var ramChart = new Chart(document.getElementById('ramChart'), {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], // Étiquettes des points temporels (optionnel)
+                datasets: [{
+                    label: 'RAM Usage (%)',
+                    data: [],
+                    borderColor: 'rgb(54, 162, 235)',
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Fonction pour mettre à jour le graphique CPU
+        function updateCpuChart(cpuUsage) {
+            var currentTime = new Date().toLocaleTimeString();
+
+            // Ajouter la nouvelle valeur au graphique CPU
+            cpuChart.data.datasets[0].data.push(cpuUsage);
+            cpuChart.data.labels.push(currentTime);
+
+            // Limiter le nombre de points affichés à 10
+            if (cpuChart.data.datasets[0].data.length > 29) {
+                cpuChart.data.datasets[0].data.shift();
+                cpuChart.data.labels.shift();
+            }
+
+            // Mettre à jour le graphique
+            cpuChart.update();
+        }
+
+        // Fonction pour mettre à jour le graphique RAM
+        function updateRamChart(ramUsage) {
+            var currentTime = new Date().toLocaleTimeString();
+
+            // Ajouter la nouvelle valeur au graphique RAM
+            ramChart.data.datasets[0].data.push(ramUsage);
+            ramChart.data.labels.push(currentTime);
+
+            // Limiter le nombre de points affichés à 10
+            if (ramChart.data.datasets[0].data.length > 29) {
+                ramChart.data.datasets[0].data.shift();
+                ramChart.data.labels.shift();
+            }
+
+            // Mettre à jour le graphique
+            ramChart.update();
+        }
+        function getNetworkInfo() {
+            fetch('/network')
+                .then(response => response.json())
+                .then(data => {
+                    const networkInfoElement = document.getElementById('networkInfo');
+                    networkInfoElement.innerHTML = '';
+
+                    for (const interfaceName in data) {
+                        const interfaceInfo = data[interfaceName];
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <strong>Interface: ${interfaceName}</strong><br>
+                            IP: ${interfaceInfo.ip || 'N/A'}<br>
+                            Netmask: ${interfaceInfo.netmask || 'N/A'}<br>
+                            MAC: ${interfaceInfo.mac || 'N/A'}<br>
+                            <hr>
+                        `;
+                        networkInfoElement.appendChild(listItem);
+                    }
+                });
+        }
+
+        // Démarrer la récupération des données et la mise à jour des informations réseau
+        getNetworkInfo();
+        // Démarrer la récupération des données et la mise à jour des graphiques
+        getSystemData();
+
+
+		</script>
+
+		   <script>
+        // Obtenez les données d'utilisation du disque depuis l'API Flask
+        fetch('/disk')
+            .then(response => response.json())
+            .then(data => {
+                // Créez un tableau de données pour le graphique
+                var diskData = {
+                    labels: ['Utilisé', 'Libre'],
+                    datasets: [{
+                        data: [data.used, data.free],
+                        backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(75, 192, 192, 0.5)'],
+                    }],
+                };
+
+                // Obtenez le contexte du canevas HTML
+                var ctx = document.getElementById('diskChart').getContext('2d');
+
+                // Créez le graphique à secteurs
+                var myPieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: diskData,
+                });
+            });
+
+			var ctx = document.getElementById('networkChart').getContext('2d');
+
+// Créez un tableau pour stocker les données du graphique
+var data = {
+	labels: [],
+	datasets: [{
+		label: 'Octets Envoyés',
+		data: [],
+		borderColor: 'rgba(255, 99, 132, 1)',
+		fill: false
+	}, {
+		label: 'Octets Reçus',
+		data: [],
+		borderColor: 'rgba(75, 192, 192, 1)',
+		fill: false
+	}]
+};
+
+var chart = new Chart(ctx, {
+	type: 'line',
+	data: data,
+	options: {
+		scales: {
+			x: [{
+				type: 'linear',
+				position: 'bottom'
+			}]
+		}
+	}
+});
+
+// Fonction pour mettre à jour le graphique
+function updateChart() {
+	fetch('/network_traffic')
+		.then(response => response.json())
+		.then(data => {
+			// Ajoutez le timestamp actuel au tableau des labels
+			data.labels.push(new Date().toLocaleTimeString());
+
+			// Ajoutez les données d'octets envoyés et reçus aux tableaux correspondants
+			data.datasets[0].data.push(data.bytes_sent);
+			data.datasets[1].data.push(data.bytes_recv);
+
+			// Limitez le nombre de points de données affichés à, par exemple, 20
+			if (data.labels.length > 20) {
+				data.labels.shift();
+				data.datasets[0].data.shift();
+				data.datasets[1].data.shift();
+			}
+
+			// Mettez à jour le graphique
+			chart.update();
+		});
+}
+
+// Mettez à jour le graphique périodiquement (par exemple, toutes les secondes)
+setInterval(updateChart, 1000);
+    </script>
+
+<script>
+	// Vérifiez si une erreur a été renvoyée dans la réponse JSON
+	var error_message = "{{ error_message|e }}"; // Utilisez le filtre |e pour échapper les guillemets
+        if (error_message) {
+            // Affichez une alerte SweetAlert2 en cas d'erreur
+            Swal.fire({
+                title: 'Erreur',
+                text: error_message,
+                icon: 'error'
+            });
+        }
+</script>
+
+	</body>
+	</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monitoring du Nœud Kubernetes</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Monitoring du Nœud Kubernetes</h1>
+    <div id="node-info">
+        <p>Nœud: <span id="node-name"></span></p>
+        <p>Capacité CPU: <span id="cpu-capacity"></span></p>
+        <p>Capacité RAM: <span id="ram-capacity"></span></p>
+    </div>
+
+    <script>
+        function updateNodeInfo() {
+            $.get('/get_node_info', function(data) {
+                $('#node-name').text(data.node_name);
+                $('#cpu-capacity').text(data.cpu_capacity);
+                $('#ram-capacity').text(data.ram_capacity);
+            });
+        }
+
+        // Actualiser les informations toutes les 5 secondes
+        setInterval(updateNodeInfo, 5000);
+        updateNodeInfo(); // Appel initial
+    </script>
+</body>
+</html>

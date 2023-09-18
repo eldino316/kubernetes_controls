@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logs du Pod</title>
+    <!-- Incluez vos liens vers les fichiers CSS et autres balises head nécessaires -->
+</head>
+<body>
+    <!-- En-tête de la fenêtre modale -->
+    <div class="modal-header">
+        <h5 class="modal-title">Logs du Pod</h5>
+        <!-- Bouton de fermeture de la fenêtre modale -->
+        <button type="button" class="close" onclick="closeModal()" aria-label="Fermer">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <!-- Corps de la fenêtre modale -->
+    <div class="modal-body">
+        <pre>{{ logs | safe }}</pre>
+    </div>
+
+    <!-- Pied de page de la fenêtre modale (facultatif) -->
+    <div class="modal-footer">
+        <!-- Bouton de fermeture de la fenêtre modale -->
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Fermer</button>
+    </div>
+
+    <!-- JavaScript pour gérer la fermeture de la fenêtre modale -->
+    <script>
+        function closeModal() {
+            // Code pour fermer la fenêtre modale (à adapter selon la bibliothèque de modales utilisée)
+            // Par exemple, si vous utilisez Bootstrap Modal, vous pouvez utiliser :
+            // $('#myModal').modal('hide'); où 'myModal' est l'ID de votre fenêtre modale.
+        }
+    </script>
+
+    <!-- Incluez ici les liens vers les fichiers JavaScript et les bibliothèques nécessaires -->
+
+</body>
+</html>

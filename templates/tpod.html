@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Liste des Pods</title>
+</head>
+<body>
+    <h1>Liste des Pods</h1>
+        <form>
+            <input type="text" id="podSearch" placeholder="Rechercher un pod..." oninput="searchPods()">
+        </form>
+    <label for="namespace">Sélectionnez un Namespace :</label>
+    <select id="namespace" name="namespace" onchange="changeNamespace(this)">
+        {% for ns in namespaces %}
+        <option value="{{ ns }}" {% if ns == selected_namespace %}selected{% endif %}>{{ ns }}</option>
+        {% endfor %}
+    </select>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Namespace</th>
+                <!-- Ajoutez d'autres en-têtes si nécessaire -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for pod in pods %}
+            <tr>
+                <td>{{ pod.metadata.name }}</td>
+                <td>{{ pod.metadata.namespace }}</td>
+                <!-- Ajoutez d'autres colonnes pour afficher plus d'informations sur le Pod -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        function changeNamespace(select) {
+            const selectedNamespace = select.value;
+            window.location.href = `/pods?namespace=${selectedNamespace}`;
+        }
+
+        function searchPods() {
+        const input = document.getElementById('podSearch');
+        const filter = input.value.toLowerCase();
+        const table = document.querySelector('table tbody');
+        const rows = table.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const podName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+            if (podName.includes(filter)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+    </script>
+</body>
+</html>
