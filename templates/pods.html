@@ -45,6 +45,77 @@
 			rel="stylesheet"
             href=" {{ url_for('static', filename='src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}"
 		/>
+
+		<style>
+			/* Style for the terminal textarea */
+			#terminal {
+				width: 100%;
+				height: 300px;
+				background-color: black;
+				color: white;
+				font-family: monospace;
+				border: none;
+				outline: none;
+				overflow: auto;
+			}
+			#user-input {
+				width: 100%;
+				font-family: monospace;
+				border: none;
+				outline: none;
+			}
+			#terminalExec {
+				width: 100%;
+				height: 300px;
+				background-color: black;
+				color: white;
+				font-family: monospace;
+				border: none;
+				outline: none;
+				overflow: auto;
+			}
+			#command-input{
+				width: 100%;
+				font-family: monospace;
+				border: none;
+				outline: none;
+			}
+		</style>
+
+		<style>
+	/* Styles pour le squelette de chargement */
+			.skeleton-container {
+				animation: loading 2s infinite;
+			}
+			.main-containrt {
+				background-color: #838383; /* Couleur du skeleton */
+    			margin-bottom: 10px;
+				animation: loading 2s infinite;
+			}
+
+			.skeleton {
+   				width: 100%;
+    			height: 20px; /* Ajustez la hauteur selon vos besoins */
+   			 	background-color: #838383; /* Couleur du skeleton */
+    			margin-bottom: 10px; /* Espace entre les éléments du skeleton */
+    			animation: loading 1.5s infinite;
+			}
+
+			@keyframes loading {
+    			0% {
+        			background-position: 200% 0;
+    			}
+    			100% {
+        			background-position: -200% 0;
+    			}
+			}
+
+	/* Style pour masquer le contenu de la page */
+			.content-container {
+				display: none;
+			}
+		</style>
+
 		<link
 			rel="stylesheet"
             href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
@@ -57,6 +128,7 @@
 		<!-- Inclure jQuery et Bootstrap dans votre modèle HTML -->
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/4.11.0/xterm.min.js"></script>
  
 
 		<!-- Global site tag (gtag.js) - Google Analytics -->
@@ -94,19 +166,6 @@
 		<!-- End Google Tag Manager -->
 	</head>
 	<body>
-		<div class="pre-loader">
-			<div class="pre-loader-box">
-				<div class="loader-logo">
-					<img src="vendors/images/deskapp-logo.svg" alt="" />
-				</div>
-				<div class="loader-progress" id="progress_div">
-					<div class="bar" id="bar1"></div>
-				</div>
-				<div class="percent" id="percent1">0%</div>
-				<div class="loading-text">Loading...</div>
-			</div>
-		</div>
-
 		<div class="header">
 			<div class="header-left">
 				<div class="menu-icon bi bi-list"></div>
@@ -300,11 +359,182 @@
 			</div>
 		</div>
 
+		<div class="right-sidebar">
+			<div class="sidebar-title">
+				<h3 class="weight-600 font-16 text-blue">
+					Layout Settings
+					<span class="btn-block font-weight-400 font-12"
+						>User Interface Settings</span
+					>
+				</h3>
+				<div class="close-sidebar" data-toggle="right-sidebar-close">
+					<i class="icon-copy ion-close-round"></i>
+				</div>
+			</div>
+			<div class="right-sidebar-body customscroll">
+				<div class="right-sidebar-body-content">
+					<h4 class="weight-600 font-18 pb-10">Header Background</h4>
+					<div class="sidebar-btn-group pb-30 mb-10">
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary header-white active"
+							>White</a
+						>
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary header-dark"
+							>Dark</a
+						>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Sidebar Background</h4>
+					<div class="sidebar-btn-group pb-30 mb-10">
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary sidebar-light"
+							>White</a
+						>
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary sidebar-dark active"
+							>Dark</a
+						>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Menu Dropdown Icon</h4>
+					<div class="sidebar-radio-group pb-10 mb-10">
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-1"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-1"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebaricon-1"
+								><i class="fa fa-angle-down"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-2"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-2"
+							/>
+							<label class="custom-control-label" for="sidebaricon-2"
+								><i class="ion-plus-round"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-3"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-3"
+							/>
+							<label class="custom-control-label" for="sidebaricon-3"
+								><i class="fa fa-angle-double-right"></i
+							></label>
+						</div>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Menu List Icon</h4>
+					<div class="sidebar-radio-group pb-30 mb-10">
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-1"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-1"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebariconlist-1"
+								><i class="ion-minus-round"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-2"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-2"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-2"
+								><i class="fa fa-circle-o" aria-hidden="true"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-3"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-3"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-3"
+								><i class="dw dw-check"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-4"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-4"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebariconlist-4"
+								><i class="icon-copy dw dw-next-2"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-5"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-5"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-5"
+								><i class="dw dw-fast-forward-1"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-6"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-6"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-6"
+								><i class="dw dw-next"></i
+							></label>
+						</div>
+					</div>
+
+					<div class="reset-options pt-30 text-center">
+						<button class="btn btn-danger" id="reset-settings">
+							Reset Settings
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
 
 		<div class="left-side-bar">
 			<div class="">
 				<a href="/home">
-					<img src="{{ url_for('static', filename='images/logo.png') }}" style="height:200px; width: 230px;" alt="" class="dark-logo pd-20 mb-0 rounded-circle" />
+					<img src="{{ url_for('static', filename='images/logo3.png') }}" style="height:120px; width: 265px;" alt="" class="dark-logo pd-20" />
 				</a>
 				<div class="close-sidebar" data-toggle="left-sidebar-close">
 					<i class="ion-close-round"></i>
@@ -395,7 +625,7 @@
 							</ul>
 						</li>
 						<li>
-							<a href="javascript:;" class="dropdown-toggle">
+							<a href="javascript:;" class="dropdown-toggle" data-toggle="modal" data-target="#terminalModal">
 								<span class="micon bi bi-terminal"></span
 								><span class="mtext">Terminale</span>
 							</a>
@@ -404,7 +634,66 @@
 				</div>
 			</div>
 		</div>
-		<div class="mobile-menu-overlay"></div>
+		<div class="skeleton-container main-container">
+				<div class="xs-pd-20-10 pd-ltr-20">
+					<div class="d-flex justify-content-between align-items-center mb-3">
+						<div class="title pb-20">
+							<h2 class="h3 mb-0">Listes des pods</h2>
+						</div>
+						<div class="d-flex add-box ml-3">
+							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal">
+								<i class="dw dw-add add-icon"></i>  Ajouter un pod
+							</a>
+						</div>
+					</div>
+						<div class="card-box pb-10">
+							<div class="d-flex justify-content-between align-items-center mb-3">
+								<div class="h5 pd-20 mb-0">Recent Pods</div>
+								<!-- Barre de recherche -->
+								<div class="form-group pd-20 row align-items-center">
+									<label class="col-form-label" for="namespace">Namespace:</label>
+									<div class="col">
+										<select class="custom-select col-12" id="namespace" name="namespace" onchange="changeNamespace(this)">
+											{% for ns in namespaces %}
+											<option value="{{ ns }}" {% if ns == selected_namespace %}selected{% endif %}>{{ ns }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+							</div>
+							<table class="data-table table nowrap skeleton-loader">
+								<thead>
+									<tr>
+										<th class="table-plus">Pods name</th>
+										<th>Adresse IP</th>
+										<th> Status</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!-- Première ligne de squelette -->
+									<tr class="skeleton-row">
+										<td>chargemnt...</td>
+										<td>chargement...</td>
+										<td>chargement...</td>
+										<td>chargement...</td>
+									</tr>
+									<!-- Deuxième ligne de squelette -->
+									<tr class="skeleton-row">
+										<td>chargement...</td>
+										<td>chargement...</td>
+										<td>chargement...</td>
+										<td>chargement...</td>
+									</tr>
+									<!-- Ajoutez autant de lignes de squelette que nécessaire -->
+								</tbody>
+							</table>
+						</div>
+				</div>
+		</div>
+
+
+				<div class="content-container">
                 <div class="main-container">
                     <div class="xs-pd-20-10 pd-ltr-20">
 						<div class="d-flex justify-content-between align-items-center mb-3">
@@ -417,7 +706,6 @@
 					</div>
         
                         <div class="card-box pb-10">
-
 							<div class="d-flex justify-content-between align-items-center mb-3">
 								<div class="h5 pd-20 mb-0">Recente Pods</div>
 								<!-- Barre de recherche -->
@@ -432,8 +720,6 @@
 									</div>
 								</div>
 							</div>
-							
-							
                             <table class="data-table table nowrap">
                                 <thead>
                                     <tr>
@@ -483,13 +769,16 @@
 													data-namespace="{{ pod.metadata.namespace}}" data-pod_name="{{ pod.metadata.name }}"
 														><i class="dw dw-eye"></i>logs</a
 													>
-													<a class="dropdown-item" href="#"
-														><i class="dw dw-edit2"></i>shell</a
+													<a class="dropdown-item" href="#" 
+													onclick="openPodTerminal('{{ pod.metadata.name }}')" data-toggle="modal" data-target="#podTerminalModal"
 													>
+														<i class="dw dw-edit2"></i>shell
+													</a>
 													<a class="dropdown-item" href="#"
 													onclick="deletePods('{{ pod.metadata.namespace }}', '{{ pod.metadata.name }}')"
 														><i class="dw dw-delete-3"></i>supprimer</a
 													>
+													<a class="dropdown-item" href="#" onclick="showPodYaml('{{ pod.metadata.namespace }}', '{{ pod.metadata.name }}')"><i class="dw dw-info"></i>info</a>
 												</div>
 											</div>
 											<form
@@ -515,12 +804,15 @@
                                 </tbody>
                             </table>
                         </div>
-	<!-- modale ajout -->
+				</div>
+			</div>
+			
+
 	
 	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
-				<form action="/install_pod" method="post">
+				<form id="uploadForm" action="/install" method="post" enctype="multipart/form-data">
 					<div class="pd-20 card-box">
 						<h5 class="h4 text-blue mb-20">Ajout d'un nouveau pod</h5>
 						<div class="tab">
@@ -536,15 +828,18 @@
 								</li>
 							</ul>
 							<div class="tab-content">
-								<form action="/install_pod" method="post">
 								<div class="tab-pane fade show active" id="import" role="tabpanel">
 									<br>
 									<div class="custom-file">
-										<input class="custom-file-input" type="file" name="yaml_file" accept=".yaml, .yml" required>
-										<label class="custom-file-label">Ajouter un fichier YAML</label>
-										<button type="submit" class="btn btn-primary">Ajouter</button>
-										<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-									</div>
+										<input type="file" name="yaml_file" accept=".yaml, .yml" required>
+										<label for="resource_type">Type de ressource Kubernetes :</label>
+										<select name="resource_type" required>
+											<option value="pods">Pod</option>
+											<option value="deployments">Deployments</option>
+											<option value="secret">Secrets</option>
+											<option value="configmap">ConfigMaps</option>
+										</select>
+									</div><br><br>
 								</div>
 								<div class="tab-pane fade" id="edit" role="tabpanel">
 									<div class="pd-20">
@@ -558,10 +853,11 @@
 										<textarea class="form-control" name="yaml_template" rows="10"></textarea>
 									</div>
 								</div>
-							</form>
 							</div>
 						</div>
 					</div>
+					<input  type="submit" class="btn btn-primary"  value="Ajouter">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
 				</form>
 			</div>
 		</div>
@@ -586,12 +882,67 @@
 		</div>
 	  </div>
 
-	
+						    <!-- Terminal Modal -->
+							<div class="modal fade" id="terminalModal" tabindex="-1" role="dialog" aria-labelledby="terminalModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="terminalModalLabel">Terminal</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<textarea id="user-input" placeholder="Enter a command"></textarea>
+											<textarea id="terminal" readonly></textarea>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+										</div>
+									</div>
+								</div>
+							</div>
 
-				<div class="title pb-20 pt-20">
-				</div>
+							<div class="modal fade" id="podTerminalModal" tabindex="-1" role="dialog" aria-labelledby="podTerminalModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="podTerminalModalLabel">Pod Terminal</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<textarea id="command-input" placeholder="Enter a command"></textarea>
+											<textarea id="terminalExec" readonly></textarea>
+											<input type="hidden" id="pod-name-input" value="">
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+											<button type="button" class="btn btn-primary" onclick="executeCommand()">Execute</button>
+										</div>
+									</div>
+								</div>
+							</div>
 
-		<!-- welcome modal start -->
+							<div class="modal fade" id="podYamlModal" tabindex="-1" role="dialog" aria-labelledby="podYamlModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="podYamlModalLabel">YAML du Pod</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<pre id="podYamlContent"></pre>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
 
 				<!-- welcome modal end -->
 		<!-- js -->
@@ -605,7 +956,104 @@
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
 		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
-				
+		
+		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+
+		<script>
+    		setTimeout(function() {
+        		const skeletonContainer = document.querySelector('.skeleton-container');
+        		const contentContainer = document.querySelector('.content-container');
+        		skeletonContainer.style.display = 'none';
+        		contentContainer.style.display = 'block';
+    			}, 6000); 
+		</script>					
+
+		<script>
+			var socket = io.connect('http://' + document.domain + ':' + location.port);
+	
+			socket.on('connect', function() {
+				console.log('Connected to server');
+			});
+	
+			socket.on('disconnect', function() {
+				console.log('Disconnected from server');
+			});
+	
+			// Function to append text to the terminal textarea
+			function appendToTerminal(text) {
+				var terminal = document.getElementById('terminal');
+				terminal.value += text + '\n';
+				terminal.scrollTop = terminal.scrollHeight;
+			}
+	
+			// Handle data received from the server and display it in the terminal textarea.
+			socket.on('terminal_output', function(data) {
+				appendToTerminal(data);
+			});
+	
+			// Handle user input and send it to the server when they press Enter.
+			document.getElementById('user-input').addEventListener('keydown', function(event) {
+				if (event.key === 'Enter') {
+					var input = document.getElementById('user-input').value;
+					appendToTerminal('User input: ' + input);
+					socket.emit('user_input', input);
+					document.getElementById('user-input').value = '';
+				}
+			});
+		</script>
+
+<script>
+    function showPodYaml(namespace, podName) {
+        // Effectuer une requête AJAX pour récupérer le YAML du pod
+        $.ajax({
+            type: 'GET',
+            url: `/get_pod_yaml/${namespace}/${podName}`, // Cette URL doit correspondre à votre route Flask
+            dataType: 'json',
+            success: function (response) {
+                // Mettre à jour le contenu du modale avec le YAML du pod
+                $('#podYamlContent').text(response.yaml);
+
+                // Ouvrir le modale
+                $('#podYamlModal').modal('show');
+            },
+            error: function () {
+                alert('Une erreur s\'est produite lors de la récupération du YAML du pod.');
+            }
+        });
+    }
+</script>
+
+
+<script>
+    function openPodTerminal(podName) {
+        // Stocker le nom du pod dans un champ caché de la modal
+        document.getElementById('pod-name-input').value = podName;
+    }
+
+    function executeCommand() {
+        var command = document.getElementById('command-input').value;
+        var podName = document.getElementById('pod-name-input').value;
+
+		console.log("Command:", command); // Ajoutez cette ligne pour le débogage
+    	console.log("Pod Name:", podName);
+
+        // Envoyer la commande au serveur Flask avec le nom du pod
+        $.ajax({
+            type: 'POST',
+            url: '/execute_command',
+            data: JSON.stringify({ command: command, podName: podName }),
+            contentType: 'application/json',
+            success: function (data) {
+                // Afficher la sortie de la commande dans la modal
+				document.getElementById('terminalExec').removeAttribute('readonly')
+                document.getElementById('terminalExec').value += data + '\n';
+				console.log(data)
+				document.getElementById('terminalExec').setAttribute('readonly', '')
+            }
+        });
+    }
+</script>
 
 		<script>
 			function showLogsModal(namespace, podName) {
@@ -662,11 +1110,39 @@
 <script>
 	function deletePods(namespace, name) {
 		var formId = 'deleteForm_' + namespace + '_' + name;
-		if (confirm("Êtes-vous sûr de vouloir supprimer ce déploiement ?")) {
+		if (confirm("Êtes-vous sûr de vouloir supprimer ce pods ?")) {
 			document.getElementById(formId).submit();
 		}
 	}
 </script>
+<script>
+        $(document).ready(function () {
+            $('#uploadForm').submit(function (event) {
+                event.preventDefault();
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ url_for("install") }}',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire('Succès', response.success, 'success');
+                        } else if (response.error) {
+                            Swal.fire('Erreur', response.error, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Erreur', 'Une erreur s\'est produite lors de la requête.', 'error');
+                    }
+                });
+            });
+        });
+    </script>
+    </script>
 			
         
 		<!-- Google Tag Manager (noscript) -->

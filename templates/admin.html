@@ -49,6 +49,52 @@
 			rel="stylesheet"
             href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
 		/>
+
+		<style>
+			/* Style for the terminal textarea */
+			#terminal {
+				width: 100%;
+				height: 300px;
+				background-color: black;
+				color: white;
+				font-family: monospace;
+				border: none;
+				outline: none;
+				overflow: auto;
+			}
+			#user-input {
+				width: 100%;
+				font-family: monospace;
+				border: none;
+				outline: none;
+			}
+		</style>
+    <style>
+        /* Styles pour le squelette de chargement */
+        .skeleton-loader {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0f0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* Style pour masquer le contenu de la page */
+        #content-container {
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+        }
+    </style>
+
 		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
 		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
@@ -56,11 +102,6 @@
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-		<link
-		rel="stylesheet"
-		type="text/css"
-		href="src/plugins/sweetalert2/sweetalert2.css"
-	    /> 
 
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script
@@ -97,19 +138,6 @@
 		<!-- End Google Tag Manager -->
 	</head>
 	<body>
-		<div class="pre-loader">
-			<div class="pre-loader-box">
-				<div class="loader-logo">
-					<img src="vendors/images/deskapp-logo.svg" alt="" />
-				</div>
-				<div class="loader-progress" id="progress_div">
-					<div class="bar" id="bar1"></div>
-				</div>
-				<div class="percent" id="percent1">0%</div>
-				<div class="loading-text">Loading...</div>
-			</div>
-		</div>
-
 		<div class="header">
 			<div class="header-left">
 				<div class="menu-icon bi bi-list"></div>
@@ -276,24 +304,21 @@
 							data-toggle="dropdown"
 						>
 							<span class="user-icon">
-								<img src="vendors/images/photo1.jpg" alt="" />
+								<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
 							</span>
-							<span class="user-name">Cluster</span>
+							<span class="user-name">Minikube</span>
 						</a>
 						<div
 							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 						>
 							<a class="dropdown-item" href="profile.html"
-								><i class="dw dw-user1"></i> Profile</a
+								><i class="dw dw-user1"></i>Infos</a
 							>
 							<a class="dropdown-item" href="profile.html"
-								><i class="dw dw-settings2"></i> Setting</a
-							>
-							<a class="dropdown-item" href="faq.html"
-								><i class="dw dw-help"></i> Help</a
+								><i class="dw dw-settings2"></i>Paramètres</a
 							>
 							<a class="dropdown-item" href="login.html"
-								><i class="dw dw-logout"></i> Log Out</a
+								><i class="dw dw-logout"></i>se déconnecter</a
 							>
 						</div>
 					</div>
@@ -301,11 +326,180 @@
 			</div>
 		</div>
 
+		<div class="right-sidebar">
+			<div class="sidebar-title">
+				<h3 class="weight-600 font-16 text-blue">
+					Layout Settings
+					<span class="btn-block font-weight-400 font-12"
+						>User Interface Settings</span
+					>
+				</h3>
+				<div class="close-sidebar" data-toggle="right-sidebar-close">
+					<i class="icon-copy ion-close-round"></i>
+				</div>
+			</div>
+			<div class="right-sidebar-body customscroll">
+				<div class="right-sidebar-body-content">
+					<h4 class="weight-600 font-18 pb-10">Header Background</h4>
+					<div class="sidebar-btn-group pb-30 mb-10">
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary header-white active"
+							>White</a
+						>
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary header-dark"
+							>Dark</a
+						>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Sidebar Background</h4>
+					<div class="sidebar-btn-group pb-30 mb-10">
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary sidebar-light"
+							>White</a
+						>
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary sidebar-dark active"
+							>Dark</a
+						>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Menu Dropdown Icon</h4>
+					<div class="sidebar-radio-group pb-10 mb-10">
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-1"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-1"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebaricon-1"
+								><i class="fa fa-angle-down"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-2"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-2"
+							/>
+							<label class="custom-control-label" for="sidebaricon-2"
+								><i class="ion-plus-round"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-3"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-3"
+							/>
+							<label class="custom-control-label" for="sidebaricon-3"
+								><i class="fa fa-angle-double-right"></i
+							></label>
+						</div>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Menu List Icon</h4>
+					<div class="sidebar-radio-group pb-30 mb-10">
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-1"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-1"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebariconlist-1"
+								><i class="ion-minus-round"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-2"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-2"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-2"
+								><i class="fa fa-circle-o" aria-hidden="true"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-3"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-3"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-3"
+								><i class="dw dw-check"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-4"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-4"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebariconlist-4"
+								><i class="icon-copy dw dw-next-2"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-5"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-5"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-5"
+								><i class="dw dw-fast-forward-1"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-6"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-6"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-6"
+								><i class="dw dw-next"></i
+							></label>
+						</div>
+					</div>
+
+					<div class="reset-options pt-30 text-center">
+						<button class="btn btn-danger" id="reset-settings">
+							Reset Settings
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<div class="left-side-bar">
 			<div class="">
 				<a href="/home">
-					<img src="{{ url_for('static', filename='images/logo.png') }}" style="height:200px; width: 230px;" alt="" class="dark-logo pd-20 mb-0 rounded-circle" />
+					<img src="{{ url_for('static', filename='images/logo3.png') }}" style="height:120px; width: 265px;" alt="" class="dark-logo pd-20" />
 				</a>
 				<div class="close-sidebar" data-toggle="left-sidebar-close">
 					<i class="ion-close-round"></i>
@@ -396,7 +590,7 @@
 							</ul>
 						</li>
 						<li>
-							<a href="javascript:;" class="dropdown-toggle">
+							<a href="javascript:;" class="dropdown-toggle" data-toggle="modal" data-target="#terminalModal">
 								<span class="micon bi bi-terminal"></span
 								><span class="mtext">Terminale</span>
 							</a>
@@ -405,239 +599,332 @@
 				</div>
 			</div>
 		</div>
-		<div class="mobile-menu-overlay"></div>
 
 		<div class="main-container">
 			<div class="xs-pd-20-10 pd-ltr-20">
-				<div class="title pb-20">
-					<h2 class="h3 mb-0">Tableau de bord</h2>
-				</div>
-
-
-				<div class="row pb-10">
-					<div class="col-md-8 mb-20">
-						<div class="card-box height-100-p pd-20">
-							<div class="d-flex flex-wrap justify-content-between align-items-center pb-0 pb-md-3">
-								<div class="h5 mb-md-0">Processeur usage</div>
-								<div class="form-group mb-md-0">
-									<select class="form-control form-control-sm selectpicker">
-										<option value="">views</option>
-										<option value="">Last Month</option>
-										<option value="">Last 6 Month</option>
-										<option value="">Last 1 year</option>
-									</select>
-								</div>
-							</div>
-							<div id="show" class="w3-container w3-card w3-white w3-round w3-margin"><br>
-								<canvas id="cpuChart" width="600" height="400"></canvas>
-							</div>
-						</div>
+					<div class="title pb-20">
+						<h2 class="h3 mb-0">Tableau de bord</h2>
 					</div>
-					<div class="col-md-4 mb-20">
-						<div class="card-box min-height-200px pd-20 mb-20">
-							<div id="show" class="w3-container w3-card w3-white w3-round w3-margin"><br>
-								<canvas id="ramChart" width="260" height="200"></canvas>
-							  </div>
-						</div>
-						<div class="card-box min-height-200px pd-20">
-							<div class="d-flex justify-content-between align-items-end">
-								<div>
-									<canvas id="networkChart" width="300" height="200"></canvas>
-								</div>
-
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-lg-4 col-md-6 mb-20">
-						<div class="card-box height-100-p pd-20 min-height-200px">
-							<div class="d-flex justify-content-between pb-10">
-								<div class="h5 mb-0">Top Doctors</div>
-								<div class="dropdown">
-									<a
-										class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
-										data-color="#1b3133"
-										href="#"
-										role="button"
-										data-toggle="dropdown"
-									>
-										<i class="dw dw-more"></i>
-									</a>
-									<div
-										class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
-									>
-										<a class="dropdown-item" href="#"
-											><i class="dw dw-eye"></i> View</a
-										>
-										<a class="dropdown-item" href="#"
-											><i class="dw dw-edit2"></i> Edit</a
-										>
-										<a class="dropdown-item" href="#"
-											><i class="dw dw-delete-3"></i> Delete</a
-										>
+				<div id="content-container">
+						<div class="row pb-10">
+							<div class="col-md-8 mb-20">
+								<div class="card-box height-100-p pd-20">
+									
+									<div class="d-flex flex-wrap justify-content-between align-items-center pb-0 pb-md-3">
+										<div class="h5 mb-md-0">Processeur usage</div>
+										<div class="form-group mb-md-0">
+											<select class="form-control form-control-sm selectpicker">
+												<option value="">views</option>
+												<option value="">Last Month</option>
+												<option value="">Last 6 Month</option>
+												<option value="">Last 1 year</option>
+											</select>
+										</div>
+									</div>
+									<div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+										<canvas id="cpuChart" width="650" height="400"></canvas>
 									</div>
 								</div>
 							</div>
-							<div class="user-list">
-								<ul>
-									<li class="d-flex align-items-center justify-content-between">
-										<div class="name-avatar d-flex align-items-center pr-2">
-											<div class="avatar mr-2 flex-shrink-0">
-												<img
-													src="vendors/images/photo1.jpg"
-													class="border-radius-100 box-shadow"
-													width="50"
-													height="50"
-													alt=""
-												/>
-											</div>
-											<div class="txt">
-												<span
-													class="badge badge-pill badge-sm"
-													data-bgcolor="#e7ebf5"
-													data-color="#265ed7"
-													>4.9</span
-												>
-												<div class="font-14 weight-600">Dr. Neil Wagner</div>
-												<div class="font-12 weight-500" data-color="#b2b1b6">
-													Pediatrician
-												</div>
-											</div>
+							<div class="col-md-4 mb-20">
+								<div class="card-box min-height-200px pd-20 mb-20">
+									<div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+										<canvas id="ramChart" width="300" height="200"></canvas>
+									  </div>
+								</div>
+								<div class="card-box min-height-200px pd-20">
+									<div class="d-flex justify-content-between align-items-end">
+										<div class="w3-container w3-card w3-white w3-round w3-margin">
+											<canvas id="bandwidthChart" width="400" height="300"></canvas>
 										</div>
-										<div class="cta flex-shrink-0">
-											<a href="#" class="btn btn-sm btn-outline-primary"
-												>Schedule</a
-											>
-										</div>
-									</li>
-									<li class="d-flex align-items-center justify-content-between">
-										<div class="name-avatar d-flex align-items-center pr-2">
-											<div class="avatar mr-2 flex-shrink-0">
-												<img
-													src="vendors/images/photo2.jpg"
-													class="border-radius-100 box-shadow"
-													width="50"
-													height="50"
-													alt=""
-												/>
-											</div>
-											<div class="txt">
-												<span
-													class="badge badge-pill badge-sm"
-													data-bgcolor="#e7ebf5"
-													data-color="#265ed7"
-													>4.9</span
-												>
-												<div class="font-14 weight-600">Dr. Ren Delan</div>
-												<div class="font-12 weight-500" data-color="#b2b1b6">
-													Pediatrician
-												</div>
-											</div>
-										</div>
-										<div class="cta flex-shrink-0">
-											<a href="#" class="btn btn-sm btn-outline-primary"
-												>Schedule</a
-											>
-										</div>
-									</li>
-									<li class="d-flex align-items-center justify-content-between">
-										<div class="name-avatar d-flex align-items-center pr-2">
-											<div class="avatar mr-2 flex-shrink-0">
-												<img
-													src="vendors/images/photo3.jpg"
-													class="border-radius-100 box-shadow"
-													width="50"
-													height="50"
-													alt=""
-												/>
-											</div>
-											<div class="txt">
-												<span
-													class="badge badge-pill badge-sm"
-													data-bgcolor="#e7ebf5"
-													data-color="#265ed7"
-													>4.9</span
-												>
-												<div class="font-14 weight-600">Dr. Garrett Kincy</div>
-												<div class="font-12 weight-500" data-color="#b2b1b6">
-													Pediatrician
-												</div>
-											</div>
-										</div>
-										<div class="cta flex-shrink-0">
-											<a href="#" class="btn btn-sm btn-outline-primary"
-												>Schedule</a
-											>
-										</div>
-									</li>
-									<li class="d-flex align-items-center justify-content-between">
-										<div class="name-avatar d-flex align-items-center pr-2">
-											<div class="avatar mr-2 flex-shrink-0">
-												<img
-													src="vendors/images/photo4.jpg"
-													class="border-radius-100 box-shadow"
-													width="50"
-													height="50"
-													alt=""
-												/>
-											</div>
-											<div class="txt">
-												<span
-													class="badge badge-pill badge-sm"
-													data-bgcolor="#e7ebf5"
-													data-color="#265ed7"
-													>4.9</span
-												>
-												<div class="font-14 weight-600">Dr. Callie Reed</div>
-												<div class="font-12 weight-500" data-color="#b2b1b6">
-													Pediatrician
-												</div>
-											</div>
-										</div>
-										<div class="cta flex-shrink-0">
-											<a href="#" class="btn btn-sm btn-outline-primary"
-												>Schedule</a
-											>
-										</div>
-									</li>
-								</ul>
+		
+									</div>
+								</div>
 							</div>
+						</div>
+		
+						<div class="row">
+							<div class="col-lg-4 col-md-6 mb-20">
+								<div class="card-box height-100-p pd-20 min-height-200px">
+									<div class="d-flex justify-content-between pb-10">
+										<div class="h5 mb-0">Top Pod</div>
+										<div class="dropdown">
+											<a
+												class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+												data-color="#1b3133"
+												href="#"
+												role="button"
+												data-toggle="dropdown"
+											>
+												<i class="dw dw-more"></i>
+											</a>
+											<div
+												class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
+											>
+												<a class="dropdown-item" href="#"
+													><i class="dw dw-eye"></i> View</a
+												>
+												<a class="dropdown-item" href="#"
+													><i class="dw dw-edit2"></i> Edit</a
+												>
+												<a class="dropdown-item" href="#"
+													><i class="dw dw-delete-3"></i> Delete</a
+												>
+											</div>
+										</div>
+									</div>
+									<div class="user-list">
+										<ul>
+											<li class="d-flex align-items-center justify-content-between">
+												<div class="name-avatar d-flex align-items-center pr-2">
+													<div class="avatar mr-2 flex-shrink-0">
+														<img
+															src="vendors/images/photo1.jpg"
+															class="border-radius-100 box-shadow"
+															width="50"
+															height="50"
+															alt=""
+														/>
+													</div>
+													<div class="txt">
+														<span
+															class="badge badge-pill badge-sm"
+															data-bgcolor="#e7ebf5"
+															data-color="#265ed7"
+															>4.9</span
+														>
+														<div class="font-14 weight-600">Dr. Neil Wagner</div>
+														<div class="font-12 weight-500" data-color="#b2b1b6">
+															Pediatrician
+														</div>
+													</div>
+												</div>
+												<div class="cta flex-shrink-0">
+													<a href="#" class="btn btn-sm btn-outline-primary"
+														>Schedule</a
+													>
+												</div>
+											</li>
+											<li class="d-flex align-items-center justify-content-between">
+												<div class="name-avatar d-flex align-items-center pr-2">
+													<div class="avatar mr-2 flex-shrink-0">
+														<img
+															src="vendors/images/photo2.jpg"
+															class="border-radius-100 box-shadow"
+															width="50"
+															height="50"
+															alt=""
+														/>
+													</div>
+													<div class="txt">
+														<span
+															class="badge badge-pill badge-sm"
+															data-bgcolor="#e7ebf5"
+															data-color="#265ed7"
+															>4.9</span
+														>
+														<div class="font-14 weight-600">Dr. Ren Delan</div>
+														<div class="font-12 weight-500" data-color="#b2b1b6">
+															Pediatrician
+														</div>
+													</div>
+												</div>
+												<div class="cta flex-shrink-0">
+													<a href="#" class="btn btn-sm btn-outline-primary"
+														>Schedule</a
+													>
+												</div>
+											</li>
+											<li class="d-flex align-items-center justify-content-between">
+												<div class="name-avatar d-flex align-items-center pr-2">
+													<div class="avatar mr-2 flex-shrink-0">
+														<img
+															src="vendors/images/photo3.jpg"
+															class="border-radius-100 box-shadow"
+															width="50"
+															height="50"
+															alt=""
+														/>
+													</div>
+													<div class="txt">
+														<span
+															class="badge badge-pill badge-sm"
+															data-bgcolor="#e7ebf5"
+															data-color="#265ed7"
+															>4.9</span
+														>
+														<div class="font-14 weight-600">Dr. Garrett Kincy</div>
+														<div class="font-12 weight-500" data-color="#b2b1b6">
+															Pediatrician
+														</div>
+													</div>
+												</div>
+												<div class="cta flex-shrink-0">
+													<a href="#" class="btn btn-sm btn-outline-primary"
+														>Schedule</a
+													>
+												</div>
+											</li>
+											<li class="d-flex align-items-center justify-content-between">
+												<div class="name-avatar d-flex align-items-center pr-2">
+													<div class="avatar mr-2 flex-shrink-0">
+														<img
+															src="vendors/images/photo4.jpg"
+															class="border-radius-100 box-shadow"
+															width="50"
+															height="50"
+															alt=""
+														/>
+													</div>
+													<div class="txt">
+														<span
+															class="badge badge-pill badge-sm"
+															data-bgcolor="#e7ebf5"
+															data-color="#265ed7"
+															>4.9</span
+														>
+														<div class="font-14 weight-600">Dr. Callie Reed</div>
+														<div class="font-12 weight-500" data-color="#b2b1b6">
+															Pediatrician
+														</div>
+													</div>
+												</div>
+												<div class="cta flex-shrink-0">
+													<a href="#" class="btn btn-sm btn-outline-primary"
+														>Schedule</a
+													>
+												</div>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-4 col-md-6 mb-20">
+								<div class="card-box height-100-p pd-20 min-height-200px">
+									<div class="d-flex justify-content-between">
+										<div class="h5 mb-0">Utilisation du disque</div>
+									</div><br>
+		
+									<div>
+										<canvas id="diskChart" width="400" height="400"></canvas>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-4 col-md-12 mb-20">
+								<div class="card-box height-100-p pd-20 min-height-200px">
+									<div class="max-width-300 mx-auto">
+										<img src="vendors/images/upgrade.svg" alt="" />
+									</div>
+									<div class="text-center">
+										<div class="h5 mb-1">Upgrade to Pro</div>
+										<div
+											class="font-14 weight-500 max-width-200 mx-auto pb-20"
+											data-color="#a6a6a7"
+										>
+											You can enjoy all our features by upgrading to pro.
+										</div>
+										<a href="#" class="btn btn-primary btn-lg">Upgrade</a>
+									</div>
+								</div>
+							</div>
+						</div>
+		
+						<div class="card-box pb-10">
+							<div class="h5 pd-20 mb-0">Log du Cluster</div>
+							<table class="data-table table nowrap">
+								<thead>
+									<tr>
+										<th class="table-plus">Namespace</th>
+										<th>Pods name</th>
+										<th>Event Type</th>
+										<th>Message</th>
+										<th>Admit Date</th>
+										<th class="datatable-nosort">Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for logs in logs %}
+									<tr>
+										<td class="table-plus">
+											<div class="name-avatar d-flex align-items-center">
+												<div class="avatar mr-2 flex-shrink-0">
+													<img
+														src="{{ url_for('static', filename='images/warning.png') }}"
+														class="border-radius-100 shadow"
+														width="40"
+														height="40"
+														alt=""
+													/>
+												</div>
+												<div class="txt">
+													<div class="weight-600">{{ logs['namespace'] }}</div>
+												</div>
+											</div>
+										</td>
+										<td>{{ logs['pod_name'] }}</td>
+										<td>{{ logs['event_type'] }}</td>
+										<td>{{ logs['message'] }}</td>
+										<td>{{ logs['timestamp'] }}</td>
+										<td>
+											<div class="table-actions">
+												<a href="#" data-color="#e95959"
+													><i class="icon-copy dw dw-delete-3"></i
+												></a>
+											</div>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+		
+							<!-- Terminal Modal -->
+							<div class="modal fade" id="terminalModal" tabindex="-1" role="dialog" aria-labelledby="terminalModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="terminalModalLabel">Terminal</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<textarea id="user-input" placeholder="Enter a command"></textarea>
+											<textarea id="terminal" readonly></textarea>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+										</div>
+									</div>
+								</div>
+							</div>
+					</div>
+				</div>
+				<div class="row pb-10">
+					<div class="col-md-8 mb-20">
+						<div class="card-box height-100-p pd-20 skeleton-loader" style="height: 400px;"></div>
+					</div>
+					<div class="col-md-4 mb-20">
+						<div class="card-box min-height-200px pd-20 mb-20 skeleton-loader" style="height: 200px;"></div>
+						<div class="card-box min-height-200px pd-20 skeleton-loader" style="height: 300px;"></div>
+					</div>
+				</div>
+				<div class="row skeleton-loader">
+					<div class="col-lg-4 col-md-6 mb-20">
+						<div class="card-box height-100-p pd-20 min-height-200px skeleton-loader">
 						</div>
 					</div>
 					<div class="col-lg-4 col-md-6 mb-20">
-						<div class="card-box height-100-p pd-20 min-height-200px">
-							<div class="d-flex justify-content-between">
-								<div class="h5 mb-0">Utilisation du disque</div>
-							</div><br>
-
-							<div>
-								<canvas id="diskChart" width="400" height="400"></canvas>
-							</div>
+						<div class="card-box height-100-p pd-20 min-height-200px skeleton-loader">
 						</div>
 					</div>
 					<div class="col-lg-4 col-md-12 mb-20">
-						<div class="card-box height-100-p pd-20 min-height-200px">
-							<div class="max-width-300 mx-auto">
-								<img src="vendors/images/upgrade.svg" alt="" />
-							</div>
-							<div class="text-center">
-								<div class="h5 mb-1">Upgrade to Pro</div>
-								<div
-									class="font-14 weight-500 max-width-200 mx-auto pb-20"
-									data-color="#a6a6a7"
-								>
-									You can enjoy all our features by upgrading to pro.
-								</div>
-								<a href="#" class="btn btn-primary btn-lg">Upgrade</a>
-							</div>
+						<div class="card-box height-100-p pd-20 min-height-200px skeleton-loader">
 						</div>
 					</div>
 				</div>
-
-				<div class="card-box pb-10">
-					<div class="h5 pd-20 mb-0">Recent Patient</div>
+				<div class="card-box pb-10 skeleton-loader">
+					<div class="h5 pd-20 mb-0">Log du Cluster</div>
 					<table class="data-table table nowrap">
 						<thead>
 							<tr>
@@ -650,13 +937,49 @@
 							</tr>
 						</thead>
 						<tbody>
-							{% for log in logs %}
+							<!-- Première ligne de squelette -->
+							<tr class="skeleton-row">
+								<td class="table-plus">
+									<div class="name-avatar d-flex align-items-center">
+										<div class="avatar mr-2 flex-shrink-0"></div>
+										<div class="txt">
+											<div class="weight-600">Loading...</div>
+										</div>
+									</div>
+								</td>
+								<td>Loading...</td>
+								<td>Loading...</td>
+								<td>Loading...</td>
+								<td>Loading...</td>
+								<td>Loading...</td>
+							</tr>
+							
+							<!-- Deuxième ligne de squelette -->
+							<tr class="skeleton-row">
+								<td class="table-plus">
+									<div class="name-avatar d-flex align-items-center">
+										<div class="avatar mr-2 flex-shrink-0"></div>
+										<div class="txt">
+											<div class="weight-600">Loading...</div>
+										</div>
+									</div>
+								</td>
+								<td>Loading...</td>
+								<td>Loading...</td>
+								<td>Loading...</td>
+								<td>Loading...</td>
+								<td>Loading...</td>
+							</tr>
+							
+							<!-- Ajoutez autant de lignes de squelette que nécessaire -->
+							
+							{% for logs in logs %}
 							<tr>
 								<td class="table-plus">
 									<div class="name-avatar d-flex align-items-center">
 										<div class="avatar mr-2 flex-shrink-0">
 											<img
-												src="vendors/images/photo1.jpg"
+												src="{{ url_for('static', filename='images/warning.png') }}"
 												class="border-radius-100 shadow"
 												width="40"
 												height="40"
@@ -664,19 +987,16 @@
 											/>
 										</div>
 										<div class="txt">
-											<div class="weight-600">{{ log['namespace'] }}</div>
+											<div class="weight-600">{{ logs['namespace'] }}</div>
 										</div>
 									</div>
 								</td>
-								<td>{{ log['pod_name'] }}</td>
-								<td>{{ log['event_type'] }}</td>
-								<td>{{ log['message'] }}</td>
-								<td>{{ log['timestamp'] }}</td>
+								<td>{{ logs['pod_name'] }}</td>
+								<td>{{ logs['event_type'] }}</td>
+								<td>{{ logs['message'] }}</td>
+								<td>{{ logs['timestamp'] }}</td>
 								<td>
 									<div class="table-actions">
-										<a href="#" data-color="#265ed7"
-											><i class="icon-copy dw dw-edit2"></i
-										></a>
 										<a href="#" data-color="#e95959"
 											><i class="icon-copy dw dw-delete-3"></i
 										></a>
@@ -687,9 +1007,14 @@
 						</tbody>
 					</table>
 				</div>
-
-				<div class="title pb-20 pt-20">
+				
+				
+				<div class="card-box pb-10 skeleton-loader">
 				</div>
+			</div>
+		</div>
+
+
 
 		<!-- welcome modal start -->
 
@@ -708,6 +1033,71 @@
 		<script src="src/plugins/sweetalert2/sweetalert2.all.js"></script>
 		<script src="src/plugins/sweetalert2/sweet-alert.init.js"></script>
 
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+
+		<script>
+			// Fonction pour masquer le squelette de chargement et supprimer l'élément du squelette
+			function hideSkeletonAndRemoveLoader() {
+				const skeletonElements = document.querySelectorAll('.skeleton-loader');
+				skeletonElements.forEach((element) => {
+					element.classList.add('hide-skeleton');
+				});
+	
+				// Supprimer l'élément du squelette après un court délai (par exemple, 1 seconde)
+				setTimeout(() => {
+					skeletonElements.forEach((element) => {
+						element.remove();
+					});
+				}, 1000);
+	
+				// Afficher le contenu réel en changeant les styles de l'élément avec l'ID "content-container"
+				const contentContainer = document.getElementById('content-container');
+				contentContainer.style.opacity = 1;
+				contentContainer.style.visibility = 'visible';
+				contentContainer.style.height = 'auto'; // Pour que le contenu réel occupe la place du squelette
+			}
+	
+			// Attendez que la page soit complètement chargée avant de masquer le squelette et supprimer l'élément du squelette
+			window.addEventListener('load', function() {
+				// Masquer le squelette et supprimer l'élément du squelette après un délai de 3 secondes (3000 millisecondes)
+				setTimeout(hideSkeletonAndRemoveLoader, 5000);
+			});
+		</script>
+
+		<script>
+			var socket = io.connect('http://' + document.domain + ':' + location.port);
+	
+			socket.on('connect', function() {
+				console.log('Connected to server');
+			});
+	
+			socket.on('disconnect', function() {
+				console.log('Disconnected from server');
+			});
+	
+			// Function to append text to the terminal textarea
+			function appendToTerminal(text) {
+				var terminal = document.getElementById('terminal');
+				terminal.value += text + '\n';
+				terminal.scrollTop = terminal.scrollHeight;
+			}
+	
+			// Handle data received from the server and display it in the terminal textarea.
+			socket.on('terminal_output', function(data) {
+				appendToTerminal(data);
+			});
+	
+			// Handle user input and send it to the server when they press Enter.
+			document.getElementById('user-input').addEventListener('keydown', function(event) {
+				if (event.key === 'Enter') {
+					var input = document.getElementById('user-input').value;
+					appendToTerminal('User input: ' + input);
+					socket.emit('user_input', input);
+					document.getElementById('user-input').value = '';
+				}
+			});
+		</script>
+
 		<script>
 			$(document).ready(function() {
 				$.get("/").done(function(data) {
@@ -725,16 +1115,33 @@
 			});
 		</script>
 
-        
-		<!-- Google Tag Manager (noscript) -->
-		<noscript
-			><iframe
-				src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS"
-				height="0"
-				width="0"
-				style="display: none; visibility: hidden"
-			></iframe
-		></noscript>
+<script>
+	fetch('/network_data')
+		.then(response => response.json())
+		.then(data => {
+			var ctx2 = document.getElementById('bandwidthChart').getContext('2d');
+			var bandwidthChart = new Chart(ctx2, {
+				type: 'bar',
+				data: {
+					labels: data.bandwidth_labels,
+					datasets: [{
+						label: 'Network Bandwidth',
+						data: data.bandwidth_values,
+						backgroundColor: 'rgba(255, 99, 132, 0.2)',
+						borderColor: 'rgba(255, 99, 132, 1)',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: {
+						y: {
+							beginAtZero: true
+						}
+					}
+				}
+			});
+		});
+</script>
 
 		<script>
 
@@ -760,7 +1167,7 @@
         var cpuChart = new Chart(document.getElementById('cpuChart'), {
             type: 'line',
             data: {
-                labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], // Étiquettes des points temporels (optionnel)
+                labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'], // Étiquettes des points temporels (optionnel)
                 datasets: [{
                     label: 'CPU Usage (%)',
                     data: [],
@@ -784,7 +1191,7 @@
         var ramChart = new Chart(document.getElementById('ramChart'), {
             type: 'line',
             data: {
-                labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], // Étiquettes des points temporels (optionnel)
+                labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'], // Étiquettes des points temporels (optionnel)
                 datasets: [{
                     label: 'RAM Usage (%)',
                     data: [],

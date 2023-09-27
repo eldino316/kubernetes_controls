@@ -36,6 +36,60 @@
 		/>
 		<!-- CSS -->
 		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/core.css') }}" />
+
+		<style>
+			/* Style for the terminal textarea */
+			#terminal {
+				width: 100%;
+				height: 300px;
+				background-color: black;
+				color: white;
+				font-family: monospace;
+				border: none;
+				outline: none;
+				overflow: auto;
+			}
+			#user-input {
+				width: 100%;
+				font-family: monospace;
+				border: none;
+				outline: none;
+			}
+		</style>
+
+		<style>
+	/* Styles pour le squelette de chargement */
+			.skeleton-container {
+				animation: loading 2s infinite;
+			}
+			.main-containrt {
+				background-color: #838383; /* Couleur du skeleton */
+    			margin-bottom: 10px;
+				animation: loading 2s infinite;
+			}
+
+			.skeleton {
+   				width: 100%;
+    			height: 20px; /* Ajustez la hauteur selon vos besoins */
+   			 	background-color: #838383; /* Couleur du skeleton */
+    			margin-bottom: 10px; /* Espace entre les éléments du skeleton */
+    			animation: loading 1.5s infinite;
+			}
+
+			@keyframes loading {
+    			0% {
+        			background-position: 200% 0;
+    			}
+    			100% {
+        			background-position: -200% 0;
+    			}
+			}
+
+	/* Style pour masquer le contenu de la page */
+			.content-container {
+				display: none;
+			}
+		</style>
         
 		<link
 			rel="stylesheet"
@@ -90,18 +144,6 @@
 		<!-- End Google Tag Manager -->
 	</head>
 	<body>
-		<div class="pre-loader">
-			<div class="pre-loader-box">
-				<div class="loader-logo">
-					<img src="vendors/images/deskapp-logo.svg" alt="" />
-				</div>
-				<div class="loader-progress" id="progress_div">
-					<div class="bar" id="bar1"></div>
-				</div>
-				<div class="percent" id="percent1">0%</div>
-				<div class="loading-text">Loading...</div>
-			</div>
-		</div>
 
 		<div class="header">
 			<div class="header-left">
@@ -297,10 +339,182 @@
 		</div>
 
 
+		<div class="right-sidebar">
+			<div class="sidebar-title">
+				<h3 class="weight-600 font-16 text-blue">
+					Layout Settings
+					<span class="btn-block font-weight-400 font-12"
+						>User Interface Settings</span
+					>
+				</h3>
+				<div class="close-sidebar" data-toggle="right-sidebar-close">
+					<i class="icon-copy ion-close-round"></i>
+				</div>
+			</div>
+			<div class="right-sidebar-body customscroll">
+				<div class="right-sidebar-body-content">
+					<h4 class="weight-600 font-18 pb-10">Header Background</h4>
+					<div class="sidebar-btn-group pb-30 mb-10">
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary header-white active"
+							>White</a
+						>
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary header-dark"
+							>Dark</a
+						>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Sidebar Background</h4>
+					<div class="sidebar-btn-group pb-30 mb-10">
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary sidebar-light"
+							>White</a
+						>
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary sidebar-dark active"
+							>Dark</a
+						>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Menu Dropdown Icon</h4>
+					<div class="sidebar-radio-group pb-10 mb-10">
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-1"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-1"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebaricon-1"
+								><i class="fa fa-angle-down"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-2"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-2"
+							/>
+							<label class="custom-control-label" for="sidebaricon-2"
+								><i class="ion-plus-round"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-3"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-3"
+							/>
+							<label class="custom-control-label" for="sidebaricon-3"
+								><i class="fa fa-angle-double-right"></i
+							></label>
+						</div>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Menu List Icon</h4>
+					<div class="sidebar-radio-group pb-30 mb-10">
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-1"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-1"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebariconlist-1"
+								><i class="ion-minus-round"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-2"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-2"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-2"
+								><i class="fa fa-circle-o" aria-hidden="true"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-3"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-3"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-3"
+								><i class="dw dw-check"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-4"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-4"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebariconlist-4"
+								><i class="icon-copy dw dw-next-2"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-5"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-5"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-5"
+								><i class="dw dw-fast-forward-1"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-6"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-6"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-6"
+								><i class="dw dw-next"></i
+							></label>
+						</div>
+					</div>
+
+					<div class="reset-options pt-30 text-center">
+						<button class="btn btn-danger" id="reset-settings">
+							Reset Settings
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
 		<div class="left-side-bar">
 			<div class="">
 				<a href="/home">
-					<img src="{{ url_for('static', filename='images/logo.png') }}" style="height:200px; width: 230px;" alt="" class="dark-logo pd-20 mb-0 rounded-circle" />
+					<img src="{{ url_for('static', filename='images/logo3.png') }}" style="height:120px; width: 265px;" alt="" class="dark-logo pd-20" />
 				</a>
 				<div class="close-sidebar" data-toggle="left-sidebar-close">
 					<i class="ion-close-round"></i>
@@ -391,7 +605,7 @@
 							</ul>
 						</li>
 						<li>
-							<a href="javascript:;" class="dropdown-toggle">
+							<a href="javascript:;" class="dropdown-toggle" data-toggle="modal" data-target="#terminalModal">
 								<span class="micon bi bi-terminal"></span
 								><span class="mtext">Terminale</span>
 							</a>
@@ -400,15 +614,74 @@
 				</div>
 			</div>
 		</div>
-		<div class="mobile-menu-overlay"></div>
-                <div class="main-container">
+		
+		<div class="skeleton-container main-container">
+			<div class="xs-pd-20-10 pd-ltr-20">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<div class="title pb-20">
+						<h2 class="h3 mb-0">Listes des ingress</h2>
+					</div>
+					<div class="d-flex add-box ml-3">
+						<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal">
+							<i class="dw dw-add add-icon"></i>  Ajouter un ingress
+						</a>
+					</div>
+				</div>
+					<div class="card-box pb-10">
+						<div class="d-flex justify-content-between align-items-center mb-3">
+							<div class="h5 pd-20 mb-0">Recente ingress</div>
+							<!-- Barre de recherche -->
+							<div class="form-group pd-20 row align-items-center">
+								<label class="col-form-label" for="namespace">Namespace:</label>
+								<div class="col">
+									<select class="custom-select col-12" id="namespace" name="namespace" onchange="changeNamespace(this)">
+										{% for ns in namespaces %}
+										<option value="{{ ns }}" {% if ns == selected_namespace %}selected{% endif %}>{{ ns }}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+						</div>
+						<table class="data-table table nowrap skeleton-loader">
+							<thead>
+								<tr>
+									<th class="table-plus">Nom</th>
+									<th>Création</th>
+									<th>Annotations</th>
+									<th>Règles</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- Première ligne de squelette -->
+								<tr class="skeleton-row">
+									<td>chargemnt...</td>
+									<td>chargement...</td>
+									<td>chargement...</td>
+									<td>chargement...</td>
+								</tr>
+								<!-- Deuxième ligne de squelette -->
+								<tr class="skeleton-row">
+									<td>chargement...</td>
+									<td>chargement...</td>
+									<td>chargement...</td>
+									<td>chargement...</td>
+								</tr>
+								<!-- Ajoutez autant de lignes de squelette que nécessaire -->
+							</tbody>
+						</table>
+					</div>
+			</div>
+	</div>
+
+                <div class="content-container main-container">
                     <div class="xs-pd-20-10 pd-ltr-20">
 						<div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="title pb-20">
-                            <h2 class="h3 mb-0">Listes des pods</h2>
+                            <h2 class="h3 mb-0">Listes des ingress</h2>
                         </div>
 						<div class="d-flex add-box ml-3">
-							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un pods</a>
+							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un ingress</a>
 						</div>
 					</div>
         
@@ -629,7 +902,26 @@
 				<div class="title pb-20 pt-20">
 				</div>
 
-		<!-- welcome modal start -->
+						    <!-- Terminal Modal -->
+							<div class="modal fade" id="terminalModal" tabindex="-1" role="dialog" aria-labelledby="terminalModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="terminalModalLabel">Terminal</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<textarea id="user-input" placeholder="Enter a command"></textarea>
+											<textarea id="terminal" readonly></textarea>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+										</div>
+									</div>
+								</div>
+							</div>
 
 				<!-- welcome modal end -->
 		<!-- js -->
@@ -643,6 +935,52 @@
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
 		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
+
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+		
+		<script>
+    		setTimeout(function() {
+        		const skeletonContainer = document.querySelector('.skeleton-container');
+        		const contentContainer = document.querySelector('.content-container');
+        		skeletonContainer.style.display = 'none';
+        		contentContainer.style.display = 'block';
+    			}, 6000); 
+		</script>
+
+		<script>
+			var socket = io.connect('http://' + document.domain + ':' + location.port);
+	
+			socket.on('connect', function() {
+				console.log('Connected to server');
+			});
+	
+			socket.on('disconnect', function() {
+				console.log('Disconnected from server');
+			});
+	
+			// Function to append text to the terminal textarea
+			function appendToTerminal(text) {
+				var terminal = document.getElementById('terminal');
+				terminal.value += text + '\n';
+				terminal.scrollTop = terminal.scrollHeight;
+			}
+	
+			// Handle data received from the server and display it in the terminal textarea.
+			socket.on('terminal_output', function(data) {
+				appendToTerminal(data);
+			});
+	
+			// Handle user input and send it to the server when they press Enter.
+			document.getElementById('user-input').addEventListener('keydown', function(event) {
+				if (event.key === 'Enter') {
+					var input = document.getElementById('user-input').value;
+					appendToTerminal('User input: ' + input);
+					socket.emit('user_input', input);
+					document.getElementById('user-input').value = '';
+				}
+			});
+		</script>
 				
 
 		<script>

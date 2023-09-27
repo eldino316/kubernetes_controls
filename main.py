@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask_socketio import SocketIO
 from kubernetes import client, config, utils
 import os
+import requests
 from datetime import datetime
 import pytz
 import psutil
@@ -8,12 +10,21 @@ import yaml
 import subprocess
 import tempfile
 from flask_wtf import FlaskForm
-from wtforms import FileField
+from wtforms import FileField, TextAreaField
+
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key_here'
+socketio = SocketIO(app)
 
 os.environ['KUBECONFIG'] = os.path.expandvars('%USERPROFILE%\\.kube\\config')
 yaml_dir = os.path.expandvars('D:\\PROJET MEMOIRE\\maquette\\kubernetes\\temp_yaml')
+kubernetes_api_url = "http://localhost:8001"
+
+temp_yaml_dir = 'temp_yaml'
+
+# Assurez-vous que le répertoire temporaire existe
+os.makedirs(temp_yaml_dir, exist_ok=True)
 
 # Chargez la configuration Kubernetes
 
@@ -26,6 +37,16 @@ try:
 except Exception as e:
     print(f"Erreur lors du chargement de la configuration Kubernetes : {str(e)}")
 
+
+def start_minikube_proxy():
+    try:
+        subprocess.Popen(["minikube", "kubectl", "proxy"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, start_new_session=True)
+        print("La commande minikube kubectl proxy a été lancée en arrière-plan.")
+    except Exception as e:
+        print(f"Une erreur s'est produite : {str(e)}")
+
+start_minikube_proxy()
+
 @app.route('/', methods=['GET'])
 def index():
     try:
@@ -35,7 +56,49 @@ def index():
         return render_template('home.html', clusters=clusters)
     except Exception as e:
         return jsonify(error="il y erreur dans le chargement du kubeconfig")
+    
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
 
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')    
+    
+@socketio.on('user_input')
+def handle_user_input(input):
+    commands = input.split('\n')
+    for command in commands:
+        try:
+            result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, text=True)
+            socketio.emit('terminal_output', result)
+        except subprocess.CalledProcessError as e:
+            socketio.emit('terminal_output', e.output)    
+
+@app.route('/open_pod_shell/<pod_name>')
+def open_pod_shell(pod_name):
+    # Exécutez la commande kubectl exec pour ouvrir un shell interactif sur le pod
+    command = f'kubectl exec -it {pod_name} -- /bin/bash'
+    
+    try:
+        subprocess.run(command, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        return f"Erreur lors de l'ouverture du shell : {e}"
+
+    return "Shell ouvert avec succès"
+
+@app.route('/execute_command', methods=['POST'])
+def execute_command():
+    data = request.get_json()
+    command = data['command']
+    pod_name = data['podName']
+
+    # Exécutez la commande dans le pod Kubernetes
+    try:
+        result = subprocess.check_output(f'kubectl exec -it {pod_name} -- {command}', shell=True, stderr=subprocess.STDOUT, text=True)
+        return jsonify(result)
+    except subprocess.CalledProcessError as e:
+        return jsonify(e.output)
 
 @app.route('/connect', methods=['POST'])
 def connect():
@@ -59,37 +122,40 @@ def get_logs():
 
     try:
         # Récupérez les événements (events) de tous les clusters
-        events = kube_api.list_event_for_all_namespaces().items
+        response = requests.get(f"{kubernetes_api_url}/api/v1/events")
+        events = response.json()['items']
 
         # Récupérez les informations sur tous les nœuds (nodes) de tous les clusters
-        nodes = kube_api.list_node().items
+        response = requests.get(f"{kubernetes_api_url}/api/v1/nodes")
+        nodes = response.json()['items']
 
         utc = pytz.timezone('UTC')
 
         # Parcourez les événements
         for event in events:
-            timestamp_utc = event.metadata.creation_timestamp.astimezone(utc)
+            timestamp_utc = datetime.strptime(event['metadata']['creationTimestamp'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.utc)
             log_entry = {
                 'timestamp': timestamp_utc.strftime("%Y-%m-%d %H:%M:%S"),
-                'namespace': event.metadata.namespace,
-                'pod_name': event.involved_object.name,
-                'event_type': event.type,
-                'message': event.message,
+                'namespace': event['metadata']['namespace'],
+                'pod_name': event['involvedObject']['name'],
+                'event_type': event['type'],
+                'message': event['message'],
             }
             logs.append(log_entry)
 
         # Parcourez les nœuds pour récupérer les logs de nœuds
         for node in nodes:
-            node_name = node.metadata.name
-            node_logs = kube_api.read_node_status(node_name).status.conditions
-            for condition in node_logs:
-                if condition.type == 'OutOfMemory' or condition.type == 'OutOfDisk':
+            node_name = node['metadata']['name']
+            node_conditions = node['status']['conditions']
+            for condition in node_conditions:
+                if condition['type'] in ('OutOfMemory', 'OutOfDisk'):
+                    timestamp_utc = datetime.strptime(condition['lastTransitionTime'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.utc)
                     log_entry = {
                         'timestamp': timestamp_utc.strftime("%Y-%m-%d %H:%M:%S"),
                         'namespace': 'Node',
                         'pod_name': node_name,
-                        'event_type': condition.type,
-                        'message': condition.message,
+                        'event_type': condition['type'],
+                        'message': condition['message'],
                     }
                     logs.append(log_entry)
 
@@ -97,6 +163,8 @@ def get_logs():
         logs.append(f"Erreur lors de la récupération des logs : {str(e)}")
 
     return logs
+
+
 
 def get_available_namespaces():
     v1 = client.CoreV1Api()
@@ -133,12 +201,52 @@ def get_persistent_volume_claims_in_namespace(namespace):
     pvc_list = core_api.list_namespaced_persistent_volume_claim(namespace).items
     return pvc_list
 
+def get_persistent_volume_in_namespace(namespace):
+    core_api = client.CoreV1Api()
+    pv_list = core_api.list_persistent_volume(namespace).items
+    return pv_list
+
+def get_statefulsets_in_namespace(namespace):
+    apps_api = client.AppsV1Api()
+    statefulsets = apps_api.list_namespaced_stateful_set(namespace).items
+    return statefulsets
+
+def get_replicasets_in_namespace(namespace):
+    config.load_kube_config()
+    apps_api = client.AppsV1Api()  
+    replicasets = apps_api.list_namespaced_replica_set(namespace).items
+    return replicasets
+
+def get_jobs_in_namespace(namespace):
+    config.load_kube_config()
+    batch_api = client.BatchV1Api()
+    jobs = batch_api.list_namespaced_job(namespace).items
+    return jobs
+
+def get_cronjobs_in_namespace(namespace):
+    batch_api = client.BatchV1Api()
+    cronjobs = batch_api.list_namespaced_cron_job(namespace).items
+    return cronjobs
+
+def get_secret_in_namespace(namespace):
+    core_api = client.CoreV1Api()   
+    secret = core_api.list_namespaced_secret(namespace).items
+    return secret   
+
 def apply_yaml(file_path):
-    cmd = f'kubectl apply -f {file_path}'
-    os.system(cmd)
+    try:
+        cmd = f'kubectl apply -f {file_path}'
+        os.system(cmd)
+        flash(f'Fichier YAML "{file_path.filename}" installé avec succès dans le cluster.', 'success')
+    except subprocess.CalledProcessError as e:
+        flash(f'Erreur lors de l\'installation du fichier YAML : {str(e)}', 'error')    
+    
+    
 
 class UploadForm(FlaskForm):
-    file = FileField('Sélectionnez un fichier YAML')
+    yaml_file = FileField('Importer un fichier YAML', render_kw={"class": "custom-file-input"})
+    yaml_code = TextAreaField('Éditer le YAML', render_kw={"class": "form-control"})
+    yaml_template = TextAreaField('Modèle de YAML', render_kw={"class": "form-control"})
 
 @app.route('/cpu')
 def get_cpu_usage():
@@ -163,14 +271,33 @@ def get_disk_usage():
 
     return jsonify(disk_data)
 
-@app.route('/network_traffic')
-def get_network_traffic():
-    network_stats = psutil.net_io_counters()
-    data = {
-        'bytes_sent': network_stats.bytes_sent,
-        'bytes_recv': network_stats.bytes_recv
+@app.route('/network_data')
+def network_data():
+    # Collecter les données sur le réseau à l'aide de psutil
+    network_info = psutil.net_io_counters(pernic=True)
+    interfaces = list(network_info.keys())
+    data = [network_info[iface] for iface in interfaces]
+
+    # Préparer les données pour le graphique Chart.js
+    labels = interfaces
+    interface_values = [d.bytes_sent + d.bytes_recv for d in data]
+
+    # Collecter les informations sur la bande passante réseau
+    network_bandwidth = psutil.net_if_stats()
+
+    # Préparer les données pour le graphique Chart.js pour la bande passante
+    bandwidth_labels = interfaces
+    bandwidth_values = [network_bandwidth[iface].speed for iface in interfaces]
+
+    # Créer un dictionnaire JSON pour les données du graphique
+    chart_data = {
+        'labels': labels,
+        'interface_values': interface_values,
+        'bandwidth_labels': bandwidth_labels,
+        'bandwidth_values': bandwidth_values,
     }
-    return jsonify(data)
+
+    return jsonify(chart_data)
 
 @app.route('/pods', methods=['GET', 'POST'])
 def pods():
@@ -221,17 +348,10 @@ def secret():
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
 
     namespaces = get_available_namespaces() 
-        
-    v1 = client.CoreV1Api()
-       
-    secret_list = v1.list_secret_for_all_namespaces().items
+           
+    secrets = get_secret_in_namespace(secret_name)
 
-    if secret_name:
-        filtered_secret = [secret for secret in secret_list if secret_name in secret.metadata.name]
-    else:
-        filtered_secret = secret_list
-
-    return render_template('secret.html', secrets=filtered_secret, yaml_files=yaml_files)
+    return render_template('secret.html', secrets=secrets, yaml_files=yaml_files, namespaces=namespaces)
     
 
 @app.route('/service', methods=['GET', 'POST'])
@@ -262,43 +382,126 @@ def ingress():
 
 @app.route('/pvc', methods=['GET', 'POST'])
 def pvc():
-    # Récupérez le nom de l'espace de noms à partir des paramètres de requête s'il est spécifié
     pvc_name = request.args.get('namespace', 'default')
 
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
 
     namespaces = get_available_namespaces()
 
-    # Récupérez la liste des PVC dans l'espace de noms spécifié
     pvc_list = get_persistent_volume_claims_in_namespace(pvc_name)
 
     return render_template('pvc.html', pvc_list=pvc_list, yaml_files=yaml_files, namespaces=namespaces)
 
+@app.route('/pv', methods=['GET', 'POST'])
+def pv():
+    pv_name = request.args.get('namespace', 'default')
+
+    yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
+
+    namespaces = get_available_namespaces()
+
+    pv_list = get_persistent_volume_claims_in_namespace(pv_name)
+
+    return render_template('pv.html', pv_list=pv_list, yaml_files=yaml_files, namespaces=namespaces)
+
+@app.route('/statefullset', methods=['GET', 'POST'])
+def statefullset():
+    statefullset_name = request.args.get('namespace', 'default')
+
+    yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
+
+    namespaces = get_available_namespaces()
+
+    statefullset_list = get_statefulsets_in_namespace(statefullset_name)
+
+    return render_template('statefullset.html', statefullset_list=statefullset_list, yaml_files=yaml_files, namespaces=namespaces)
+
+@app.route('/replicatset', methods=['GET', 'POST'])
+def replicatset():
+    replicatset_name = request.args.get('namespace', 'default')
+
+    yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
+
+    namespaces = get_available_namespaces()
+
+    replicatset_list = get_replicasets_in_namespace(replicatset_name)
+
+    return render_template('replicatset.html', replicatset_list=replicatset_list, yaml_files=yaml_files, namespaces=namespaces)
+
+@app.route('/jobs', methods=['GET', 'POST'])
+def jobs():
+    jobs_name = request.args.get('namespace', 'default')
+
+    yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
+
+    namespaces = get_available_namespaces()
+
+    jobs_list = get_jobs_in_namespace(jobs_name)
+
+    return render_template('jobs.html', jobs_listt=jobs_list, yaml_files=yaml_files, namespaces=namespaces)
+
+@app.route('/cronjobs', methods=['GET', 'POST'])
+def cronjobs():
+    cronjobs_name = request.args.get('namespace', 'default')
+
+    yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
+
+    namespaces = get_available_namespaces()
+
+    cronjobs_list = get_cronjobs_in_namespace(cronjobs_name)
+
+    return render_template('cronjobs.html', cronjobs_listt=cronjobs_list, yaml_files=yaml_files, namespaces=namespaces)
+
+
+def check_if_resource_exists(resource_type, resource_name):
+    try:
+        # Exécutez la commande kubectl get pour vérifier si l'objet existe
+        get_command = f'kubectl get {resource_type} {resource_name} -o name'
+        subprocess.check_output(get_command, shell=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+def install_yaml(file_path):
+    try:
+        # Utilisez kubectl apply pour installer l'objet YAML
+        install_command = f'kubectl apply -f {file_path}'
+        subprocess.run(install_command, shell=True, check=True)
+        return True, None  # Installation réussie
+    except subprocess.CalledProcessError as e:
+        return False, str(e)  
+
 @app.route('/install', methods=['GET', 'POST'])
-def upload_file():
-    form = UploadForm()
-    if form.validate_on_submit():
-        file = form.file.data
-        if file:
-            # Créez le répertoire temporaire s'il n'existe pas
-            temp_dir = 'temp'
-            os.makedirs(temp_dir, exist_ok=True)
-
-            # Générez un chemin de fichier unique en utilisant le nom du fichier original
-            file_path = os.path.join(temp_dir, file.filename)
-
-            # Sauvegardez le fichier YAML temporairement sur le serveur
+def install():
+    if request.method == 'POST':
+        file = request.files['yaml_file']
+        resource_type = request.form.get('resource_type')  # Obtenez le type de ressource sélectionné
+        if file and resource_type:
+            # Enregistrez le fichier YAML dans le répertoire temporaire
+            file_path = os.path.join(temp_yaml_dir, file.filename)
             file.save(file_path)
 
-            # Appliquez le fichier YAML
-            apply_yaml(file_path)
+            # Obtenez le nom de l'objet YAML à partir du chemin du fichier
+            yaml_object_name = os.path.basename(file_path)
+
+            # Vérifiez si l'objet YAML existe déjà dans le cluster
+            if check_if_resource_exists(resource_type, yaml_object_name):
+                message = f'L\'objet YAML "{yaml_object_name}" existe déjà dans le cluster.'
+                return jsonify({'error': message})
+
+            # Installez le fichier YAML en utilisant kubectl
+            success, error_message = install_yaml(file_path)
 
             # Supprimez le fichier temporaire
             os.remove(file_path)
 
-            return redirect(url_for('upload_file'))
-    return render_template('upload.html', form=form)
-
+            if success:
+                message = f'Fichier YAML "{yaml_object_name}" installé avec succès dans le cluster.'
+                return jsonify({'success': message})
+            else:
+                message = f'Erreur lors de l\'installation du fichier YAML : {error_message}'
+                return jsonify({'error': message})
+            
 @app.route('/delete_deployment', methods=['POST'])
 def delete_deployment():
     namespace = request.form.get('namespace')
@@ -357,9 +560,40 @@ def get_pod_logs(namespace, pod_name):
         return logs
     except Exception as e:
         return str(e)
+    
+@app.route('/yaml/<resource_type>/<namespace>/<resource_name>', methods=['GET'])
+def get_resource_yaml(resource_type, namespace, resource_name):
+    try:
+        # Utilisez l'API Kubernetes Python pour récupérer le YAML du resource
+        api_instance = client.CustomObjectsApi()
+        
+        if resource_type == 'pod':
+            group = 'v1'
+            version = 'v1'
+            plural = 'pods'
+        elif resource_type == 'deployment':
+            group = 'apps'
+            version = 'v1'
+            plural = 'deployments'
+        elif resource_type == 'service':
+            group = ''
+            version = 'v1'
+            plural = 'services'
+        else:
+            return "Type de ressource non pris en charge"
 
+        resource = api_instance.get_namespaced_custom_object(
+            group, version, namespace, plural, resource_name)
+        
+        # Convertissez le dictionnaire YAML en chaîne YAML
+        yaml_string = yaml.dump(resource, default_flow_style=False)
+
+        # Renvoyez la chaîne YAML à votre modèle HTML pour affichage
+        return render_template('pods', yaml_string=yaml_string)
+    except Exception as e:
+        return str(e)
 
 
 
 if __name__ == '__main__':
-     app.run(debug=True, host='127.0.0.1', port=5000)
+    socketio.run(app, debug=True)

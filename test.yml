@@ -1,19 +1,19 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: mysql-pod
+  name: nginx-deployment
 spec:
-  containers:
-    - name: mysql-container
-      image: mysql:latest  # Vous pouvez spécifier une version spécifique ici
-      env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: test # Remplacez par le mot de passe souhaité
-        - name: MYSQL_DATABASE
-          value: test # Remplacez par le nom de la base de données souhaité
-      ports:
-        - containerPort: 3306  # Port MySQL par défaut
-  volumes:
-    - name: mysql-storage
-      emptyDir: {}
-
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80

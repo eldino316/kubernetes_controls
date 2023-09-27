@@ -36,24 +36,6 @@
 		/>
 		<!-- CSS -->
 		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/core.css') }}" />
-        
-		<link
-			rel="stylesheet"
-            href=" {{ url_for('static', filename='vendors/styles/icon-font.min.css') }}"
-		/>
-		<link
-			rel="stylesheet"
-            href=" {{ url_for('static', filename='src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}"
-		/>
-		<link
-			rel="stylesheet"
-            href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
-		/>
-		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
-		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
-		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 
 		<style>
 			/* Style for the terminal textarea */
@@ -108,6 +90,24 @@
 				display: none;
 			}
 		</style>
+        
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='vendors/styles/icon-font.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
+		/>
+		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
+		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script
@@ -159,8 +159,8 @@
 								type="text"
 								class="form-control search-input"
 								placeholder="Search Here"
-								id="serviceSearch" 
-								oninput="searchService()"
+								id="replicatsetSearch" 
+								oninput="searchReplicaset()"
 							/>
 							<div class="dropdown">
 								<a
@@ -613,21 +613,22 @@
 			</div>
 		</div>
 		
+
 		<div class="skeleton-container main-container">
 			<div class="xs-pd-20-10 pd-ltr-20">
 				<div class="d-flex justify-content-between align-items-center mb-3">
 					<div class="title pb-20">
-						<h2 class="h3 mb-0">Listes des service</h2>
+						<h2 class="h3 mb-0">Listes des replicatsets</h2>
 					</div>
 					<div class="d-flex add-box ml-3">
 						<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal">
-							<i class="dw dw-add add-icon"></i>  Ajouter un service
+							<i class="dw dw-add add-icon"></i>  Ajouter un replicaset
 						</a>
 					</div>
 				</div>
 					<div class="card-box pb-10">
 						<div class="d-flex justify-content-between align-items-center mb-3">
-							<div class="h5 pd-20 mb-0">Recent service</div>
+							<div class="h5 pd-20 mb-0">Recent replicaset</div>
 							<!-- Barre de recherche -->
 							<div class="form-group pd-20 row align-items-center">
 								<label class="col-form-label" for="namespace">Namespace:</label>
@@ -643,10 +644,9 @@
 						<table class="data-table table nowrap skeleton-loader">
 							<thead>
 								<tr>
-									<th class="table-plus">Service Name</th>
-									<th>Type</th>
-									<th>Cluster IP</th>
-									<th>Ports</th>
+									<th class="table-plus">replicatset name</th>
+									<th>label</th>
+									<th>Date d'ajout</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
@@ -676,17 +676,17 @@
                     <div class="xs-pd-20-10 pd-ltr-20">
 						<div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="title pb-20">
-                            <h2 class="h3 mb-0">Listes des services</h2>
+                            <h2 class="h3 mb-0">Listes des replicatsets</h2>
                         </div>
 						<div class="d-flex add-box ml-3">
-							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un service</a>
+							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un replicaset</a>
 						</div>
 					</div>
         
                         <div class="card-box pb-10">
 
 							<div class="d-flex justify-content-between align-items-center mb-3">
-								<div class="h5 pd-20 mb-0">Recente service</div>
+								<div class="h5 pd-20 mb-0">Recente replicatset</div>
 								<!-- Barre de recherche -->
 								<div class="form-group pd-20 row align-items-center">
 									<label class="col-form-label" for="namespace">Namespace:</label>
@@ -699,24 +699,24 @@
 									</div>
 								</div>
 							</div>
+
                             <table class="data-table table nowrap">
                                 <thead>
                                     <tr>
-                                        <th class="table-plus">Service Name</th>
-                                        <th>Type</th>
-                                        <th>Cluster IP</th>
-                                        <th>Ports</th>
+                                        <th class="table-plus">replicatset name</th>
+                                        <th>label</th>
+                                        <th>Date d'ajout</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for service in services %}
+                                    {% for replicatset in replicatset_list %}
                                     <tr>
                                         <td class="table-plus">
                                             <div class="name-avatar d-flex align-items-center">
                                                 <div class="avatar mr-2 flex-shrink-0">
                                                     <img
-                                                        src="{{ url_for('static', filename='images/pods.png') }}"
+                                                        src="{{ url_for('static', filename='images/deploy.png') }}"
                                                         class="border-radius-100 shadow"
                                                         width="40"
                                                         height="40"
@@ -724,23 +724,13 @@
                                                     />
                                                 </div>
                                                 <div class="txt">
-                                                    <div class="weight-600">{{ service.metadata.name }}</div>
+                                                    <div class="weight-600">{{replicatset.metadata.name }}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>{{ service.spec.type }}</td>
-                                        <td>
-											{{ service.spec.cluster_ip }} 
-                                        </td>
-                                        <td>
-											<ul>
-                                                {% for port in service.spec.ports %}
-                                                <li>{{ port.port }}/{{ port.protocol }}</li>
-                                                {% endfor %}
-                                            </ul>
-										</td>
-
-                                        <td>
+                                        <td>{{ replicatset.metadata.labels }}</td>
+                                        <td>{{ replicatset.metadata.creationTimestamp }}</td>
+										<td>
 											<div class="dropdown">
 												<a
 													class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
@@ -751,40 +741,37 @@
 												>
 													<i class="dw dw-more"></i>
 												</a>
-												<div
-													class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
-												>
-													<a class="dropdown-item" href="#"
-													onclick="showLogsModal('{{ service.metadata.namespace }}', '{{ service.metadata.name }}')"
-														><i class="dw dw-eye"></i>logs</a
+												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+													<a class="dropdown-item" href="#"><i class="dw dw-eye"></i> logs</a>
+													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i> shell</a>
+													<a
+														class="dropdown-item"
+														href="#"
+														onclick="deleteReplicaset('{{ replicatset.metadata.namespace }}', '{{ replicatset.metadata.name }}')"
 													>
-													<a class="dropdown-item" href="#"
-														><i class="dw dw-edit2"></i>shell</a
-													>
-													<a class="dropdown-item" href="#"
-													onclick="deleteService('{{ service.metadata.namespace }}', '{{ service.metadata.name }}')"
-														><i class="dw dw-delete-3"></i>supprimer</a
-													>
+														<i class="dw dw-delete-3"></i> supprimer
+													</a>
 												</div>
 											</div>
+											<!-- Formulaire caché pour la suppression -->
 											<form
-											id="deleteForm_{{ service.metadata.namespace  }}_{{ service.metadata.name }}"
-											action="/delete_service"
-											method="POST"
-											style="display: none;"
-										>
-											<input
-												type="hidden"
-												name="namespace"
-												value="{{ service.metadata.namespace }}"
-											/>
-											<input
-												type="hidden"
-												name="name"
-												value="{{ service.metadata.name  }}"
-											/>
-										</form>
-                                        </td>
+												id="deleteForm_{{ replicatset.metadata.namespace }}_{{ replicatset.metadata.name }}"
+												action="/delete_replicaset"
+												method="POST"
+												style="display: none;"
+											>
+												<input
+													type="hidden"
+													name="namespace"
+													value="{{ replicatset.metadata.namespace }}"
+												/>
+												<input
+													type="hidden"
+													name="name"
+													value="{{ replicatset.metadata.name }}"
+												/>
+											</form>
+										</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -881,24 +868,11 @@
 			</div>
 		</div>
 	</div>
-
-    <div class="modal fade" id="logsModal" tabindex="-1" role="dialog" aria-labelledby="logsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="logsModalLabel">Logs du service</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <pre id="logsContent"></pre>
-                </div>
-            </div>
-        </div>
-    </div>
-
-	
+					</div>
+			</form>
+			</div>
+		</div>
+	</div>
 
 				<div class="title pb-20 pt-20">
 				</div>
@@ -938,7 +912,7 @@
 		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
-
+		
 		<script>
     		setTimeout(function() {
         		const skeletonContainer = document.querySelector('.skeleton-container');
@@ -981,27 +955,22 @@
 				}
 			});
 		</script>
-				
 
 		<script>
-			function showLogsModal(namespace, podName) {
-				// Utilisez une requête AJAX pour récupérer les logs du pod
-				// Supposons que les logs sont stockés dans la variable 'logs' après la requête
-				var logs = "Logs du pod " + podName + " dans le namespace " + namespace;
-			
-				// Affichez les logs dans la fenêtre modale
-				document.getElementById('logsContent').textContent = logs;
-			
-				// Ouvrez la fenêtre modale
-				$('#logsModal').modal('show');
+			function deleteReplicaset(namespace, name) {
+				var formId = 'deleteForm_' + namespace + '_' + name;
+				if (confirm("Êtes-vous sûr de vouloir supprimer ce replicaset ?")) {
+					document.getElementById(formId).submit();
+				}
 			}
-		function changeNamespace(select) {
-            const selectedNamespace = select.value;
-            window.location.href = `/service?namespace=${selectedNamespace}`;
-        }
 
-        function searchService() {
-        const input = document.getElementById('serviceSearch');
+			function changeNamespace(select) {
+            const selectedNamespace = select.value;
+            window.location.href = `/replicatset?namespace=${selectedNamespace}`;
+		}
+
+		function searchReplicaset() {
+        const input = document.getElementById('replicatsetSearch');
         const filter = input.value.toLowerCase();
         const table = document.querySelector('table tbody');
         const rows = table.getElementsByTagName('tr');
@@ -1014,17 +983,9 @@
                 rows[i].style.display = 'none';
             }
         }
-    }
-			</script>
+    	}
+		</script>
 
-<script>
-	function deleteService(namespace, name) {
-		var formId = 'deleteForm_' + namespace + '_' + name;
-		if (confirm("Êtes-vous sûr de vouloir supprimer ce service ?")) {
-			document.getElementById(formId).submit();
-		}
-	}
-</script>
 <script>
 	$(document).ready(function () {
 		$('#uploadForm').submit(function (event) {
@@ -1052,7 +1013,7 @@
 		});
 	});
 </script>
-			
+
         
 		<!-- Google Tag Manager (noscript) -->
 		<noscript

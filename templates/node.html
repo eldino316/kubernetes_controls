@@ -1,29 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Monitoring du Nœud Kubernetes</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Liste des services Minikube</title>
 </head>
 <body>
-    <h1>Monitoring du Nœud Kubernetes</h1>
-    <div id="node-info">
-        <p>Nœud: <span id="node-name"></span></p>
-        <p>Capacité CPU: <span id="cpu-capacity"></span></p>
-        <p>Capacité RAM: <span id="ram-capacity"></span></p>
-    </div>
-
-    <script>
-        function updateNodeInfo() {
-            $.get('/get_node_info', function(data) {
-                $('#node-name').text(data.node_name);
-                $('#cpu-capacity').text(data.cpu_capacity);
-                $('#ram-capacity').text(data.ram_capacity);
-            });
-        }
-
-        // Actualiser les informations toutes les 5 secondes
-        setInterval(updateNodeInfo, 5000);
-        updateNodeInfo(); // Appel initial
-    </script>
+    <h1>Liste des services Minikube</h1>
+    <table class="data-table table nowrap">
+        <thead>
+            <tr>
+                <th>Service Name</th>
+                <th>Namespace</th>
+                <th>Service Type</th>
+                <th>Cluster IP</th>
+                <th>External IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in service_list %}
+            <tr>
+                <td>{{ service['Service Name'] }}</td>
+                <td>{{ service['Namespace'] }}</td>
+                <td>{{ service['Service Type'] }}</td>
+                <td>{{ service['Cluster IP'] }}</td>
+                <td>{{ service['External IP'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>

@@ -1,48 +1,39 @@
-from flask import Flask, render_template, request, redirect, url_for
-from flask_wtf import FlaskForm
-from wtforms import FileField
-from kubernetes import client, config
-import os
+from flask import Flask, render_template, jsonify
+import psutil
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key_here'
 
-# Configurez le client Kubernetes
-config.load_kube_config()
+@app.route('/')
+def index():
+    return render_template('test.html')
 
-# Fonction pour appliquer un fichier YAML
-def apply_yaml(file_path):
-    cmd = f'kubectl apply -f {file_path}'
-    os.system(cmd)
+@app.route('/network_data')
+def network_data():
+    # Collecter les données sur le réseau à l'aide de psutil
+    network_info = psutil.net_io_counters(pernic=True)
+    interfaces = list(network_info.keys())
+    data = [network_info[iface] for iface in interfaces]
 
-# Créez un formulaire Flask-WTF pour le téléchargement de fichiers
-class UploadForm(FlaskForm):
-    file = FileField('Sélectionnez un fichier YAML')
+    # Préparer les données pour le graphique Chart.js
+    labels = interfaces
+    interface_values = [d.bytes_sent + d.bytes_recv for d in data]
 
-@app.route('/', methods=['GET', 'POST'])
-def upload_file():
-    form = UploadForm()
-    if form.validate_on_submit():
-        file = form.file.data
-        if file:
-            # Créez le répertoire temporaire s'il n'existe pas
-            temp_dir = 'temp'
-            os.makedirs(temp_dir, exist_ok=True)
+    # Collecter les informations sur la bande passante réseau
+    network_bandwidth = psutil.net_if_stats()
 
-            # Générez un chemin de fichier unique en utilisant le nom du fichier original
-            file_path = os.path.join(temp_dir, file.filename)
+    # Préparer les données pour le graphique Chart.js pour la bande passante
+    bandwidth_labels = interfaces
+    bandwidth_values = [network_bandwidth[iface].speed for iface in interfaces]
 
-            # Sauvegardez le fichier YAML temporairement sur le serveur
-            file.save(file_path)
+    # Créer un dictionnaire JSON pour les données du graphique
+    chart_data = {
+        'labels': labels,
+        'interface_values': interface_values,
+        'bandwidth_labels': bandwidth_labels,
+        'bandwidth_values': bandwidth_values,
+    }
 
-            # Appliquez le fichier YAML
-            apply_yaml(file_path)
-
-            # Supprimez le fichier temporaire
-            os.remove(file_path)
-
-            return redirect(url_for('upload_file'))
-    return render_template('upload.html', form=form)
+    return jsonify(chart_data)
 
 
 if __name__ == '__main__':
