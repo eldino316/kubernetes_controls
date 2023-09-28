@@ -1,39 +1,37 @@
-from flask import Flask, render_template, request
-from kubernetes import client, config
-import json
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, Markup
 import subprocess
+from kubernetes import client, config, utils
 import os
+import requests
 
 app = Flask(__name__)
 
-try:
-    config.load_kube_config()
-except Exception as e:
-    print(f"Erreur lors du chargement de la configuration Kubernetes : {str(e)}")
-
-@app.route('/podt', methods=['GET', 'POST'])
-def pods():
-    # Récupérez le namespace sélectionné depuis la requête
-    selected_namespace = request.args.get('namespace', 'default')  # Par défaut, utilisez 'default' si aucun namespace n'est spécifié
-
-    # Récupérez la liste de tous les namespaces disponibles sur le cluster
-    namespaces = get_available_namespaces()
-
-    # Récupérez la liste de tous les pods dans le namespace sélectionné
-    pods = get_pods_in_namespace(selected_namespace)
-
-    return render_template('tpod.html', pods=pods, namespaces=namespaces, selected_namespace=selected_namespace)
-
-def get_available_namespaces():
-    v1 = client.CoreV1Api()
-    namespaces = v1.list_namespace().items
-    return [namespace.metadata.name for namespace in namespaces]
-
+def get_pod_details(namespace, pod_name):
+    try:
+        # Exécutez la commande kubectl describe pods
+        command = ["kubectl", "describe", "pods", pod_name, "-n", namespace]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        
+        # Récupérez la sortie de la commande
+        pod_details = result.stdout
+        
+        # Renvoyez les détails au format JSON
+        return pod_details
+    except subprocess.CalledProcessError as e:
+        # La commande a échoué, vous pouvez gérer l'erreur ici
+        return {"error": f"Erreur : {e.stderr}"}
+    
+def get_pod_logs(namespace, pod_name):
+    try:
+        # Utilisez l'API Kubernetes Python pour récupérer les logs du pod
+        api_instance = client.CoreV1Api()
+        logs = api_instance.read_namespaced_pod_log(
+            name=pod_name, namespace=namespace)
+        return logs
+    except Exception as e:
+        return str(e)
+    
 def get_pods_in_namespace(namespace):
     core_api = client.CoreV1Api()
     pods = core_api.list_namespaced_pod(namespace).items
-    return pods
-
-
-if __name__ == '__main__':
-     app.run(debug=True, host='127.0.0.1', port=5000)
+    return pods 

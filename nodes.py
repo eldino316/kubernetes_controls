@@ -1,40 +1,55 @@
-from flask import Flask, render_template, jsonify
-from kubernetes import client, config
+import datetime
+from kubernetes import client, config, utils
+import os
+import requests
+import pytz
 
-app = Flask(__name__)
+kubernetes_api_url = "http://localhost:8001"
 
-# Chargez la configuration Kubernetes (par exemple, depuis le fichier kubeconfig)
-config.load_kube_config()
 
-@app.route('/')
-def index():
-    return render_template('node.html')
+def get_logs():
+    logs = []
 
-@app.route('/get_node_info')
-def get_node_info():
     try:
-        v1 = client.CoreV1Api()
-        nodes = v1.list_node()
-        
-        # Sélectionnez un nœud (vous pouvez personnaliser cette logique)
-        selected_node = nodes.items[0]
+        # Récupérez les événements (events) de tous les clusters
+        response = requests.get(f"{kubernetes_api_url}/api/v1/events")
+        events = response.json()['items']
 
-        # Obtenez des informations sur le nœud
-        node_name = selected_node.metadata.name
-        cpu_capacity = selected_node.status.capacity['cpu']
-        ram_capacity = selected_node.status.capacity['memory']
+        # Récupérez les informations sur tous les nœuds (nodes) de tous les clusters
+        response = requests.get(f"{kubernetes_api_url}/api/v1/nodes")
+        nodes = response.json()['items']
 
-        # Retournez les informations au format JSON
-        node_info = {
-            'node_name': node_name,
-            'cpu_capacity': cpu_capacity,
-            'ram_capacity': ram_capacity
-        }
+        utc = pytz.timezone('UTC')
 
-        return jsonify(node_info)
+        # Parcourez les événements
+        for event in events:
+            timestamp_utc = datetime.strptime(event['metadata']['creationTimestamp'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.utc)
+            log_entry = {
+                'timestamp': timestamp_utc.strftime("%Y-%m-%d %H:%M:%S"),
+                'namespace': event['metadata']['namespace'],
+                'pod_name': event['involvedObject']['name'],
+                'event_type': event['type'],
+                'message': event['message'],
+            }
+            logs.append(log_entry)
+
+        # Parcourez les nœuds pour récupérer les logs de nœuds
+        for node in nodes:
+            node_name = node['metadata']['name']
+            node_conditions = node['status']['conditions']
+            for condition in node_conditions:
+                if condition['type'] in ('OutOfMemory', 'OutOfDisk'):
+                    timestamp_utc = datetime.strptime(condition['lastTransitionTime'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.utc)
+                    log_entry = {
+                        'timestamp': timestamp_utc.strftime("%Y-%m-%d %H:%M:%S"),
+                        'namespace': 'Node',
+                        'pod_name': node_name,
+                        'event_type': condition['type'],
+                        'message': condition['message'],
+                    }
+                    logs.append(log_entry)
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logs.append(f"Erreur lors de la récupération des logs : {str(e)}")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    return logs
