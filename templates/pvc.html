@@ -746,8 +746,10 @@
 													<i class="dw dw-more"></i>
 												</a>
 												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-													<a class="dropdown-item" href="#"><i class="dw dw-eye"></i> logs</a>
-													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i> shell</a>
+													<a class="dropdown-item" href="#" onclick="showPvcDetails('{{ pvc.metadata.namespace  }}', '{{ pvc.metadata.name }}')">
+														<i class="icon-copy bi bi-card-list"></i>info
+													</a>
+													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>modifier</a>
 													<a
 														class="dropdown-item"
 														href="#"
@@ -902,6 +904,27 @@
 								</div>
 							</div>
 
+							<div class="modal fade" id="pvcDetailsModal" tabindex="-1" role="dialog" aria-labelledby="pvcDetailsModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="pvcDetailsModalLabel">Détails du persistance volume claim</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<div id="pvcDetails">
+												<!-- Les détails du pod seront insérés ici -->
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
 				<!-- welcome modal end -->
 		<!-- js -->
 		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
@@ -924,6 +947,25 @@
         		contentContainer.style.display = 'block';
     			}, 6000); 
 		</script>
+
+<script>
+	function showPvcDetails(namespace, pvcName) {
+		fetch(`/pvc_details/${namespace}/${pvcName}`)
+			.then(response => response.text())
+			.then(data => {
+				const pvcDetailsModal = document.getElementById('pvcDetailsModal');
+				const pvcDetails = document.querySelector('#pvcDetails');
+		
+		// Utilisez join('\n') pour ajouter des retours à la ligne
+				pvcDetails.innerText = data;
+		
+		// Affichez le modal
+			$(pvcDetailsModal).modal('show');
+		});
+
+	}
+	</script>
+
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 		<script>

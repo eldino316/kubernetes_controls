@@ -248,6 +248,12 @@ def delete_deployment():
         error_message = f"Erreur lors de la suppression du déploiement : {e.reason}"
         return redirect(url_for('deployment', error_message=error_message))
 
+@app.route('/deploy_details/<namespace>/<deployment_name>', methods=['GET'])
+def deploy_details(namespace, deployment_name):
+    deploy_details = get_deploy_details(namespace, deployment_name)
+    formatted_deploy_details = Markup(deploy_details)
+    return formatted_deploy_details
+
 
                                         #route pour les opérations sur le configmap
 
@@ -259,6 +265,11 @@ def configmap():
    configmap_list = get_configmap_in_namespace(ConfigMap_name)
    return render_template('configmap.html', configmaps=configmap_list, yaml_files=yaml_files, namespaces=namespaces)
 
+@app.route('/configmap_details/<namespace>/<configMap_name>', methods=['GET'])
+def config_details(namespace, configMap_name):
+    config_details = get_config_details(namespace, configMap_name)
+    formatted_config_details = Markup(config_details)
+    return formatted_config_details
 
                                         #route pour les opérations sur le secret
 
@@ -270,6 +281,11 @@ def secret():
     secrets = get_secret_in_namespace(secret_name)
     return render_template('secret.html', secrets=secrets, yaml_files=yaml_files, namespaces=namespaces)
 
+@app.route('/secret_details/<namespace>/<secret_name>', methods=['GET'])
+def secret_details(namespace, secret_name):
+    secret_details = get_secret_details(namespace, secret_name)
+    formatted_secret_details = Markup(secret_details)
+    return formatted_secret_details
 
                                         #route pour les opérations sur le service
 
@@ -281,6 +297,11 @@ def service():
     service_list = get_service_in_namespace(service_name)
     return render_template('service.html', services=service_list, yaml_files=yaml_files, namespaces=namespaces)
 
+@app.route('/service_details/<namespace>/<service_name>', methods=['GET'])
+def service_details(namespace, service_name):
+    service_details = get_service_details(namespace, service_name)
+    formatted_service_details = Markup(service_details)
+    return formatted_service_details
                                         #route pour les opérations sur l'ingress
 
 @app.route('/ingress', methods=['GET', 'POST'])
@@ -290,6 +311,12 @@ def ingress():
     namespaces = get_available_namespaces()
     ingress_list = get_ingresses_in_namespace(ingress_name)        
     return render_template('ingress.html', ingresses=ingress_list, yaml_files=yaml_files, namespaces=namespaces)
+
+@app.route('/ingress_details/<namespace>/<ingress_name>', methods=['GET'])
+def ingress_details(namespace, ingress_name):
+    ingress_details = get_ingress_details(namespace, ingress_name)
+    formatted_ingress_details = Markup(ingress_details)
+    return formatted_ingress_details
 
                                         #route pour les opérations sur le pvc
 
@@ -301,6 +328,12 @@ def pvc():
     pvc_list = get_persistent_volume_claims_in_namespace(pvc_name)
     return render_template('pvc.html', pvc_list=pvc_list, yaml_files=yaml_files, namespaces=namespaces)
 
+@app.route('/pvc_details/<namespace>/<pvc_name>', methods=['GET'])
+def pvc_details(namespace, pvc_name):
+    pvc_details = get_pvc_details(namespace, pvc_name)
+    formatted_pvc_details = Markup(pvc_details)
+    return formatted_pvc_details
+
 
                                         #route pour les opérations sur le pv
 
@@ -310,9 +343,14 @@ def pv():
     pv_name = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()
-    pv_list = get_persistent_volume_claims_in_namespace(pv_name)
+    pv_list = get_persistent_volume_in_namespace(pv_name)
     return render_template('pv.html', pv_list=pv_list, yaml_files=yaml_files, namespaces=namespaces)
 
+@app.route('/pv_details/<namespace>/<pv_name>', methods=['GET'])
+def pv_details(namespace, pv_name):
+    pv_details = get_pv_details(namespace, pv_name)
+    formatted_pv_details = Markup(pv_details)
+    return formatted_pv_details
 
                                         #route pour les opérations sur le statefullset
 

@@ -8,17 +8,11 @@ app = Flask(__name__)
 
 def get_pod_details(namespace, pod_name):
     try:
-        # Exécutez la commande kubectl describe pods
         command = ["kubectl", "describe", "pods", pod_name, "-n", namespace]
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-        
-        # Récupérez la sortie de la commande
         pod_details = result.stdout
-        
-        # Renvoyez les détails au format JSON
         return pod_details
     except subprocess.CalledProcessError as e:
-        # La commande a échoué, vous pouvez gérer l'erreur ici
         return {"error": f"Erreur : {e.stderr}"}
     
 def get_pod_logs(namespace, pod_name):

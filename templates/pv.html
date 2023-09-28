@@ -648,7 +648,7 @@
 									<th class="table-plus">Noms</th>
 									<th>Espace des noms</th>
 									<th>Stockage</th>
-									<th>Options de montage</th>
+									<th>status</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
@@ -708,7 +708,7 @@
                                         <th class="table-plus">Nom</th>
                                         <th>Espace de noms</th>
                                         <th>Stockage</th>
-                                        <th>Options de montage</th>
+                                        <th>status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -733,7 +733,7 @@
                                         </td>
                                         <td>{{ pv.metadata.namespace }}</td>
                                         <td>{{ pv.spec.capacity }}</td>
-                                        <td>{{ pv.spec.mountOptions}}</td>
+                                        <td>{{ pv.status.phase}}</td>
 										<td>
 											<div class="dropdown">
 												<a
@@ -746,8 +746,10 @@
 													<i class="dw dw-more"></i>
 												</a>
 												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-													<a class="dropdown-item" href="#"><i class="dw dw-eye"></i> logs</a>
-													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i> shell</a>
+													<a class="dropdown-item" href="#" onclick="showPvDetails('{{ pv.metadata.namespace  }}', '{{ pv.metadata.name }}')">
+														<i class="icon-copy bi bi-card-list"></i>info
+													</a>
+													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>modifier</a>
 													<a
 														class="dropdown-item"
 														href="#"
@@ -901,6 +903,27 @@
 								</div>
 							</div>
 
+							<div class="modal fade" id="pvDetailsModal" tabindex="-1" role="dialog" aria-labelledby="pvDetailsModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="pvDetailsModalLabel">Détails du persistance volume</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<div id="pvDetails">
+												<!-- Les détails du pod seront insérés ici -->
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
 				<!-- welcome modal end -->
 		<!-- js -->
 		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
@@ -924,6 +947,24 @@
         		contentContainer.style.display = 'block';
     			}, 6000); 
 		</script>
+
+<script>
+	function showPvDetails(namespace, pvName) {
+		fetch(`/pv_details/${namespace}/${pvName}`)
+			.then(response => response.text())
+			.then(data => {
+				const pvDetailsModal = document.getElementById('pvDetailsModal');
+				const pvDetails = document.querySelector('#pvDetails');
+		
+		// Utilisez join('\n') pour ajouter des retours à la ligne
+				pvDetails.innerText = data;
+		
+		// Affichez le modal
+			$(pvDetailsModal).modal('show');
+		});
+
+	}
+	</script>
 
 		<script>
 			var socket = io.connect('http://' + document.domain + ':' + location.port);

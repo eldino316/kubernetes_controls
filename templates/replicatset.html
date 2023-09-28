@@ -742,8 +742,10 @@
 													<i class="dw dw-more"></i>
 												</a>
 												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-													<a class="dropdown-item" href="#"><i class="dw dw-eye"></i> logs</a>
-													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i> shell</a>
+													<a class="dropdown-item" href="#" onclick="showReplicatsetDetails('{{ replicatset.metadata.namespace  }}', '{{ replicatset.metadata.name }}')">
+														<i class="icon-copy bi bi-card-list"></i>info
+													</a>
+													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>modifier</a>
 													<a
 														class="dropdown-item"
 														href="#"
@@ -898,6 +900,27 @@
 								</div>
 							</div>
 
+							<div class="modal fade" id="replicatsetDetailsModal" tabindex="-1" role="dialog" aria-labelledby="replicatsetDetailsModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="replicatsetDetailsModalLabel">Détails du replicatset</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<div id="replicatsetDetails">
+												<!-- Les détails du pod seront insérés ici -->
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
 				<!-- welcome modal end -->
 		<!-- js -->
 		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
@@ -921,6 +944,25 @@
         		contentContainer.style.display = 'block';
     			}, 6000); 
 		</script>
+
+<script>
+	function showReplicatsetDetails(namespace, replicatsetName) {
+		fetch(`/replicatset_details/${namespace}/${replicatsetName}`)
+			.then(response => response.text())
+			.then(data => {
+				const replicatsetDetailsModal = document.getElementById('replicatsetDetailsModal');
+				const replicatsetDetails = document.querySelector('#replicatsetDetails');
+		
+		// Utilisez join('\n') pour ajouter des retours à la ligne
+				replicatsetDetails.innerText = data;
+		
+		// Affichez le modal
+			$(replicatsetDetailsModal).modal('show');
+		});
+
+	}
+	</script>
+
 
 		<script>
 			var socket = io.connect('http://' + document.domain + ':' + location.port);

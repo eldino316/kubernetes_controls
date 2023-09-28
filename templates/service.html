@@ -754,12 +754,11 @@
 												<div
 													class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 												>
+												<a class="dropdown-item" href="#" onclick="showServiceDetails('{{ service.metadata.namespace  }}', '{{ service.metadata.name }}')">
+													<i class="icon-copy bi bi-card-list"></i>info
+												</a>
 													<a class="dropdown-item" href="#"
-													onclick="showLogsModal('{{ service.metadata.namespace }}', '{{ service.metadata.name }}')"
-														><i class="dw dw-eye"></i>logs</a
-													>
-													<a class="dropdown-item" href="#"
-														><i class="dw dw-edit2"></i>shell</a
+														><i class="dw dw-edit2"></i>modifier</a
 													>
 													<a class="dropdown-item" href="#"
 													onclick="deleteService('{{ service.metadata.namespace }}', '{{ service.metadata.name }}')"
@@ -924,6 +923,27 @@
 								</div>
 							</div>
 
+							<div class="modal fade" id="serviceDetailsModal" tabindex="-1" role="dialog" aria-labelledby="serviceDetailsModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="serviceDetailsModalLabel">Détails du service</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<div id="serviceDetails">
+												<!-- Les détails du pod seront insérés ici -->
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
 				<!-- welcome modal end -->
 		<!-- js -->
 		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
@@ -947,6 +967,24 @@
         		contentContainer.style.display = 'block';
     			}, 6000); 
 		</script>
+
+<script>
+	function showServiceDetails(namespace, serviceName) {
+		fetch(`/service_details/${namespace}/${serviceName}`)
+			.then(response => response.text())
+			.then(data => {
+				const serviceDetailsModal = document.getElementById('serviceDetailsModal');
+				const serviceDetails = document.querySelector('#serviceDetails');
+		
+		// Utilisez join('\n') pour ajouter des retours à la ligne
+				serviceDetails.innerText = data;
+		
+		// Affichez le modal
+			$(serviceDetailsModal).modal('show');
+		});
+
+	}
+	</script>
 
 		<script>
 			var socket = io.connect('http://' + document.domain + ':' + location.port);

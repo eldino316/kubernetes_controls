@@ -764,6 +764,11 @@
 												<div
 													class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 												>
+
+													<a class="dropdown-item" href="#" onclick="showPodDetails('{{ pod.metadata.namespace }}', '{{ pod.metadata.name }}')">
+														<i class="icon-copy bi bi-card-list"></i>info
+													</a>
+
 													<a class="dropdown-item" href="#"
 													data-toggle="modal" data-target="#logModal"
 													data-namespace="{{ pod.metadata.namespace}}" data-pod_name="{{ pod.metadata.name }}"
@@ -772,15 +777,12 @@
 													<a class="dropdown-item" href="#" 
 													onclick="openPodTerminal('{{ pod.metadata.name }}')" data-toggle="modal" data-target="#podTerminalModal"
 													>
-														<i class="dw dw-edit2"></i>shell
+														<i class="micon bi bi-terminal"></i>shell
 													</a>
 													<a class="dropdown-item" href="#"
 													onclick="deletePods('{{ pod.metadata.namespace }}', '{{ pod.metadata.name }}')"
 														><i class="dw dw-delete-3"></i>supprimer</a
 													>
-													<a class="dropdown-item" href="#" onclick="showPodDetails('{{ pod.metadata.namespace }}', '{{ pod.metadata.name }}')">
-														<i class="dw dw-info"></i>info
-													</a>
 												</div>
 											</div>
 											<form

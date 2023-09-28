@@ -760,12 +760,11 @@
 												<div
 													class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 												>
+												<a class="dropdown-item" href="#" onclick="showIngressDetails('{{ ingress.metadata.namespace  }}', '{{ ingress.metadata.name }}')">
+													<i class="icon-copy bi bi-card-list"></i>info
+												</a>
 													<a class="dropdown-item" href="#"
-													onclick="showLogsModal('{{ ingress.metadata.namespace}}', '{{ ingress.metadata.name }}')"
-														><i class="dw dw-eye"></i>logs</a
-													>
-													<a class="dropdown-item" href="#"
-														><i class="dw dw-edit2"></i>shell</a
+														><i class="dw dw-edit2"></i>modifier</a
 													>
 													<a class="dropdown-item" href="#"
 													onclick="deletePods('{{ ingress.metadata.namespace  }}', '{{ingress.metadata.name }}')"
@@ -923,6 +922,27 @@
 								</div>
 							</div>
 
+							<div class="modal fade" id="ingressDetailsModal" tabindex="-1" role="dialog" aria-labelledby="ingressDetailsModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="ingressDetailsModalLabel">Détails de l'Ingress</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<div id="ingressDetails">
+												<!-- Les détails du pod seront insérés ici -->
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
 				<!-- welcome modal end -->
 		<!-- js -->
 		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
@@ -947,6 +967,24 @@
         		contentContainer.style.display = 'block';
     			}, 6000); 
 		</script>
+
+<script>
+	function showServiceDetails(namespace, ingressName) {
+		fetch(`/ingress_details/${namespace}/${ingressName}`)
+			.then(response => response.text())
+			.then(data => {
+				const ingressDetailsModal = document.getElementById('ingressDetailsModal');
+				const ingressDetails = document.querySelector('#ingressDetails');
+		
+		// Utilisez join('\n') pour ajouter des retours à la ligne
+				serviceDetails.innerText = data;
+		
+		// Affichez le modal
+			$(ingressDetailsModal).modal('show');
+		});
+
+	}
+	</script>
 
 		<script>
 			var socket = io.connect('http://' + document.domain + ':' + location.port);

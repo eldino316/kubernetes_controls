@@ -619,17 +619,17 @@
 			<div class="xs-pd-20-10 pd-ltr-20">
 				<div class="d-flex justify-content-between align-items-center mb-3">
 					<div class="title pb-20">
-						<h2 class="h3 mb-0">Listes des replicatsets</h2>
+						<h2 class="h3 mb-0">Listes des statefullsets</h2>
 					</div>
 					<div class="d-flex add-box ml-3">
 						<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal">
-							<i class="dw dw-add add-icon"></i>  Ajouter un replicaset
+							<i class="dw dw-add add-icon"></i>  Ajouter un statefullset
 						</a>
 					</div>
 				</div>
 					<div class="card-box pb-10">
 						<div class="d-flex justify-content-between align-items-center mb-3">
-							<div class="h5 pd-20 mb-0">Recent replicaset</div>
+							<div class="h5 pd-20 mb-0">Recent statefullset</div>
 							<!-- Barre de recherche -->
 							<div class="form-group pd-20 row align-items-center">
 								<label class="col-form-label" for="namespace">Namespace:</label>
@@ -645,7 +645,7 @@
 						<table class="data-table table nowrap skeleton-loader">
 							<thead>
 								<tr>
-									<th class="table-plus">replicatset name</th>
+									<th class="table-plus">statefullset name</th>
 									<th>label</th>
 									<th>Date d'ajout</th>
 									<th>Actions</th>
@@ -680,7 +680,7 @@
                             <h2 class="h3 mb-0">Listes des statefullset</h2>
                         </div>
 						<div class="d-flex add-box ml-3">
-							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un Déploiement</a>
+							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un statefullset</a>
 						</div>
 					</div>
         
@@ -743,8 +743,10 @@
 													<i class="dw dw-more"></i>
 												</a>
 												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-													<a class="dropdown-item" href="#"><i class="dw dw-eye"></i> logs</a>
-													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i> shell</a>
+													<a class="dropdown-item" href="#" onclick="showStatefullsetDetails('{{ statefulset.metadata.namespace  }}', '{{ statefulset.metadata.name }}')">
+														<i class="icon-copy bi bi-card-list"></i>info
+													</a>
+													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>modifier</a>
 													<a
 														class="dropdown-item"
 														href="#"
@@ -898,6 +900,27 @@
 								</div>
 							</div>
 
+							<div class="modal fade" id="statefullsetDetailsModal" tabindex="-1" role="dialog" aria-labelledby="statefullsetDetailsModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="statefullsetDetailsModalLabel">Détails du statefullset</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<div id="statefullsetDetails">
+												<!-- Les détails du pod seront insérés ici -->
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
 				<!-- welcome modal end -->
 		<!-- js -->
 		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
@@ -921,6 +944,24 @@
         		contentContainer.style.display = 'block';
     			}, 6000); 
 		</script>
+
+<script>
+	function showStatefullsetDetails(namespace, statefullsetName) {
+		fetch(`/statefullset_details/${namespace}/${statefullsetName}`)
+			.then(response => response.text())
+			.then(data => {
+				const statefullsetDetailsModal = document.getElementById('statefullsetDetailsModal');
+				const statefullseteDetails = document.querySelector('#statefullsetDetails');
+		
+		// Utilisez join('\n') pour ajouter des retours à la ligne
+				statefullsetDetails.innerText = data;
+		
+		// Affichez le modal
+			$(statefullsetDetailsModal).modal('show');
+		});
+
+	}
+	</script>
 
 		<script>
 			var socket = io.connect('http://' + document.domain + ':' + location.port);
