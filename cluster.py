@@ -44,4 +44,13 @@ def install_yaml(file_path):
     except subprocess.CalledProcessError as e:
         return False, str(e)
 
+def get_cluster_details():
+    try:
+        command = ["kubectl", "describe", "nodes", "minikube"]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        cluster_details = result.stdout
+        return cluster_details
+    except subprocess.CalledProcessError as e:
+        return {"error": f"Erreur : {e.stderr}"}        
+
 start_minikube_proxy()    

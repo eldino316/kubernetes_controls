@@ -43,7 +43,8 @@ def index():
 @app.route('/home')
 def home():
     logs = get_logs()
-    return render_template('admin.html', logs=logs)
+    cluster_details = get_cluster_details()
+    return render_template('admin.html', logs=logs, cluster_details=cluster_details)
 
 @app.route('/connect', methods=['POST'])
 def connect():
@@ -54,6 +55,17 @@ def connect():
         return redirect(url_for('home'))
     except Exception as e:
         return f"Erreur de connexion au cluster : {str(e)}"
+
+@app.route('/cluster_details')
+def cluster_details():
+    try:
+        command = ["kubectl", "describe", "nodes", "minikube"]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        cluster_details = result.stdout
+        return cluster_details
+    except subprocess.CalledProcessError as e:
+        error_message = f"Erreur : {e.stderr}"
+        return jsonify({"error": error_message})        
 
                                          #lancement du socket pour le terminale       
 
@@ -140,33 +152,6 @@ def install():
             else:
                 message = f'Erreur lors de l\'installation du fichier YAML : {error_message}'
                 return jsonify({'error': message})
-            
-
-    
-@app.route('/yaml/<resource_type>/<namespace>/<resource_name>', methods=['GET'])
-def get_resource_yaml(resource_type, namespace, resource_name):
-    try:
-        api_instance = client.CustomObjectsApi()        
-        if resource_type == 'pod':
-            group = 'v1'
-            version = 'v1'
-            plural = 'pods'
-        elif resource_type == 'deployment':
-            group = 'apps'
-            version = 'v1'
-            plural = 'deployments'
-        elif resource_type == 'service':
-            group = ''
-            version = 'v1'
-            plural = 'services'
-        else:
-            return "Type de ressource non pris en charge"
-        resource = api_instance.get_namespaced_custom_object(
-            group, version, namespace, plural, resource_name)
-        yaml_string = yaml.dump(resource, default_flow_style=False)
-        return render_template('pods', yaml_string=yaml_string)
-    except Exception as e:
-        return str(e)
 
 
                                         #route pour les opérations sur les pods    
@@ -213,11 +198,12 @@ def logs(namespace, pod_name):
 
 @app.route('/pods', methods=['GET', 'POST'])
 def pods():
-    pod_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')  # Récupère le namespace sélectionné depuis les paramètres d'URL
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()
-    pods = get_pods_in_namespace(pod_name)
-    return render_template('pods.html', pods=pods, yaml_files=yaml_files, namespaces=namespaces)
+    pods = get_pods_in_namespace(selected_namespace)  # Utilisez le namespace sélectionné ici pour récupérer les pods
+    return render_template('pods.html', pods=pods, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+
 
 @app.route('/pod_details/<namespace>/<pod_name>', methods=['GET'])
 def pod_details(namespace, pod_name):
@@ -225,15 +211,21 @@ def pod_details(namespace, pod_name):
     formatted_pod_details = Markup(pod_details)
     return formatted_pod_details
 
+@app.route('/pod_yaml/<namespace>/<pod_name>', methods=['GET'])
+def get_pod_yaml(namespace, pod_name):
+    pod_yaml = get_pod_yaml(namespace, pod_name)
+    formated_pod_yaml = Markup(pod_yaml)
+    return formated_pod_yaml
+
                                     #route pour les opérations sur le déploiments
 
 @app.route('/deployment', methods=['GET', 'POST'])
 def deployment():
-    deployment_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()
-    deployments = get_deployments_in_namespace(deployment_name)
-    return render_template('deployment.html', deployments=deployments, yaml_files=yaml_files, namespaces=namespaces)
+    deployments = get_deployments_in_namespace(selected_namespace)
+    return render_template('deployment.html', deployments=deployments, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
 @app.route('/delete_deployment', methods=['POST'])
 def delete_deployment():
@@ -259,11 +251,11 @@ def deploy_details(namespace, deployment_name):
 
 @app.route('/configmap', methods=['GET', 'POST'])
 def configmap():
-   ConfigMap_name = request.args.get('namespace', 'default')
+   selected_namespace = request.args.get('namespace', 'default')
    yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
    namespaces = get_available_namespaces()     
-   configmap_list = get_configmap_in_namespace(ConfigMap_name)
-   return render_template('configmap.html', configmaps=configmap_list, yaml_files=yaml_files, namespaces=namespaces)
+   configmap_list = get_configmap_in_namespace(selected_namespace)
+   return render_template('configmap.html', configmaps=configmap_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
 @app.route('/configmap_details/<namespace>/<configMap_name>', methods=['GET'])
 def config_details(namespace, configMap_name):
@@ -275,11 +267,11 @@ def config_details(namespace, configMap_name):
 
 @app.route('/secret', methods=['GET', 'POST'])
 def secret():
-    secret_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()           
-    secrets = get_secret_in_namespace(secret_name)
-    return render_template('secret.html', secrets=secrets, yaml_files=yaml_files, namespaces=namespaces)
+    secrets = get_secret_in_namespace(selected_namespace)
+    return render_template('secret.html', secrets=secrets, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
 @app.route('/secret_details/<namespace>/<secret_name>', methods=['GET'])
 def secret_details(namespace, secret_name):
@@ -291,11 +283,11 @@ def secret_details(namespace, secret_name):
 
 @app.route('/service', methods=['GET', 'POST'])
 def service():
-    service_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces() 
-    service_list = get_service_in_namespace(service_name)
-    return render_template('service.html', services=service_list, yaml_files=yaml_files, namespaces=namespaces)
+    service_list = get_service_in_namespace(selected_namespace)
+    return render_template('service.html', services=service_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
 @app.route('/service_details/<namespace>/<service_name>', methods=['GET'])
 def service_details(namespace, service_name):
@@ -306,11 +298,11 @@ def service_details(namespace, service_name):
 
 @app.route('/ingress', methods=['GET', 'POST'])
 def ingress():
-    ingress_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]   
     namespaces = get_available_namespaces()
-    ingress_list = get_ingresses_in_namespace(ingress_name)        
-    return render_template('ingress.html', ingresses=ingress_list, yaml_files=yaml_files, namespaces=namespaces)
+    ingress_list = get_ingresses_in_namespace(selected_namespace)        
+    return render_template('ingress.html', ingresses=ingress_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
 @app.route('/ingress_details/<namespace>/<ingress_name>', methods=['GET'])
 def ingress_details(namespace, ingress_name):
@@ -322,11 +314,11 @@ def ingress_details(namespace, ingress_name):
 
 @app.route('/pvc', methods=['GET', 'POST'])
 def pvc():
-    pvc_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()
-    pvc_list = get_persistent_volume_claims_in_namespace(pvc_name)
-    return render_template('pvc.html', pvc_list=pvc_list, yaml_files=yaml_files, namespaces=namespaces)
+    pvc_list = get_persistent_volume_claims_in_namespace(selected_namespace)
+    return render_template('pvc.html', pvc_list=pvc_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
 @app.route('/pvc_details/<namespace>/<pvc_name>', methods=['GET'])
 def pvc_details(namespace, pvc_name):
@@ -340,11 +332,11 @@ def pvc_details(namespace, pvc_name):
 
 @app.route('/pv', methods=['GET', 'POST'])
 def pv():
-    pv_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()
-    pv_list = get_persistent_volume_in_namespace(pv_name)
-    return render_template('pv.html', pv_list=pv_list, yaml_files=yaml_files, namespaces=namespaces)
+    pv_list = get_persistent_volume_in_namespace(selected_namespace)
+    return render_template('pv.html', pv_list=pv_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
 @app.route('/pv_details/<namespace>/<pv_name>', methods=['GET'])
 def pv_details(namespace, pv_name):
@@ -356,33 +348,43 @@ def pv_details(namespace, pv_name):
 
 @app.route('/statefullset', methods=['GET', 'POST'])
 def statefullset():
-    statefullset_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()
-    statefullset_list = get_statefulsets_in_namespace(statefullset_name)
-    return render_template('statefullset.html', statefullset_list=statefullset_list, yaml_files=yaml_files, namespaces=namespaces)
+    statefullset_list = get_statefulsets_in_namespace(selected_namespace)
+    return render_template('statefullset.html', statefullset_list=statefullset_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
+@app.route('/statefullset_details/<namespace>/<statefullset_name>', methods=['GET'])
+def statefullset_details(namespace, statefullset_name):
+    statefullset_details = get_statefullset_details(namespace, statefullset_name)
+    formatted_statefullset_details = Markup(statefullset_details)
+    return formatted_statefullset_details
 
                                         #route pour les opérations sur le replicaset
 
 @app.route('/replicatset', methods=['GET', 'POST'])
 def replicatset():
-    replicatset_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()
-    replicatset_list = get_replicasets_in_namespace(replicatset_name)
-    return render_template('replicatset.html', replicatset_list=replicatset_list, yaml_files=yaml_files, namespaces=namespaces)
+    replicatset_list = get_replicasets_in_namespace(selected_namespace)
+    return render_template('replicatset.html', replicatset_list=replicatset_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
+@app.route('/replicatset_details/<namespace>/<statefullset_name>', methods=['GET'])
+def replicatset_details(namespace, replicatset_name):
+    replicatset_details = get_replicatset_details(namespace, replicatset_name)
+    formatted_replicatset_details = Markup(replicatset_details)
+    return formatted_replicatset_details
 
                                         #route pour les opérations sur le jobs
 
 @app.route('/jobs', methods=['GET', 'POST'])
 def jobs():
-    jobs_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()
-    jobs_list = get_jobs_in_namespace(jobs_name)
-    return render_template('jobs.html', jobs_listt=jobs_list, yaml_files=yaml_files, namespaces=namespaces)
+    jobs_list = get_jobs_in_namespace(selected_namespace)
+    return render_template('jobs.html', jobs_listt=jobs_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
 
                                         #route pour les opérations sur le cronjobs
@@ -390,11 +392,11 @@ def jobs():
 
 @app.route('/cronjobs', methods=['GET', 'POST'])
 def cronjobs():
-    cronjobs_name = request.args.get('namespace', 'default')
+    selected_namespace = request.args.get('namespace', 'default')
     yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
     namespaces = get_available_namespaces()
-    cronjobs_list = get_cronjobs_in_namespace(cronjobs_name)
-    return render_template('cronjobs.html', cronjobs_listt=cronjobs_list, yaml_files=yaml_files, namespaces=namespaces)
+    cronjobs_list = get_cronjobs_in_namespace(selected_namespace)
+    return render_template('cronjobs.html', cronjobs_listt=cronjobs_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
 
 if __name__ == '__main__':

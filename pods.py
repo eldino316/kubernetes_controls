@@ -29,3 +29,12 @@ def get_pods_in_namespace(namespace):
     core_api = client.CoreV1Api()
     pods = core_api.list_namespaced_pod(namespace).items
     return pods 
+
+def get_pod_yaml(namespace, pod_name):
+    try:
+        command = ["kubectl", "get", "pods", pod_name, "-n", namespace, "-o", "yaml"]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        pod_yaml = result.stdout
+        return pod_yaml 
+    except subprocess.CalledProcessError as e:
+        return f"Erreur : {e.stderr}"

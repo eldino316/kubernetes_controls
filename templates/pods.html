@@ -334,24 +334,21 @@
 							data-toggle="dropdown"
 						>
 							<span class="user-icon">
-								<img src="vendors/images/photo1.jpg" alt="" />
+								<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
 							</span>
-							<span class="user-name">Cluster</span>
+							<span class="user-name">Minikube</span>
 						</a>
 						<div
 							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 						>
-							<a class="dropdown-item" href="profile.html"
-								><i class="dw dw-user1"></i> Profile</a
+							<a class="dropdown-item" href="#" onclick="showClusterDetailsModal()"
+								><i class="dw dw-user1"></i>Infos</a
 							>
 							<a class="dropdown-item" href="profile.html"
-								><i class="dw dw-settings2"></i> Setting</a
+								><i class="dw dw-settings2"></i>Paramètres</a
 							>
-							<a class="dropdown-item" href="faq.html"
-								><i class="dw dw-help"></i> Help</a
-							>
-							<a class="dropdown-item" href="login.html"
-								><i class="dw dw-logout"></i> Log Out</a
+							<a class="dropdown-item" href="/"
+								><i class="dw dw-logout"></i>se déconnecter</a
 							>
 						</div>
 					</div>
@@ -720,7 +717,7 @@
 									</div>
 								</div>
 							</div>
-                            <table class="data-table table nowrap">
+                            <table id="podTable" class="data-table table nowrap">
                                 <thead>
                                     <tr>
                                         <th class="table-plus">Pods name</th>
@@ -779,6 +776,10 @@
 													>
 														<i class="micon bi bi-terminal"></i>shell
 													</a>
+
+													<a class="dropdown-item" href="#" onclick="getPodYaml('{{ pod.metadata.namespace }}', '{{ pod.metadata.name }}')"
+													><i class="dw dw-edit2"></i>modifier</a>
+
 													<a class="dropdown-item" href="#"
 													onclick="deletePods('{{ pod.metadata.namespace }}', '{{ pod.metadata.name }}')"
 														><i class="dw dw-delete-3"></i>supprimer</a
@@ -813,59 +814,66 @@
 			
 
 	
-	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<form id="uploadForm" action="/install" method="post" enctype="multipart/form-data">
-					<div class="pd-20 card-box">
-						<h5 class="h4 text-blue mb-20">Ajout d'un nouveau pod</h5>
-						<div class="tab">
-							<ul class="nav nav-pills justify-content-end" role="tablist">
-								<li class="nav-item">
-									<a class="nav-link active text-blue" data-toggle="tab" href="#import" role="tab" aria-selected="true">Importer</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link text-blue" data-toggle="tab" href="#edit" role="tab" aria-selected="false">Editer</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link text-blue" data-toggle="tab" href="#template" role="tab" aria-selected="false">Template</a>
-								</li>
-							</ul>
-							<div class="tab-content">
-								<div class="tab-pane fade show active" id="import" role="tabpanel">
-									<br>
-									<div class="custom-file">
-										<input type="file" name="yaml_file" accept=".yaml, .yml" required>
-										<label for="resource_type">Type de ressource Kubernetes :</label>
-										<select name="resource_type" required>
-											<option value="pods">Pod</option>
-											<option value="deployments">Deployments</option>
-											<option value="secret">Secrets</option>
-											<option value="configmap">ConfigMaps</option>
-										</select>
-									</div><br><br>
-								</div>
-								<div class="tab-pane fade" id="edit" role="tabpanel">
-									<div class="pd-20">
-										<label>Éditez le YAML</label>
-										<textarea class="form-control" name="yaml_code" rows="10"></textarea>
+			<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered modal-lg">
+					<div class="modal-content">
+						<form id="uploadForm" action="/install" method="post" enctype="multipart/form-data">
+							<div class="modal-header">
+								<h5 class="modal-title text-primary">Ajout d'un nouveau pods</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
+									<li class="nav-item">
+										<a class="nav-link active" id="import-tab" data-toggle="pill" href="#import" role="tab" aria-controls="import" aria-selected="true">Importer</a>
+									</li>
+									<li class="nav-item">
+										<a class="nav-link" id="edit-tab" data-toggle="pill" href="#edit" role="tab" aria-controls="edit" aria-selected="false">Editer</a>
+									</li>
+									<li class="nav-item">
+										<a class="nav-link" id="template-tab" data-toggle="pill" href="#template" role="tab" aria-controls="template" aria-selected="false">Template</a>
+									</li>
+								</ul>
+								<div class="tab-content" id="pills-tabContent">
+									<div class="tab-pane fade show active" id="import" role="tabpanel" aria-labelledby="import-tab">
+										<div class="custom-file mb-3">
+											<input type="file" class="custom-file-input" id="yamlFile" name="yaml_file" accept=".yaml, .yml" required>
+											<label class="custom-file-label" for="yamlFile">Choisir un fichier YAML</label>
+										</div>
+										<div class="form-group">
+											<label for="resourceType">Type de ressource Kubernetes :</label>
+											<select class="form-control" id="resourceType" name="resource_type" required>
+												<option value="pods">Pod</option>
+												<option value="deployments">Deployments</option>
+												<option value="secret">Secrets</option>
+												<option value="configmap">ConfigMaps</option>
+												<option value="services">Service</option>
+											</select>
+										</div>
 									</div>
-								</div>
-								<div class="tab-pane fade" id="template" role="tabpanel">
-									<div class="pd-20">
-										<label>Modèle de YAML</label>
-										<textarea class="form-control" name="yaml_template" rows="10"></textarea>
+									<div class="tab-pane fade" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+										<div class="form-group">
+											<label for="yamlTextarea">Modifier le YAML :</label>
+											<textarea class="form-control" id="yamlTextarea" rows="10"></textarea>
+										</div>
+									</div>
+									<div class="tab-pane fade" id="template" role="tabpanel" aria-labelledby="template-tab">
+										<p>
+											Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+										</p>
 									</div>
 								</div>
 							</div>
-						</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-primary">Ajouter</button>
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+							</div>
+						</form>
 					</div>
-					<input  type="submit" class="btn btn-primary"  value="Ajouter">
-					<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-				</form>
+				</div>
 			</div>
-		</div>
-	</div>
 
 <!-- Modal pour afficher les détails du pod -->
 <div class="modal fade" id="podDetailsModal" tabindex="-1" role="dialog" aria-labelledby="podDetailsModalLabel" aria-hidden="true">
@@ -962,7 +970,8 @@
 											</button>
 										</div>
 										<div class="modal-body">
-											<pre id="podYamlContent"></pre>
+
+											<textarea id="podYaml" class="form-control" rows="10"></textarea>
 										</div>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
@@ -1005,6 +1014,24 @@ function showPodDetails(namespace, podName) {
 
 }
 		</script>
+
+<script>
+	function getPodYaml(namespace, podName) {
+		fetch(`/pod_yaml/${namespace}/${podName}`)
+			.then(response => response.text())
+			.then(data => {
+				const podYamlModal = document.getElementById('podYamlModal');
+				const podYaml = document.querySelector('#podYaml');
+				
+				// Utilisez join('\n') pour ajouter des retours à la ligne
+				podYaml.innerText = data;
+				
+				// Affichez le modal
+				$(podYamlModal).modal('show');
+			});
+	
+	}
+			</script>
 		
 		
 
@@ -1121,22 +1148,6 @@ function showPodDetails(namespace, podName) {
             const selectedNamespace = select.value;
             window.location.href = `/pods?namespace=${selectedNamespace}`;
         }
-
-        function searchPods() {
-        const input = document.getElementById('podSearch');
-        const filter = input.value.toLowerCase();
-        const table = document.querySelector('table tbody');
-        const rows = table.getElementsByTagName('tr');
-
-        for (let i = 0; i < rows.length; i++) {
-            const podName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
-            if (podName.includes(filter)) {
-                rows[i].style.display = '';
-            } else {
-                rows[i].style.display = 'none';
-            }
-        }
-    }
 	$('#logModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var namespace = button.data('namespace');
@@ -1163,6 +1174,23 @@ function showPodDetails(namespace, podName) {
 			document.getElementById(formId).submit();
 		}
 	}
+
+	function searchPods() {
+    const input = document.getElementById('podSearch');
+    const filter = input.value.toLowerCase();
+    const table = document.getElementById('podTable');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const podName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+        if (podName.includes(filter)) {
+            rows[i].style.display = '';
+        } else {
+            rows[i].style.display = 'none';
+        }
+    }
+}
+
 </script>
 <script>
         $(document).ready(function () {

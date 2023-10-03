@@ -313,24 +313,21 @@
 							data-toggle="dropdown"
 						>
 							<span class="user-icon">
-								<img src="vendors/images/photo1.jpg" alt="" />
+								<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
 							</span>
-							<span class="user-name">Cluster</span>
+							<span class="user-name">Minikube</span>
 						</a>
 						<div
 							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 						>
-							<a class="dropdown-item" href="profile.html"
-								><i class="dw dw-user1"></i> Profile</a
+							<a class="dropdown-item" href="#" onclick="showClusterDetailsModal()"
+								><i class="dw dw-user1"></i>Infos</a
 							>
 							<a class="dropdown-item" href="profile.html"
-								><i class="dw dw-settings2"></i> Setting</a
+								><i class="dw dw-settings2"></i>Paramètres</a
 							>
-							<a class="dropdown-item" href="faq.html"
-								><i class="dw dw-help"></i> Help</a
-							>
-							<a class="dropdown-item" href="login.html"
-								><i class="dw dw-logout"></i> Log Out</a
+							<a class="dropdown-item" href="/"
+								><i class="dw dw-logout"></i>se déconnecter</a
 							>
 						</div>
 					</div>
@@ -783,93 +780,66 @@
 	<!-- modale ajout -->
 	
 	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
 			<div class="modal-content">
 				<form id="uploadForm" action="/install" method="post" enctype="multipart/form-data">
-					<div class="pd-20 card-box">
-						<h5 class="h4 text-blue mb-20">Ajout d'un nouveau service</h5>
-						<div class="tab">
-							<ul class="nav nav-pills justify-content-end" role="tablist">
-								<li class="nav-item">
-									<a
-										class="nav-link active text-blue"
-										data-toggle="tab"
-										href="#home6"
-										role="tab"
-										aria-selected="true"
-										>Importer</a
-									>
-								</li>
-								<li class="nav-item">
-									<a
-										class="nav-link text-blue"
-										data-toggle="tab"
-										href="#profile6"
-										role="tab"
-										aria-selected="false"
-										>Editer</a
-									>
-								</li>
-								<li class="nav-item">
-									<a
-										class="nav-link text-blue"
-										data-toggle="tab"
-										href="#contact6"
-										role="tab"
-										aria-selected="false"
-										>Template</a
-									>
-								</li>
-							</ul>
-							<div class="tab-content">
-								<div
-									class="tab-pane fade show active"
-									id="home6"
-									role="tabpanel"
-								><br>
-									<div class="custom-file">
-										<input class="custom-file-input" type="file"  name="yaml_file" accept=".yaml, .yml" required>
-										<label class="custom-file-label">ajouter un fichier yaml</label><br>
-										<label for="resource_type">Type de ressource Kubernetes :</label>
-										<select name="resource_type" required>
-											<option value="pods">Pod</option>
-											<option value="deployments">Deployments</option>
-											<option value="secret">Secrets</option>
-											<option value="configmap">ConfigMaps</option>
-											<option value="services">service</option>
-										</select>
-									</div>
+					<div class="modal-header">
+						<h5 class="modal-title text-primary">Ajout d'un nouveau deploiment</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
+							<li class="nav-item">
+								<a class="nav-link active" id="import-tab" data-toggle="pill" href="#import" role="tab" aria-controls="import" aria-selected="true">Importer</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" id="edit-tab" data-toggle="pill" href="#edit" role="tab" aria-controls="edit" aria-selected="false">Editer</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" id="template-tab" data-toggle="pill" href="#template" role="tab" aria-controls="template" aria-selected="false">Template</a>
+							</li>
+						</ul>
+						<div class="tab-content" id="pills-tabContent">
+							<div class="tab-pane fade show active" id="import" role="tabpanel" aria-labelledby="import-tab">
+								<div class="custom-file mb-3">
+									<input type="file" class="custom-file-input" id="yamlFile" name="yaml_file" accept=".yaml, .yml" required>
+									<label class="custom-file-label" for="yamlFile">Choisir un fichier YAML</label>
 								</div>
-								<div class="tab-pane fade" id="profile6" role="tabpanel">
-									<div class="pd-20">
-										<label>Textarea</label>
-										<textarea class="form-control"></textarea>
-									</div>
+								<div class="form-group">
+									<label for="resourceType">Type de ressource Kubernetes :</label>
+									<select class="form-control" id="resourceType" name="resource_type" required>
+										<option value="pods">Pod</option>
+										<option value="deployments">Deployments</option>
+										<option value="secret">Secrets</option>
+										<option value="configmap">ConfigMaps</option>
+										<option value="services">Service</option>
+									</select>
 								</div>
-								<div class="tab-pane fade" id="contact6" role="tabpanel">
-									<div class="pd-20">
-										Lorem ipsum dolor sit amet, consectetur adipisicing
-										elit, sed do eiusmod tempor incididunt ut labore et
-										dolore magna aliqua. Ut enim ad minim veniam, quis
-										nostrud exercitation ullamco laboris nisi ut aliquip ex
-										ea commodo consequat. Duis aute irure dolor in
-										reprehenderit in voluptate velit esse cillum dolore eu
-										fugiat nulla pariatur. Excepteur sint occaecat cupidatat
-										non proident, sunt in culpa qui officia deserunt mollit
-										anim id est laborum.
-									</div>
+							</div>
+							<div class="tab-pane fade" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+								<div class="form-group">
+									<label for="yamlTextarea">Modifier le YAML :</label>
+									<textarea class="form-control" id="yamlTextarea" rows="10"></textarea>
 								</div>
+							</div>
+							<div class="tab-pane fade" id="template" role="tabpanel" aria-labelledby="template-tab">
+								<p>
+									Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+								</p>
 							</div>
 						</div>
 					</div>
-				<div class="modal-footer">
-					<button type="submit" class="btn btn-primary">ajouter</button>
-					<button type="button" class="btn btn-danger" data-dismiss="modal">annuler</button>
-				</div>
-			</form>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary">Ajouter</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
+	
 
 	</div>
 

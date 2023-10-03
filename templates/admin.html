@@ -54,7 +54,7 @@
 			/* Style for the terminal textarea */
 			#terminal {
 				width: 100%;
-				height: 300px;
+				height: 500px;
 				background-color: black;
 				color: white;
 				font-family: monospace;
@@ -311,13 +311,13 @@
 						<div
 							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 						>
-							<a class="dropdown-item" href="profile.html"
+							<a class="dropdown-item" href="#" onclick="showClusterDetailsModal()"
 								><i class="dw dw-user1"></i>Infos</a
 							>
 							<a class="dropdown-item" href="profile.html"
 								><i class="dw dw-settings2"></i>Paramètres</a
 							>
-							<a class="dropdown-item" href="login.html"
+							<a class="dropdown-item" href="/"
 								><i class="dw dw-logout"></i>se déconnecter</a
 							>
 						</div>
@@ -899,6 +899,7 @@
 								</div>
 							</div>
 					</div>
+
 				</div>
 				<div class="row pb-10">
 					<div class="col-md-8 mb-20">
@@ -1007,10 +1008,42 @@
 						</tbody>
 					</table>
 				</div>
-				
-				
-				<div class="card-box pb-10 skeleton-loader">
-				</div>
+
+<!-- Modal pour les détails du cluster -->
+<div class="modal fade" id="clusterDetailsModal" tabindex="-1" role="dialog" aria-labelledby="clusterDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clusterDetailsModalLabel">Détails du Cluster</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 600px; overflow-y: auto;"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'erreur -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Erreur</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
 			</div>
 		</div>
 
@@ -1034,6 +1067,27 @@
 		<script src="src/plugins/sweetalert2/sweet-alert.init.js"></script>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+
+		<script>
+			function showClusterDetailsModal() {
+				// Faites une requête AJAX pour récupérer les détails du cluster
+				$.ajax({
+					type: 'GET',
+					url: '/cluster_details',
+					success: function (data) {
+						// Affichez les détails du cluster dans le modal
+						$('#clusterDetailsModal .modal-body').html('<pre>' + data + '</pre>');
+						$('#clusterDetailsModal').modal('show');
+					},
+					error: function (xhr, status, error) {
+						// En cas d'erreur, affichez un message d'erreur
+						$('#errorModal .modal-body').text('Erreur lors de la récupération des détails du cluster : ' + error);
+						$('#errorModal').modal('show');
+					}
+				});
+			}
+		</script>
+		
 
 		<script>
 			// Fonction pour masquer le squelette de chargement et supprimer l'élément du squelette
