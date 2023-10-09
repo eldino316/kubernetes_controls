@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+<meta charset="UTF-8">
+<title>BIENVENUE</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" type="text/css">
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div id="container">
+<!-- Cover Box -->
+<div id="cover">
+<!-- Sign Up Section -->
+<h1 class="sign-up">Assistance Project</h1>
+<p class="sign-up"><br>Prennez votre projet en mains!</p>
+<a class="button sign-up" href="#cover">S'inscrire</a>
+<!-- Sign In Section -->
+<h1 class="sign-in">Assistance Project</h1>
+<p class="sign-in">Connectez-vous pour réaliser votre projet</p>
+<br>
+<a class="button sub sign-in" href="#">Se connecter</a>
+</div>
+<!-- Login Box -->
+<div id="login">
+<h1>Se connecter</h1>
+<a href="#"><img class="social-login" src="https://image.flaticon.com/icons/png/128/59/59439.png"></a>
+<a href="#"><img class="social-login" src="https://image.flaticon.com/icons/png/128/49/49026.png"></a>
+<a href="#"><img class="social-login" src="https://image.flaticon.com/icons/png/128/34/34227.png"></a><br>
+
+<form class="form" id="form1" method="post" action="/login">
+<input type="text" style="text-align: center;" placeholder="Entrer votre username" id="txtname1" name="txtname1" required><br>
+<input type="password" style="text-align: center;" placeholder="Mot de passe" id="txtpass1" name="txtpass1" required><br>
+<a id="forgot-pass" href="">Mots de passe oublié?</a><br>
+<input class="submit-btn" type="submit" value="Se Connecter">
+</form>
+</div>
+
+<!-- Register Box -->
+<div id="register">
+<h1>Créer votre compte</h1>
+<form class="form" id="form2" method="post" action="/register">
+<input type="text" placeholder="username" id="txtname" name="txtname" required><br>
+<input type="email" placeholder="Email" id="txtmail" name="txtmail" required><br>
+<select id="fonction" name="fonction">
+    <option value="" disabled selected>Choisissez votre fonction</option>
+    <option value="testeur">testeur</option>
+    <option value="devOps">DevOps</option>
+</select><br>    
+<input type="password" placeholder="Password" id="txtpass" name="txtpass" required><br>
+<input type="password" placeholder="Confirmez votre mot de passe" id="confirmation" name="confirmation" required><br>
+<input class="submit-btn" type="submit" value="S'inscrire">
+</form>
+</div>
+</div> <!-- END Container -->
+<!-- partial -->
+
+<script>
+    $(document).ready(function () {
+        $('#form1').submit(function (event) {
+        event.preventDefault();
+        
+        $.ajax({
+            type: 'POST',
+            url: '{{ url_for("login") }}', // Change to the correct URL for your login route
+            data: $(this).serialize(),
+            success: function (response) {
+                if (response.success) {
+                    // Redirect to the appropriate page based on role
+                    if (response.role === 'admin') {
+                        window.location.href = '{{ url_for("home") }}';
+                    } else if (response.role === 'devOps') {
+                        window.location.href = '{{ url_for("devOps") }}';
+                    } else if (response.role === 'testeur') {
+                        window.location.href = '{{ url_for("testeur") }}';
+                    }
+                } else if (response.error) {
+                    Swal.fire('Erreur', response.error, 'error');
+                }
+            },
+            error: function () {
+                Swal.fire('Erreur', 'Une erreur s\'est produite lors de la requête.', 'error');
+            }
+        });
+    });
+    
+        $('#form2').submit(function (event) {
+            event.preventDefault();
+    
+            $.ajax({
+                type: 'POST',
+                url: '{{ url_for("register") }}',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire('Succès', response.success, 'success');
+                    } else if (response.error) {
+                        Swal.fire('Erreur', response.error, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Erreur', 'Une erreur s\'est produite lors de la requête.', 'error');
+                }
+            });
+        });
+    });
+    </script>
+    
+
+</body>
+</html>

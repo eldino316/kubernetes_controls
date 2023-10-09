@@ -777,7 +777,10 @@
 														<i class="micon bi bi-terminal"></i>shell
 													</a>
 
-													<a class="dropdown-item" href="#" onclick="getPodYaml('{{ pod.metadata.namespace }}', '{{ pod.metadata.name }}')"
+													<a class="dropdown-item" href="#" 
+													data-toggle="modal" data-target="#modifyPodModal"
+													data-pod-name="{{ pod.metadata.name }}"
+													data-namespace="{{ pod.metadata.namespace }}"
 													><i class="dw dw-edit2"></i>modifier</a>
 
 													<a class="dropdown-item" href="#"
@@ -980,6 +983,32 @@
 								</div>
 							</div>
 
+<!-- Modal de Modification -->
+<div class="modal fade" id="modifyPodModal" tabindex="-1" role="dialog" aria-labelledby="modifyPodModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modifyPodModalLabel">Modifier le Pod</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="modifyPodForm">
+                    <div class="form-group">
+                        <label for="newImage">Nouvelle Image :</label>
+                        <input type="text" class="form-control" id="newImage" name="newImage">
+                    </div>
+                    <!-- Ajoutez ici d'autres champs pour les modifications -->
+                    <button type="button" class="btn btn-primary" onclick="updatePod()">Modifier</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+							
+
 				<!-- welcome modal end -->
 		<!-- js -->
 		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
@@ -997,6 +1026,65 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 
 		<!-- JavaScript pour récupérer et afficher les détails du pod -->
+
+		<script>
+			// JavaScript pour remplir le modal avec les détails du pod sélectionné
+			$(document).ready(function() {
+    // Lorsque le bouton "Modifier" est cliqué
+    $('.modify-pod-btn').on('click', function() {
+        // Récupérez les données du bouton et mettez-les dans le modal
+        var podName = $(this).data('pod-name');
+        var namespace = $(this).data('namespace');
+        var image = $(this).data('image');
+        $('#newImage').val(image); // Pré-remplissez le champ de l'image dans le formulaire
+        // Ajoutez ici le code pour pré-remplir d'autres champs si nécessaire
+        
+        // Lorsque le modal est fermé, réinitialisez les champs du formulaire
+        $('#modifyPodModal').on('hidden.bs.modal', function () {
+            $('#newImage').val(''); // Réinitialisez le champ de l'image
+            // Réinitialisez les autres champs du formulaire si nécessaire
+        });
+    });
+
+    // Fonction pour mettre à jour le pod (AJAX)
+    function updatePod() {
+        var podName = $('#modifyPodModal').data('pod-name');
+        var namespace = $('#modifyPodModal').data('namespace');
+        var newImage = $('#newImage').val();
+        // Récupérez d'autres données du formulaire au besoin
+
+        // Faites une requête AJAX pour mettre à jour le pod
+        $.ajax({
+            type: 'POST',
+            url: '/update_pod',
+            data: {
+                namespace: namespace,
+                pod_name: podName,
+                new_image: newImage,
+                // Ajoutez ici d'autres données à envoyer au serveur
+            },
+            success: function (response) {
+                if (response.success) {
+                    // Mettez à jour le tableau ou effectuez d'autres actions nécessaires
+                    // ...
+                    // Fermez le modal
+                    $('#modifyPodModal').modal('hide');
+                } else {
+                    // Affichez un message d'erreur si la mise à jour a échoué
+                    alert('Erreur lors de la mise à jour du pod : ' + response.error);
+                }
+            },
+            error: function (xhr, status, error) {
+                // Affichez un message d'erreur en cas d'échec de la requête AJAX
+                alert('Erreur lors de la requête AJAX : ' + error);
+            }
+        });
+    }
+});
+
+
+
+		</script>
 		<script>
 function showPodDetails(namespace, podName) {
     fetch(`/pod_details/${namespace}/${podName}`)

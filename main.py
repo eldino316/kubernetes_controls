@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, Markup
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, Markup, session
 from flask_socketio import SocketIO
 from kubernetes import client, config, utils
+import re
 import os
 import psutil
 import yaml
+import mysql.connector
 import subprocess
 from pods import *
 from nodes import *
@@ -27,6 +29,13 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 socketio = SocketIO(app)
 
+mydb = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd="",
+    database="database"
+)
+mycursor = mydb.cursor()
 
                                            #route index de l'application
 
@@ -39,9 +48,68 @@ def index():
         return render_template('home.html', clusters=clusters)
     except Exception as e:
         return jsonify(error="il y erreur dans le chargement du kubeconfig")
-    
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        txtname1 = request.form['txtname1']
+        txtpass1 = request.form['txtpass1']
+        mycursor.execute('SELECT roles FROM prs_info WHERE prs_name = %s AND prs_pass = %s', (txtname1, txtpass1,))
+        roles = mycursor.fetchone()
+
+        if roles:
+            role = roles[0]
+            session['username'] = txtname1
+            return jsonify(success="Connexion réussie", role=role,)
+        else:
+            return jsonify(error="Veuillez vérifier votre nom d'utilisateur et mot de passe.")
+    else:
+        return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    # Check if "username", "password" and "email" POST requests exist (user submitted form)
+    if request.method == 'POST' and 'txtname' in request.form and 'txtpass' in request.form and 'txtmail' in request.form and 'fonction' in request.form:
+        # Create variables for easy access
+        txtname = request.form['txtname']
+        txtpass = request.form['txtpass']
+        txtmail = request.form['txtmail']
+        fonction = request.form['fonction']
+
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (txtname,))
+        account = mycursor.fetchone()
+        if account:
+            return jsonify(error=f"cette compte existe déja dans la base")
+        
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', txtmail):
+            return jsonify(error=f"veuillez verifier le format de votre adresse email")
+        
+        elif not re.match(r'[A-Za-z0-9]+', txtname):
+            return jsonify(error=f"l'username doit contenir au moins un nombre et des caractères")
+        
+        elif not txtname or not txtpass or not txtmail:
+            return jsonify(error=f"veuillez remplir le champs,")
+        else:
+            # Account doesnt exists and the form data is valid, now insert new account into accounts table
+            mycursor.execute('INSERT INTO prs_info VALUES (NULL, %s, %s, %s, %s)', (txtname, txtpass, txtmail, fonction))
+            mydb.commit()
+            mydb.close
+            return jsonify(success=f"Compte enregistré avec succés!")            
+
 @app.route('/home')
 def home():
+    logs = get_logs()
+    cluster_details = get_cluster_details()
+    return render_template('admin.html', logs=logs, cluster_details=cluster_details)
+
+@app.route('/devOps')
+def devOps():
+    logs = get_logs()
+    cluster_details = get_cluster_details()
+    return render_template('admin.html', logs=logs, cluster_details=cluster_details)
+
+@app.route('/testeur')
+def testeur():
     logs = get_logs()
     cluster_details = get_cluster_details()
     return render_template('admin.html', logs=logs, cluster_details=cluster_details)
@@ -65,7 +133,15 @@ def cluster_details():
         return cluster_details
     except subprocess.CalledProcessError as e:
         error_message = f"Erreur : {e.stderr}"
-        return jsonify({"error": error_message})        
+        return jsonify({"error": error_message})
+
+@app.route('/user', methods=['GET'])
+def user():
+    mycursor.execute("SELECT * FROM prs_info")
+    users=mycursor.fetchall()
+
+    return render_template('user.html', users=users)
+
 
                                          #lancement du socket pour le terminale       
 
@@ -216,6 +292,36 @@ def get_pod_yaml(namespace, pod_name):
     pod_yaml = get_pod_yaml(namespace, pod_name)
     formated_pod_yaml = Markup(pod_yaml)
     return formated_pod_yaml
+
+@app.route('/update_pod', methods=['POST'])
+def update_pod():
+    try:
+        namespace = request.form.get('namespace')
+        pod_name = request.form.get('pod_name')
+        new_image = request.form.get('new_image')
+        # Récupérez d'autres valeurs du formulaire au besoin
+        
+        # Créez un objet de configuration pour l'API Kubernetes
+        configuration = client.Configuration()
+
+        # Configurez le namespace
+        configuration.namespace = namespace
+
+        # Créez un objet d'API CoreV1Api avec la configuration
+        api_instance = client.CoreV1Api(client.ApiClient(configuration))
+
+        # Récupérez le pod existant
+        pod = api_instance.read_namespaced_pod(name=pod_name, namespace=namespace)
+
+        # Mettez à jour l'image du conteneur dans le pod
+        pod.spec.containers[0].image = new_image
+
+        # Mettez à jour le pod
+        api_instance.patch_namespaced_pod(name=pod_name, namespace=namespace, body=pod)
+
+        return jsonify(success=True, message="Pod mis à jour avec succès.")
+    except Exception as e:
+        return jsonify(success=False, error=str(e))
 
                                     #route pour les opérations sur le déploiments
 

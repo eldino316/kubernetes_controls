@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>DeskApp - Bootstrap Admin Dashboard HTML Template</title>
+
+		<!-- Site favicon -->
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="vendors/images/apple-touch-icon.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="vendors/images/favicon-32x32.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="vendors/images/favicon-16x16.png"
+		/>
+
+		<!-- Mobile Specific Metas -->
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=1"
+		/>
+
+		<!-- Google Font -->
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+		<!-- CSS -->
+		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/core.css') }}" />
+        
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='vendors/styles/icon-font.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
+		/>
+        <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='src/plugins/jquery-steps/jquery.steps.css') }}"
+    />
+		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
+		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+		
+		<style>
+			/* Style for the terminal textarea */
+			#terminal {
+				width: 100%;
+				height: 300px;
+				background-color: black;
+				color: white;
+				font-family: monospace;
+				border: none;
+				outline: none;
+				overflow: auto;
+			}
+			#user-input {
+				width: 100%;
+				font-family: monospace;
+				border: none;
+				outline: none;
+			}
+		</style>
+
+		<style>
+	/* Styles pour le squelette de chargement */
+			.skeleton-container {
+				animation: loading 2s infinite;
+			}
+			.main-containrt {
+				background-color: #838383; /* Couleur du skeleton */
+    			margin-bottom: 10px;
+				animation: loading 2s infinite;
+			}
+
+			.skeleton {
+   				width: 100%;
+    			height: 20px; /* Ajustez la hauteur selon vos besoins */
+   			 	background-color: #838383; /* Couleur du skeleton */
+    			margin-bottom: 10px; /* Espace entre les éléments du skeleton */
+    			animation: loading 1.5s infinite;
+			}
+
+			@keyframes loading {
+    			0% {
+        			background-position: 200% 0;
+    			}
+    			100% {
+        			background-position: -200% 0;
+    			}
+			}
+
+	/* Style pour masquer le contenu de la page */
+			.content-container {
+				display: none;
+			}
+		</style>
+
+
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script
+			async
+			src="https://www.googletagmanager.com/gtag/js?id=G-GBZ3SGGX85"
+		></script>
+		<script
+			async
+			src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2973766580778258"
+			crossorigin="anonymous"
+		></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag("js", new Date());
+
+			gtag("config", "G-GBZ3SGGX85");
+		</script>
+		<!-- Google Tag Manager -->
+		<script>
+			(function (w, d, s, l, i) {
+				w[l] = w[l] || [];
+				w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+				var f = d.getElementsByTagName(s)[0],
+					j = d.createElement(s),
+					dl = l != "dataLayer" ? "&l=" + l : "";
+				j.async = true;
+				j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+				f.parentNode.insertBefore(j, f);
+			})(window, document, "script", "dataLayer", "GTM-NXZMQSS");
+		</script>
+		<!-- End Google Tag Manager -->
+	</head>
+	<body>
+		<div class="header">
+			<div class="header-left">
+				<div class="menu-icon bi bi-list"></div>
+				<div
+					class="search-toggle-icon bi bi-search"
+					data-toggle="header_search"
+				></div>
+				<div class="header-search">
+					<form>
+						<div class="form-group mb-0">
+							<i class="dw dw-search2 search-icon"></i>
+							<input
+								type="text"
+								class="form-control search-input"
+								placeholder="Search Here"
+								id="deploySearch" 
+								oninput="searchDeploy()"
+							/>
+							<div class="dropdown">
+								<a
+									class="dropdown-toggle no-arrow"
+									href="#"
+									role="button"
+									data-toggle="dropdown"
+								>
+									<i class="ion-arrow-down-c"></i>
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<div class="form-group row">
+										<label class="col-sm-12 col-md-2 col-form-label"
+											>From</label
+										>
+										<div class="col-sm-12 col-md-10">
+											<input
+												class="form-control form-control-sm form-control-line"
+												type="text"
+											/>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-sm-12 col-md-2 col-form-label">To</label>
+										<div class="col-sm-12 col-md-10">
+											<input
+												class="form-control form-control-sm form-control-line"
+												type="text"
+											/>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-sm-12 col-md-2 col-form-label"
+											>Subject</label
+										>
+										<div class="col-sm-12 col-md-10">
+											<input
+												class="form-control form-control-sm form-control-line"
+												type="text"
+											/>
+										</div>
+									</div>
+									<div class="text-right">
+										<button class="btn btn-primary">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="header-right">
+				<div class="dashboard-setting user-notification">
+					<div class="dropdown">
+						<a
+							class="dropdown-toggle no-arrow"
+							href="javascript:;"
+							data-toggle="right-sidebar"
+						>
+							<i class="dw dw-settings2"></i>
+						</a>
+					</div>
+				</div>
+				<div class="user-notification">
+					<div class="dropdown">
+						<a
+							class="dropdown-toggle no-arrow"
+							href="#"
+							role="button"
+							data-toggle="dropdown"
+						>
+							<i class="icon-copy dw dw-notification"></i>
+							<span class="badge notification-active"></span>
+						</a>
+						<div class="dropdown-menu dropdown-menu-right">
+							<div class="notification-list mx-h-350 customscroll">
+								<ul>
+									<li>
+										<a href="#">
+											<img src="vendors/images/img.jpg" alt="" />
+											<h3>John Doe</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo1.jpg" alt="" />
+											<h3>Lea R. Frith</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo2.jpg" alt="" />
+											<h3>Erik L. Richards</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo3.jpg" alt="" />
+											<h3>John Doe</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/photo4.jpg" alt="" />
+											<h3>Renee I. Hansen</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<img src="vendors/images/img.jpg" alt="" />
+											<h3>Vicki M. Coleman</h3>
+											<p>
+												Lorem ipsum dolor sit amet, consectetur adipisicing
+												elit, sed...
+											</p>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="user-info-dropdown">
+					<div class="dropdown">
+						<a
+							class="dropdown-toggle"
+							href="#"
+							role="button"
+							data-toggle="dropdown"
+						>
+							<span class="user-icon">
+								<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
+							</span>
+							<span class="user-name">Minikube</span>
+						</a>
+						<div
+							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
+						>
+							<a class="dropdown-item" href="#" onclick="showClusterDetailsModal()"
+								><i class="dw dw-user1"></i>Infos</a
+							>
+							<a class="dropdown-item" href="profile.html"
+								><i class="dw dw-settings2"></i>Paramètres</a
+							>
+							<a class="dropdown-item" href="/"
+								><i class="dw dw-logout"></i>se déconnecter</a
+							>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="right-sidebar">
+			<div class="sidebar-title">
+				<h3 class="weight-600 font-16 text-blue">
+					Layout Settings
+					<span class="btn-block font-weight-400 font-12"
+						>User Interface Settings</span
+					>
+				</h3>
+				<div class="close-sidebar" data-toggle="right-sidebar-close">
+					<i class="icon-copy ion-close-round"></i>
+				</div>
+			</div>
+			<div class="right-sidebar-body customscroll">
+				<div class="right-sidebar-body-content">
+					<h4 class="weight-600 font-18 pb-10">Header Background</h4>
+					<div class="sidebar-btn-group pb-30 mb-10">
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary header-white active"
+							>White</a
+						>
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary header-dark"
+							>Dark</a
+						>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Sidebar Background</h4>
+					<div class="sidebar-btn-group pb-30 mb-10">
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary sidebar-light"
+							>White</a
+						>
+						<a
+							href="javascript:void(0);"
+							class="btn btn-outline-primary sidebar-dark active"
+							>Dark</a
+						>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Menu Dropdown Icon</h4>
+					<div class="sidebar-radio-group pb-10 mb-10">
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-1"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-1"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebaricon-1"
+								><i class="fa fa-angle-down"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-2"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-2"
+							/>
+							<label class="custom-control-label" for="sidebaricon-2"
+								><i class="ion-plus-round"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebaricon-3"
+								name="menu-dropdown-icon"
+								class="custom-control-input"
+								value="icon-style-3"
+							/>
+							<label class="custom-control-label" for="sidebaricon-3"
+								><i class="fa fa-angle-double-right"></i
+							></label>
+						</div>
+					</div>
+
+					<h4 class="weight-600 font-18 pb-10">Menu List Icon</h4>
+					<div class="sidebar-radio-group pb-30 mb-10">
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-1"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-1"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebariconlist-1"
+								><i class="ion-minus-round"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-2"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-2"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-2"
+								><i class="fa fa-circle-o" aria-hidden="true"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-3"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-3"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-3"
+								><i class="dw dw-check"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-4"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-4"
+								checked=""
+							/>
+							<label class="custom-control-label" for="sidebariconlist-4"
+								><i class="icon-copy dw dw-next-2"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-5"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-5"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-5"
+								><i class="dw dw-fast-forward-1"></i
+							></label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input
+								type="radio"
+								id="sidebariconlist-6"
+								name="menu-list-icon"
+								class="custom-control-input"
+								value="icon-list-style-6"
+							/>
+							<label class="custom-control-label" for="sidebariconlist-6"
+								><i class="dw dw-next"></i
+							></label>
+						</div>
+					</div>
+
+					<div class="reset-options pt-30 text-center">
+						<button class="btn btn-danger" id="reset-settings">
+							Reset Settings
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="left-side-bar">
+			<div class="">
+				<a href="/home">
+					<img src="{{ url_for('static', filename='images/logo3.png') }}" style="height:120px; width: 265px;" alt="" class="dark-logo pd-20" />
+				</a>
+				<div class="close-sidebar" data-toggle="left-sidebar-close">
+					<i class="ion-close-round"></i>
+				</div>
+			</div>
+			<div class="menu-block customscroll">
+				<div class="sidebar-menu">
+					<ul id="accordion-menu">
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-display"></span
+								><span class="mtext">Nodes</span>
+							</a>
+						</li>
+						<li>
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-file-earmark-text-fill"></span
+								><span class="mtext">Namespace</span>
+							</a>
+						</li>	
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-wrench"></span
+								><span class="mtext">charge de travail</span>
+							</a>
+							<ul class="submenu">
+                                <li><a href="/globale">Vue global</a></li>
+								<li><a href="/pods">Pods</a></li>
+								<li>
+									<a href="/deployment">Déploiements</a>
+								</li>
+								<li><a href="/statefullset">StatefulSets</a></li>
+								<li><a href="/replicatset">RepilcaSets</a></li>
+								<li><a href="/jobs">Jobs</a></li>
+								<li><a href="/cronjobs">CronJobs</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-server"></span
+								><span class="mtext">Storage</span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/pvc">Persistent Volume Claim</a></li>
+								<li><a href="/pv">Persistent Volumes</a></li>
+								<li><a href="/storage">Storage Classes</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-gear-fill"></span
+								><span class="mtext">Configurations</span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/configmap">ConfigMaps</a></li>
+								<li><a href="/secret">Secrets</a></li>
+								<li><a href="/ressource">Ressource Quotas</a></li>
+								<li><a href="/range">Limit Ranges</a></li>
+								<li><a href="/hpa">HPA</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-broadcast-pin"></span
+								><span class="mtext"> Réseaux </span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/service">Service</a></li>
+								<li><a href="/endpoint">Endpoints</a></li>
+								<li><a href="/ingress">Ingress</a></li>
+								<li><a href="/policies">Network Policies</li>
+							</ul>
+						</li>
+						<li>
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi bi-calendar-check"></span
+								><span class="mtext">Events</span>
+							</a>
+						</li>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="micon bi-download"></span
+								><span class="mtext">Plugins</span>
+							</a>
+							<ul class="submenu">
+								<li><a href="/chart">chart</a></li>
+								<li><a href="release">Release</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="javascript:;" class="dropdown-toggle" data-toggle="modal" data-target="#terminalModal">
+								<span class="micon bi bi-terminal"></span
+								><span class="mtext">Terminale</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+
+		<div class="skeleton-container main-container">
+			<div class="xs-pd-20-10 pd-ltr-20">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<div class="title pb-20">
+						<h2 class="h3 mb-0">Listes des utilisateurs</h2>
+					</div>
+					<div class="d-flex add-box ml-3">
+						<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal">
+							<i class="dw dw-add add-icon"></i>  Ajouter un utilisateur
+						</a>
+					</div>
+				</div>
+					<div class="card-box pb-10">
+						<div class="d-flex justify-content-between align-items-center mb-3">
+							<div class="h5 pd-20 mb-0">Recente Utilisateurs</div>
+							<!-- Barre de recherche -->
+							<div class="form-group pd-20 row align-items-center">
+								<label class="col-form-label" for="namespace">Namespace:</label>
+								<div class="col">
+								</div>
+							</div>
+						</div>
+						<table class="data-table table nowrap skeleton-loader">
+							<thead>
+								<tr>
+									<th class="table-plus">NOM</th>
+									<th>EMAIL</th>
+									<th>ROLES</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- Première ligne de squelette -->
+								<tr class="skeleton-row">
+									<td>chargemnt...</td>
+									<td>chargement...</td>
+									<td>chargement...</td>
+									<td>chargement...</td>
+								</tr>
+								<!-- Deuxième ligne de squelette -->
+								<tr class="skeleton-row">
+									<td>chargement...</td>
+									<td>chargement...</td>
+									<td>chargement...</td>
+									<td>chargement...</td>
+								</tr>
+								<!-- Ajoutez autant de lignes de squelette que nécessaire -->
+							</tbody>
+						</table>
+					</div>
+			</div>
+	</div>
+
+
+                <div class="content-container main-container">
+                    <div class="xs-pd-20-10 pd-ltr-20">
+						<div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="title pb-20">
+                            <h2 class="h3 mb-0">Listes des utilisateurs</h2>
+                        </div>
+						<div class="d-flex add-box ml-3">
+							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un utilisateur</a>
+						</div>
+					</div>
+        
+                        <div class="card-box pb-10">
+
+							<div class="d-flex justify-content-between align-items-center mb-3">
+								<div class="h5 pd-20 mb-0">Recente utilisateurs</div>
+								<!-- Barre de recherche -->
+								<div class="form-group pd-20 row align-items-center">
+									<label class="col-form-label" for="namespace">Namespace:</label>
+									<div class="col">
+									</div>
+								</div>
+							</div>
+
+                            <table class="data-table table nowrap">
+                                <thead>
+                                    <tr>
+                                        <th class="table-plus">NOM</th>
+                                        <th>EMAIL</th>
+                                        <th>ROLES</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for users in users %}
+                                    <tr>
+                                        <td class="table-plus">
+                                            <div class="name-avatar d-flex align-items-center">
+                                                <div class="avatar mr-2 flex-shrink-0">
+                                                    <img
+                                                        src="{{ url_for('static', filename='images/user2.png') }}"
+                                                        class="border-radius-100 shadow"
+                                                        width="40"
+                                                        height="40"
+                                                        alt=""
+                                                    />
+                                                </div>
+                                                <div class="txt">
+                                                    <div class="weight-600">{{ users[1] }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ users[3] }}</td>
+                                        <td>{{ users[4] }}</td>
+										<td>
+											<div class="dropdown">
+												<a
+													class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+													data-color="#1b3133"
+													href="#"
+													role="button"
+													data-toggle="dropdown"
+												>
+													<i class="dw dw-more"></i>
+												</a>
+												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+													<a class="dropdown-item" href="#">
+														<i class="icon-copy bi bi-card-list"></i>Mots de passe
+													</a>
+													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>Modifier</a>
+													<a
+					                                    class="dropdown-item"
+														href="#"
+													> 
+														<i class="dw dw-delete-3"></i> supprimer
+													</a>
+												</div>
+											</div>
+										</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+	<!-- modale ajout -->
+	
+	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="terminalModalLabel">Ajout d'un nouveau utlisateur</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                    <div class="register-box bg-white box-shadow border-radius-10">
+                                        <div class="wizard-content">
+                                            <form class="tab-wizard2 wizard-circle wizard" id="form2" method="post" action="/register">
+                                                <h5>Information de l'utilisateur</h5>
+                                                <section>
+                                                    <div class="form-wrap max-width-600 mx-auto">
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-4 col-form-label"
+                                                                >Username*</label
+                                                            >
+                                                            <div class="col-sm-8">
+                                                                <input type="text" class="form-control" placeholder="username" id="txtname" name="txtname" required />
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-4 col-form-label">Email*</label>
+                                                            <div class="col-sm-8">
+                                                                <input type="text" class="form-control" placeholder="Email" id="txtmail" name="txtmail" required />
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-4 col-form-label">Fonction*</label>
+                                                            <div class="col-sm-8">
+                                                                <select class="selectpicker form-control" data-style="btn-outline-primary" data-size="5" id="fonction" name="fonction">
+                                                                    <option value="testeur">testeur</option>
+                                                                    <option value="devOps">DevOps</option>
+                                                                </select><br>
+                                                            </div>
+                                                        </div>                                                        
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-4 col-form-label">Password*</label>
+                                                            <div class="col-sm-8">
+                                                                <input type="password" class="form-control" placeholder="Password" id="txtpass" name="txtpass" required/>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-4 col-form-label"
+                                                                >Confirmer votre mots de passe</label
+                                                            >
+                                                            <div class="col-sm-8">
+                                                                <input type="password" class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                                <!-- Step 3 -->
+                                                <h5>Accès au cluster</h5>
+                                                <section>
+                                                    <div class="form-wrap max-width-600 mx-auto">
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-4 col-form-label"
+                                                                >Credit Card Type</label
+                                                            >
+                                                            <div class="col-sm-8">
+                                                                <select
+                                                                    class="form-control selectpicker"
+                                                                    title="Select Card Type"
+                                                                >
+                                                                    <option value="1">Option 1</option>
+                                                                    <option value="2">Option 2</option>
+                                                                    <option value="3">Option 3</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row align-items-center">
+                                                            <label class="col-sm-4 col-form-label"
+                                                                >Credit Card Number</label
+                                                            >
+                                                            <div class="col-sm-8">
+                                                                <input type="text" class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-4 col-form-label">CVC</label>
+                                                            <div class="col-sm-3">
+                                                                <input type="text" class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-4 col-form-label"
+                                                                >Expiration Date</label
+                                                            >
+                                                            <div class="col-sm-8">
+                                                                <div class="row">
+                                                                    <div class="col-6">
+                                                                        <select
+                                                                            class="form-control selectpicker"
+                                                                            title="Month"
+                                                                            data-size="5"
+                                                                        >
+                                                                            <option value="01">January</option>
+                                                                            <option value="02">February</option>
+                                                                            <option value="03">March</option>
+                                                                            <option value="04">April</option>
+                                                                            <option value="05">May</option>
+                                                                            <option value="06">June</option>
+                                                                            <option value="07">July</option>
+                                                                            <option value="08">August</option>
+                                                                            <option value="09">September</option>
+                                                                            <option value="10">October</option>
+                                                                            <option value="11">November</option>
+                                                                            <option value="12">December</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <select
+                                                                            class="form-control selectpicker"
+                                                                            title="Year"
+                                                                            data-size="5"
+                                                                        >
+                                                                            <option>2020</option>
+                                                                            <option>2019</option>
+                                                                            <option>2018</option>
+                                                                            <option>2017</option>
+                                                                            <option>2016</option>
+                                                                            <option>2015</option>
+                                                                            <option>2014</option>
+                                                                            <option>2013</option>
+                                                                            <option>2012</option>
+                                                                            <option>2011</option>
+                                                                            <option>2010</option>
+                                                                            <option>2009</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                                <!-- Step 4 -->
+                                                <h5>Overview Information</h5>
+                                                <section>
+                                                    <div class="form-wrap max-width-600 mx-auto">
+                                                        <ul class="register-info">
+                                                            <li>
+                                                                <div class="row">
+                                                                    <div class="col-sm-4 weight-600">Email Address</div>
+                                                                    <div class="col-sm-8">example@abc.com</div>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="row">
+                                                                    <div class="col-sm-4 weight-600">Username</div>
+                                                                    <div class="col-sm-8">Example</div>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="row">
+                                                                    <div class="col-sm-4 weight-600">Password</div>
+                                                                    <div class="col-sm-8">.....000</div>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="row">
+                                                                    <div class="col-sm-4 weight-600">Full Name</div>
+                                                                    <div class="col-sm-8">john smith</div>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="row">
+                                                                    <div class="col-sm-4 weight-600">Location</div>
+                                                                    <div class="col-sm-8">123 Example</div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                        <div class="custom-control custom-checkbox mt-4">
+                                                            <input
+                                                                type="checkbox"
+                                                                class="custom-control-input"
+                                                                id="customCheck1"
+                                                            />
+                                                            <label class="custom-control-label" for="customCheck1"
+                                                                >I have read and agreed to the terms of services and
+                                                                privacy policy</label
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                            </div>
+                        </div>
+                    </div>    
+			</div>
+		</div>
+	</div>
+	
+
+	</div>
+
+
+						    <!-- Terminal Modal -->
+							<div class="modal fade" id="terminalModal" tabindex="-1" role="dialog" aria-labelledby="terminalModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="terminalModalLabel">Terminal</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<textarea id="user-input" placeholder="Enter a command"></textarea>
+											<textarea id="terminal" readonly></textarea>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="modal fade" id="deployDetailsModal" tabindex="-1" role="dialog" aria-labelledby="deployDetailsModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="deployDetailsModalLabel">Détails du déployments</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<div id="deployDetails">
+												<!-- Les détails du pod seront insérés ici -->
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+				<!-- welcome modal end -->
+		<!-- js -->
+		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/script.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/process.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/layout-settings.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/apexcharts/apexcharts.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/jquery.dataTables.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.bootstrap4.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
+        <script src="{{ url_for('static', filename='vendors/scripts/process.js') }}"></script>
+        <script src="{{ url_for('static', filename='vendors/scripts/layout-settings.js') }}"></script>
+        <script src="{{ url_for('static', filename='src/plugins/jquery-steps/jquery.steps.js') }}"></script>
+        <script src="{{ url_for('static', filename='vendors/scripts/steps-setting.js') }}"></script>
+
+        <script>
+            $(document).ready(function () {            
+                $('#form2').submit(function (event) {
+                    event.preventDefault();
+            
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ url_for("register") }}',
+                        data: $(this).serialize(),
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Succès', response.success, 'success');
+                            } else if (response.error) {
+                                Swal.fire('Erreur', response.error, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Erreur', 'Une erreur s\'est produite lors de la requête.', 'error');
+                        }
+                    });
+                });
+            });
+            </script>        
+		
+		
+		<script>
+    		setTimeout(function() {
+        		const skeletonContainer = document.querySelector('.skeleton-container');
+        		const contentContainer = document.querySelector('.content-container');
+        		skeletonContainer.style.display = 'none';
+        		contentContainer.style.display = 'block';
+    			}, 6000); 
+		</script>
+
+		<script>
+			function showDeployDetails(namespace, deployName) {
+				fetch(`/deploy_details/${namespace}/${deployName}`)
+					.then(response => response.text())
+					.then(data => {
+						const deployDetailsModal = document.getElementById('deployDetailsModal');
+						const deployDetails = document.querySelector('#deployDetails');
+				
+				// Utilisez join('\n') pour ajouter des retours à la ligne
+						deployDetails.innerText = data;
+				
+				// Affichez le modal
+					$(deployDetailsModal).modal('show');
+				});
+	
+			}
+			</script>
+
+		<script>
+			function deleteDeployment(namespace, name) {
+				var formId = 'deleteForm_' + namespace + '_' + name;
+				if (confirm("Êtes-vous sûr de vouloir supprimer ce déploiement ?")) {
+					document.getElementById(formId).submit();
+				}
+			}
+
+			function changeNamespace(select) {
+            const selectedNamespace = select.value;
+            window.location.href = `/deployment?namespace=${selectedNamespace}`;
+		}
+
+		function searchDeploy() {
+        const input = document.getElementById('deploySearch');
+        const filter = input.value.toLowerCase();
+        const table = document.querySelector('table tbody');
+        const rows = table.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const podName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+            if (podName.includes(filter)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    	}
+		</script>
+
+<script>
+	$(document).ready(function () {
+		$('#uploadForm').submit(function (event) {
+			event.preventDefault();
+
+			var formData = new FormData(this);
+
+			$.ajax({
+				type: 'POST',
+				url: '{{ url_for("install") }}',
+				data: formData,
+				processData: false,
+				contentType: false,
+				success: function (response) {
+					if (response.success) {
+						Swal.fire('Succès', response.success, 'success');
+					} else if (response.error) {
+						Swal.fire('Erreur', response.error, 'error');
+					}
+				},
+				error: function () {
+					Swal.fire('Erreur', 'Une erreur s\'est produite lors de la requête.', 'error');
+				}
+			});
+		});
+	});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<script>
+	var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+	socket.on('connect', function() {
+		console.log('Connected to server');
+	});
+
+	socket.on('disconnect', function() {
+		console.log('Disconnected from server');
+	});
+
+	// Function to append text to the terminal textarea
+	function appendToTerminal(text) {
+		var terminal = document.getElementById('terminal');
+		terminal.value += text + '\n';
+		terminal.scrollTop = terminal.scrollHeight;
+	}
+
+	// Handle data received from the server and display it in the terminal textarea.
+	socket.on('terminal_output', function(data) {
+		appendToTerminal(data);
+	});
+
+	// Handle user input and send it to the server when they press Enter.
+	document.getElementById('user-input').addEventListener('keydown', function(event) {
+		if (event.key === 'Enter') {
+			var input = document.getElementById('user-input').value;
+			appendToTerminal('User input: ' + input);
+			socket.emit('user_input', input);
+			document.getElementById('user-input').value = '';
+		}
+	});
+</script>
+
+        
+		<!-- Google Tag Manager (noscript) -->
+		<noscript
+			><iframe
+				src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS"
+				height="0"
+				width="0"
+				style="display: none; visibility: hidden"
+			></iframe
+		></noscript>
+
+	</body>
+	</html>

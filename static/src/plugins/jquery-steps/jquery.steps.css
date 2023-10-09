@@ -70,9 +70,9 @@
 }
 
 .wizard-content .wizard>.steps>ul>li.current .step {
-	border-color: #009efb ;
+	border-color: #012033 ;
 	background-color: #fff;
-	color: #009efb
+	color: #004268
 }
 
 .wizard-content .wizard>.steps>ul>li.disabled a,
@@ -89,8 +89,8 @@
 }
 
 .wizard-content .wizard>.steps>ul>li.done .step {
-	background-color: #009efb ;
-	border-color: #009efb ;
+	background-color: #002134 ;
+	border-color: #011e2f ;
 	color: #fff
 }
 
@@ -218,7 +218,7 @@
 	top: 45px;
 	width: 50%;
 	height: 3px;
-	background-color: #009efb
+	background-color: #002135
 }
 
 .wizard-content .wizard.wizard-circle>.steps>ul>li.current:after,
