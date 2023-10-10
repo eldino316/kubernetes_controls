@@ -642,7 +642,9 @@
 							<thead>
 								<tr>
 									<th class="table-plus">deploiment name</th>
+									<th>Image</th>
 									<th>Version</th>
+									<th>replicat</th>
 									<th>Date d'ajout</th>
 									<th>Actions</th>
 								</tr>
@@ -654,9 +656,13 @@
 									<td>chargement...</td>
 									<td>chargement...</td>
 									<td>chargement...</td>
+									<td>chargement...</td>
+									<td>chargement...</td>
 								</tr>
 								<!-- Deuxième ligne de squelette -->
 								<tr class="skeleton-row">
+									<td>chargemnt...</td>
+									<td>chargement...</td>
 									<td>chargement...</td>
 									<td>chargement...</td>
 									<td>chargement...</td>
@@ -702,7 +708,9 @@
                                 <thead>
                                     <tr>
                                         <th class="table-plus">deploiment name</th>
+										<th>Image</th>
                                         <th>Version </th>
+										<th>replicas</th>
                                         <th>Date d'ajout</th>
                                         <th>Actions</th>
                                     </tr>
@@ -726,7 +734,13 @@
                                                 </div>
                                             </div>
                                         </td>
+										<td>
+											{% for container in deployment.spec.template.spec.containers %}
+												{{ container.image }}
+											{% endfor %}
+										</td>
                                         <td>{{ deployment.metadata.resource_version }}</td>
+										<td>{{ deployment.spec.replicas }}</td>
                                         <td>{{ deployment.metadata.creation_timestamp }}</td>
 										<td>
 											<div class="dropdown">
@@ -743,7 +757,12 @@
 													<a class="dropdown-item" href="#" onclick="showDeployDetails('{{ deployment.metadata.namespace  }}', '{{ deployment.metadata.name }}')">
 														<i class="icon-copy bi bi-card-list"></i>info
 													</a>
-													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i> shell</a>
+													<a class="dropdown-item" href="#"
+													data-toggle="modal" data-target="#deploymentModal"
+        											data-namespace="{{ deployment.metadata.namespace }}" data-deploymentname="{{ deployment.metadata.name }}"
+        											data-image="{{ deployment.spec.template.spec.containers[0].image }}"
+        											data-replicas="{{ deployment.spec.replicas }}"
+													><i class="dw dw-edit2"></i>Modifier</a>
 													<a
 														class="dropdown-item"
 														href="#"
@@ -888,6 +907,77 @@
 								</div>
 							</div>
 
+							<div class="modal fade" id="deploymentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="exampleModalLabel">Mise à jour du Déploiement Kubernetes</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<form id="deploymentForm">
+												<div class="form-group">
+													<label for="namespace">Namespace:</label>
+													<input type="text" class="form-control" id="namespace" name="namespace" required>
+												</div>
+												<div class="form-group">
+													<label for="deploymentName">Nom du Déploiement:</label>
+													<input type="text" class="form-control" id="deploymentName" name="deploymentName" required>
+												</div>
+												<div class="form-group">
+													<label for="image">Image:</label>
+													<input type="text" class="form-control" id="image" name="image" required>
+												</div>
+												<div class="form-group">
+													<label for="replicas">Nouveau Nombre de Réplicas:</label>
+													<input type="number" class="form-control" id="replicas" name="replicas" required>
+												</div>
+												<button type="submit" class="btn btn-primary">Mettre à jour</button>
+											</form>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="modal fade" id="clusterDetailsModal" tabindex="-1" role="dialog" aria-labelledby="clusterDetailsModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="clusterDetailsModalLabel">Détails du Cluster</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body" style="max-height: 600px; overflow-y: auto;"></div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<!-- Modal d'erreur -->
+							<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="errorModalLabel">Erreur</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body"></div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+
 				<!-- welcome modal end -->
 		<!-- js -->
 		<script src="{{ url_for('static', filename='vendors/scripts/core.js') }}"></script>
@@ -900,6 +990,73 @@
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
 		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
+
+		<script>
+			function showClusterDetailsModal() {
+				// Faites une requête AJAX pour récupérer les détails du cluster
+				$.ajax({
+					type: 'GET',
+					url: '/cluster_details',
+					success: function (data) {
+						// Affichez les détails du cluster dans le modal
+						$('#clusterDetailsModal .modal-body').html('<pre>' + data + '</pre>');
+						$('#clusterDetailsModal').modal('show');
+					},
+					error: function (xhr, status, error) {
+						// En cas d'erreur, affichez un message d'erreur
+						$('#errorModal .modal-body').text('Erreur lors de la récupération des détails du cluster : ' + error);
+						$('#errorModal').modal('show');
+					}
+				});
+			}
+		</script>
+		
+
+		<script>
+			$(document).ready(function() {
+				$('#deploymentModal').on('show.bs.modal', function(event) {
+					var button = $(event.relatedTarget);
+					var namespace = button.data('namespace');
+					var deploymentName = button.data('deploymentname');
+					var image = button.data('image');
+					var replicas = button.data('replicas');
+		
+					var modal = $(this);
+					modal.find('.modal-title').text('Mise à jour du Déploiement Kubernetes (' + deploymentName + ')');
+					modal.find('.modal-body #namespace').val(namespace);
+					modal.find('.modal-body #deploymentName').val(deploymentName);
+					modal.find('.modal-body #image').val(image);
+					modal.find('.modal-body #replicas').val(replicas);
+				});
+		
+				$('#deploymentForm').submit(function(event) {
+					event.preventDefault();
+					var namespace = $('#namespace').val();
+					var deploymentName = $('#deploymentName').val();
+					var image = $('#image').val();
+					var replicas = $('#replicas').val();
+		
+					$.ajax({
+						url: '/update_deployment',
+						type: 'PATCH',
+						contentType: 'application/json',
+						data: JSON.stringify({
+							namespace: namespace,
+							deploymentName: deploymentName,
+							image: image,
+							replicas: replicas
+						}),
+						success: function(response) {
+							Swal.fire('succès', 'Déploiement mis à jour avec succès', 'success');
+							$('#deploymentModal').modal('hide');
+						},
+						error: function(error) {
+							Swal.fire('erreur', 'Erreur lors de la mise à jour du déploiement:', error);
+						}
+					});
+				});
+			});
+		</script>
 		
 		
 		<script>
@@ -975,6 +1132,7 @@
 				success: function (response) {
 					if (response.success) {
 						Swal.fire('Succès', response.success, 'success');
+						$('#uploadForm').modal('hide');
 					} else if (response.error) {
 						Swal.fire('Erreur', response.error, 'error');
 					}

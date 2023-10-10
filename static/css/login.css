@@ -40,10 +40,10 @@ padding: 15px 50px;
 text-transform: uppercase;
 }
 #login .submit-btn {
-background: #3aa7b1;
+background: #27006b;
 }
 #register .submit-btn {
-background: #3aaf9f;
+background: #27006b;
 }
 #container {
 background: #ededed;
@@ -85,10 +85,10 @@ z-index: 1;
 padding: 20% 0 25px;
 }
 #login h1 {
-color: #3aa7b1;
+color: #27006b;
 }
 #register h1 {
-color: #3aaf9f;
+color: #27006b;
 }
 #login p,
 #register p {
@@ -107,7 +107,7 @@ padding: 3px;
 text-decoration: none;
 }
 #cover {
-background: #3aa7b1;
+background: #27006b;
 color: #fff;
 height: 550px;
 margin: 0 0 0 50%;
@@ -137,7 +137,7 @@ position: relative;
 top: -11px;
 }
 #cover:target {
-background: #3aaf9f;
+background: #27006b;
 margin: 0;
 }
 #cover:target .sign-up {

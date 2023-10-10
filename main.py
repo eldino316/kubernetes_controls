@@ -66,35 +66,36 @@ def login():
     else:
         return render_template('login.html')
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
-    # Check if "username", "password" and "email" POST requests exist (user submitted form)
-    if request.method == 'POST' and 'txtname' in request.form and 'txtpass' in request.form and 'txtmail' in request.form and 'fonction' in request.form:
-        # Create variables for easy access
+    if request.method == 'POST':
         txtname = request.form['txtname']
         txtpass = request.form['txtpass']
         txtmail = request.form['txtmail']
         fonction = request.form['fonction']
+        hash = request.form['txthash']
 
-        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (txtname,))
-        account = mycursor.fetchone()
-        if account:
-            return jsonify(error=f"cette compte existe déja dans la base")
-        
-        elif not re.match(r'[^@]+@[^@]+\.[^@]+', txtmail):
-            return jsonify(error=f"veuillez verifier le format de votre adresse email")
-        
-        elif not re.match(r'[A-Za-z0-9]+', txtname):
-            return jsonify(error=f"l'username doit contenir au moins un nombre et des caractères")
-        
-        elif not txtname or not txtpass or not txtmail:
-            return jsonify(error=f"veuillez remplir le champs,")
+        mycursor.execute('SELECT * FROM cluster WHERE hash = %s', (hash,))
+        cluster = mycursor.fetchone()
+
+        if not cluster:
+            return jsonify(error=f"Le hash spécifié n'existe pas dans la base de données.")
+        elif not txtname or not txtpass or not txtmail or not fonction or not hash:
+            return jsonify(error=f"Veuillez remplir tous les champs.")
         else:
-            # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            mycursor.execute('INSERT INTO prs_info VALUES (NULL, %s, %s, %s, %s)', (txtname, txtpass, txtmail, fonction))
-            mydb.commit()
-            mydb.close
-            return jsonify(success=f"Compte enregistré avec succés!")            
+            mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (txtname,))
+            existing_user = mycursor.fetchone()
+
+            if existing_user:
+                return jsonify(error=f"Ce nom d'utilisateur est déjà enregistré.")
+            else:
+                mycursor.execute('INSERT INTO prs_info VALUES (NULL, %s, %s, %s, %s)', (txtname, txtpass, txtmail, fonction))
+                mydb.commit()
+
+                action = f"L'utilisateur {txtname} a été ajouté dans prs_info avec le hash {hash}"
+                mycursor.execute('INSERT INTO tracking (action, prs_info_id, cluster_id) VALUES (%s, %s, %s)',(action, mycursor.lastrowid, cluster[0]))
+
+                return jsonify(success=f"Compte enregistré avec succès!")            
 
 @app.route('/home')
 def home():
@@ -139,8 +140,10 @@ def cluster_details():
 def user():
     mycursor.execute("SELECT * FROM prs_info")
     users=mycursor.fetchall()
+    contexts, _ = config.list_kube_config_contexts()
+    clusters = [context['name'] for context in contexts]
 
-    return render_template('user.html', users=users)
+    return render_template('user.html', users=users, clusters=clusters)
 
 
                                          #lancement du socket pour le terminale       
@@ -351,6 +354,22 @@ def deploy_details(namespace, deployment_name):
     deploy_details = get_deploy_details(namespace, deployment_name)
     formatted_deploy_details = Markup(deploy_details)
     return formatted_deploy_details
+
+@app.route('/update_deployment', methods=['PATCH'])
+def update_deployment():
+    data = request.get_json()
+    namespace = data.get('namespace')
+    deployment_name = data.get('deploymentName')
+    replicas = int(data.get('replicas'))
+
+    try:
+        v1 = client.AppsV1Api()
+        deployment = v1.read_namespaced_deployment(name=deployment_name, namespace=namespace)
+        deployment.spec.replicas = replicas
+        v1.patch_namespaced_deployment(name=deployment_name, namespace=namespace, body=deployment)
+        return jsonify({'message': 'Déploiement mis à jour avec succès'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500 
 
 
                                         #route pour les opérations sur le configmap

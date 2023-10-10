@@ -1,40 +1,53 @@
-from flask import Flask, render_template, jsonify
-import psutil
+from flask import Flask, render_template, request, jsonify
+from kubernetes import client, config
 
 app = Flask(__name__)
 
 @app.route('/')
-def index():
-    return render_template('test.html')
+def get_deployment_info():
+    try:
+        # Chargez la configuration Kubernetes à partir du fichier kubeconfig
+        config.load_kube_config()
 
-@app.route('/network_data')
-def network_data():
-    # Collecter les données sur le réseau à l'aide de psutil
-    network_info = psutil.net_io_counters(pernic=True)
-    interfaces = list(network_info.keys())
-    data = [network_info[iface] for iface in interfaces]
+        # Créez un client API Kubernetes
+        api_instance = client.AppsV1Api()
 
-    # Préparer les données pour le graphique Chart.js
-    labels = interfaces
-    interface_values = [d.bytes_sent + d.bytes_recv for d in data]
+        # Spécifiez le namespace et le nom du déploiement que vous souhaitez récupérer
+        namespace = 'default'
+        deployment_name = 'nginx-deployment'
 
-    # Collecter les informations sur la bande passante réseau
-    network_bandwidth = psutil.net_if_stats()
+        # Récupérez les informations sur le déploiement
+        deployment_info = api_instance.read_namespaced_deployment(name=deployment_name, namespace=namespace)
 
-    # Préparer les données pour le graphique Chart.js pour la bande passante
-    bandwidth_labels = interfaces
-    bandwidth_values = [network_bandwidth[iface].speed for iface in interfaces]
+        # Renvoyez les informations sous forme de réponse HTML à l'aide du template
+        return render_template('test.html', deployment_info=deployment_info)
 
-    # Créer un dictionnaire JSON pour les données du graphique
-    chart_data = {
-        'labels': labels,
-        'interface_values': interface_values,
-        'bandwidth_labels': bandwidth_labels,
-        'bandwidth_values': bandwidth_values,
-    }
+    except Exception as e:
+        # Gérez les erreurs ici
+        return str(e), 500
+    
+@app.route('/update_deployment', methods=['PATCH'])
+def update_deployment():
+    data = request.get_json()
+    namespace = data.get('namespace')
+    deployment_name = data.get('deploymentName')
+    replicas = int(data.get('replicas'))
 
-    return jsonify(chart_data)
+    try:
+        v1 = client.AppsV1Api()
 
+        # Obtenez le déploiement existant
+        deployment = v1.read_namespaced_deployment(name=deployment_name, namespace=namespace)
+
+        # Mettez à jour le nombre de réplicas dans le déploiement
+        deployment.spec.replicas = replicas
+
+        # Effectuez la mise à jour du déploiement
+        v1.patch_namespaced_deployment(name=deployment_name, namespace=namespace, body=deployment)
+
+        return jsonify({'message': 'Déploiement mis à jour avec succès'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500    
 
 if __name__ == '__main__':
     app.run(debug=True)
