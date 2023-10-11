@@ -51,6 +51,15 @@ def get_cluster_details():
         cluster_details = result.stdout
         return cluster_details
     except subprocess.CalledProcessError as e:
-        return {"error": f"Erreur : {e.stderr}"}        
+        return {"error": f"Erreur : {e.stderr}"}
+
+def get_cluster():
+    try:
+        command = ["kubectl", "cluster-info"]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        Cluster = result.stdout
+        return Cluster
+    except subprocess.CalledProcessError as e:
+        return {"error": f"Erreur : {e.stderr}"}               
 
 start_minikube_proxy()    

@@ -230,11 +230,11 @@
 						<div class="dropdown-menu dropdown-menu-right">
 							<div class="notification-list mx-h-350 customscroll">
 								<ul>
-									{% for cluster in clusters %}
+									{% for cluster in cluster %}
 									<li>
 										<a href="#" onclick="showClusterDetailsModal()">
 											<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
-											<h3>{{ cluster }}</h3>	
+											<h3>{{ cluster[0] }}</h3>	
 										</a>
 									</li>
 									{% endfor %}
@@ -520,12 +520,6 @@
 								<li><a href="/ingress">Ingress</a></li>
 								<li><a href="/policies">Network Policies</li>
 							</ul>
-						</li>
-						<li class="dropdown">
-							<a href="/user" class="dropdown-toggle">
-								<span class="micon bi bi-person" ></span
-								><span class="mtext"> Utilisateurs </span>
-							</a>
 						</li>
 						<li>
 							<a href="javascript:;" class="dropdown-toggle">
