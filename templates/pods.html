@@ -181,8 +181,7 @@
 								type="text"
 								class="form-control search-input"
 								placeholder="Search Here"
-								id="podSearch" 
-								oninput="searchPods()"
+								id="searchInput"
 							/>
 							<div class="dropdown">
 								<a
@@ -254,72 +253,20 @@
 							role="button"
 							data-toggle="dropdown"
 						>
-							<i class="icon-copy dw dw-notification"></i>
+							<i class="icon-copy dw dw-server"></i>
 							<span class="badge notification-active"></span>
 						</a>
 						<div class="dropdown-menu dropdown-menu-right">
 							<div class="notification-list mx-h-350 customscroll">
 								<ul>
+									{% for cluster in cluster %}
 									<li>
-										<a href="#">
-											<img src="vendors/images/img.jpg" alt="" />
-											<h3>John Doe</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
+										<a href="#" onclick="showClusterDetailsModal()">
+											<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
+											<h3>{{ cluster[0] }}</h3>	
 										</a>
 									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo1.jpg" alt="" />
-											<h3>Lea R. Frith</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo2.jpg" alt="" />
-											<h3>Erik L. Richards</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo3.jpg" alt="" />
-											<h3>John Doe</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo4.jpg" alt="" />
-											<h3>Renee I. Hansen</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/img.jpg" alt="" />
-											<h3>Vicki M. Coleman</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
+									{% endfor %}
 								</ul>
 							</div>
 						</div>
@@ -334,20 +281,20 @@
 							data-toggle="dropdown"
 						>
 							<span class="user-icon">
-								<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
+								<img src="{{ url_for('static', filename='images/user2.png') }}" alt="" />
 							</span>
-							<span class="user-name">Minikube</span>
+							<span class="user-name">{{ username }}</span>
 						</a>
 						<div
 							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 						>
-							<a class="dropdown-item" href="#" onclick="showClusterDetailsModal()"
+							<a class="dropdown-item" href="#"
 								><i class="dw dw-user1"></i>Infos</a
 							>
 							<a class="dropdown-item" href="profile.html"
 								><i class="dw dw-settings2"></i>Paramètres</a
 							>
-							<a class="dropdown-item" href="/"
+							<a class="dropdown-item" href="/logout"
 								><i class="dw dw-logout"></i>se déconnecter</a
 							>
 						</div>
@@ -547,7 +494,7 @@
 							</a>
 						</li>
 						<li>
-							<a href="javascript:;" class="dropdown-toggle">
+							<a href="/namespace" class="dropdown-toggle">
 								<span class="micon bi bi-file-earmark-text-fill"></span
 								><span class="mtext">Namespace</span>
 							</a>
@@ -717,7 +664,7 @@
 									</div>
 								</div>
 							</div>
-                            <table id="podTable" class="data-table table nowrap">
+                            <table class="data-table table nowrap">
                                 <thead>
                                     <tr>
                                         <th class="table-plus">Pods name</th>
@@ -726,7 +673,7 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="user-data">
                                     {% for pod in pods %}
                                     <tr>
                                         <td class="table-plus">
@@ -1025,7 +972,21 @@
 		
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 
-		<!-- JavaScript pour récupérer et afficher les détails du pod -->
+		<script>
+			$(document).ready(function() {
+				$('#searchInput').on('input', function() {
+					var searchText = $(this).val().toLowerCase();
+					$('.user-data tr').each(function() {
+						var username = $(this).find('td:first-child').text().toLowerCase();
+						if (username.includes(searchText)) {
+							$(this).show(); 
+						} else {
+							$(this).hide();
+						}
+					});
+				});
+			});
+		</script>
 
 		<script>
 			// JavaScript pour remplir le modal avec les détails du pod sélectionné

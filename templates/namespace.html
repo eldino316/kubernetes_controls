@@ -36,7 +36,25 @@
 		/>
 		<!-- CSS -->
 		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/core.css') }}" />
-
+        
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='vendors/styles/icon-font.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}"
+		/>
+		<link
+			rel="stylesheet"
+            href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
+		/>
+		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
+		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		
 		<style>
 			/* Style for the terminal textarea */
 			#terminal {
@@ -57,7 +75,7 @@
 			}
 		</style>
 
-<style>
+		<style>
 	/* Styles pour le squelette de chargement */
 			.skeleton-container {
 				animation: loading 2s infinite;
@@ -90,24 +108,7 @@
 				display: none;
 			}
 		</style>
-        
-		<link
-			rel="stylesheet"
-            href=" {{ url_for('static', filename='vendors/styles/icon-font.min.css') }}"
-		/>
-		<link
-			rel="stylesheet"
-            href=" {{ url_for('static', filename='src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}"
-		/>
-		<link
-			rel="stylesheet"
-            href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
-		/>
-		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
-		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
-		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+
 
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script
@@ -159,6 +160,7 @@
 								type="text"
 								class="form-control search-input"
 								placeholder="Search Here"
+								id="searchInput"
 							/>
 							<div class="dropdown">
 								<a
@@ -279,7 +281,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="right-sidebar">
 			<div class="sidebar-title">
 				<h3 class="weight-600 font-16 text-blue">
@@ -451,7 +452,6 @@
 		</div>
 
 
-
 		<div class="left-side-bar">
 			<div class="">
 				<a href="/home">
@@ -561,50 +561,34 @@
 			<div class="xs-pd-20-10 pd-ltr-20">
 				<div class="d-flex justify-content-between align-items-center mb-3">
 					<div class="title pb-20">
-						<h2 class="h3 mb-0">Listes des replicatsets</h2>
+						<h2 class="h3 mb-0">Listes des namespaces</h2>
 					</div>
 					<div class="d-flex add-box ml-3">
 						<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal">
-							<i class="dw dw-add add-icon"></i>  Ajouter un replicaset
+							<i class="dw dw-add add-icon"></i>  Ajouter un namespace
 						</a>
 					</div>
 				</div>
 					<div class="card-box pb-10">
 						<div class="d-flex justify-content-between align-items-center mb-3">
-							<div class="h5 pd-20 mb-0">Recent replicaset</div>
+							<div class="h5 pd-20 mb-0">Recente namespace</div>
 							<!-- Barre de recherche -->
-							<div class="form-group pd-20 row align-items-center">
-								<label class="col-form-label" for="namespace">Namespace:</label>
-								<div class="col">
-									<select class="custom-select col-12" id="namespace" name="namespace" onchange="changeNamespace(this)">
-										{% for ns in namespaces %}
-										<option value="{{ ns }}" {% if ns == selected_namespace %}selected{% endif %}>{{ ns }}</option>
-										{% endfor %}
-									</select>
-								</div>
-							</div>
 						</div>
 						<table class="data-table table nowrap skeleton-loader">
 							<thead>
 								<tr>
-									<th class="table-plus">replicatset name</th>
-									<th>label</th>
-									<th>Date d'ajout</th>
+									<th class="table-plus">Namespace</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
 								<!-- Première ligne de squelette -->
 								<tr class="skeleton-row">
-									<td>chargemnt...</td>
-									<td>chargement...</td>
 									<td>chargement...</td>
 									<td>chargement...</td>
 								</tr>
 								<!-- Deuxième ligne de squelette -->
 								<tr class="skeleton-row">
-									<td>chargement...</td>
-									<td>chargement...</td>
 									<td>chargement...</td>
 									<td>chargement...</td>
 								</tr>
@@ -615,45 +599,34 @@
 			</div>
 	</div>
 
+
                 <div class="content-container main-container">
                     <div class="xs-pd-20-10 pd-ltr-20">
 						<div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="title pb-20">
-                            <h2 class="h3 mb-0">Listes des replicatsets</h2>
+                            <h2 class="h3 mb-0">Listes des namespaces</h2>
                         </div>
 						<div class="d-flex add-box ml-3">
-							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un replicaset</a>
+							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un namespace</a>
 						</div>
 					</div>
         
                         <div class="card-box pb-10">
 
 							<div class="d-flex justify-content-between align-items-center mb-3">
-								<div class="h5 pd-20 mb-0">Recente replicatset</div>
+								<div class="h5 pd-20 mb-0">Recente namespace</div>
 								<!-- Barre de recherche -->
-								<div class="form-group pd-20 row align-items-center">
-									<label class="col-form-label" for="namespace">Namespace:</label>
-									<div class="col">
-										<select class="custom-select col-12" id="namespace" name="namespace" onchange="changeNamespace(this)">
-											{% for ns in namespaces %}
-											<option value="{{ ns }}" {% if ns == selected_namespace %}selected{% endif %}>{{ ns }}</option>
-											{% endfor %}
-										</select>
-									</div>
-								</div>
 							</div>
 
                             <table class="data-table table nowrap">
                                 <thead>
                                     <tr>
-                                        <th class="table-plus">replicatset name</th>
-                                        <th>label</th>
-                                        <th>Date d'ajout</th>
+                                        <th class="table-plus">namespace</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {% for replicatset in replicatset_list %}
+                                <tbody class="user-data">
+                                    {% for namespace in namespace %}
                                     <tr>
                                         <td class="table-plus">
                                             <div class="name-avatar d-flex align-items-center">
@@ -667,12 +640,10 @@
                                                     />
                                                 </div>
                                                 <div class="txt">
-                                                    <div class="weight-600">{{replicatset.metadata.name }}</div>
+                                                    <div class="weight-600">{{ namespace.metadata.name }}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>{{ replicatset.metadata.labels }}</td>
-                                        <td>{{ replicatset.metadata.creationTimestamp }}</td>
 										<td>
 											<div class="dropdown">
 												<a
@@ -685,95 +656,42 @@
 													<i class="dw dw-more"></i>
 												</a>
 												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-													<a class="dropdown-item" href="#" onclick="showReplicatsetDetails('{{ replicatset.metadata.namespace  }}', '{{ replicatset.metadata.name }}')">
+													<a class="dropdown-item" href="#" onclick="getNamespaceDetails('{{ namespace.metadata.name }}')">
 														<i class="icon-copy bi bi-card-list"></i>info
 													</a>
-													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>modifier</a>
 													<a
 														class="dropdown-item"
-														href="#"
-														onclick="deleteReplicaset('{{ replicatset.metadata.namespace }}', '{{ replicatset.metadata.name }}')"
+														href="#" onclick="confirmDelete('{{ namespace.metadata.name }}')"	
 													>
 														<i class="dw dw-delete-3"></i> supprimer
 													</a>
 												</div>
 											</div>
-											<!-- Formulaire caché pour la suppression -->
-											<form
-												id="deleteForm_{{ replicatset.metadata.namespace }}_{{ replicatset.metadata.name }}"
-												action="/delete_replicaset"
-												method="POST"
-												style="display: none;"
-											>
-												<input
-													type="hidden"
-													name="namespace"
-													value="{{ replicatset.metadata.namespace }}"
-												/>
-												<input
-													type="hidden"
-													name="name"
-													value="{{ replicatset.metadata.name }}"
-												/>
-											</form>
 										</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
-						</div>
 	<!-- modale ajout -->
 	
 	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
 			<div class="modal-content">
-				<form id="uploadForm" action="/install" method="post" enctype="multipart/form-data">
+				<form id="uploadForm" action="/add_namespace" method="post" enctype="multipart/form-data">
 					<div class="modal-header">
-						<h5 class="modal-title text-primary">Ajout d'un nouveau deploiment</h5>
+						<h5 class="modal-title text-primary">Ajout d'un nouveau namespace</h5>
 						<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
 					<div class="modal-body">
-						<ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
-							<li class="nav-item">
-								<a class="nav-link active" id="import-tab" data-toggle="pill" href="#import" role="tab" aria-controls="import" aria-selected="true">Importer</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" id="edit-tab" data-toggle="pill" href="#edit" role="tab" aria-controls="edit" aria-selected="false">Editer</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" id="template-tab" data-toggle="pill" href="#template" role="tab" aria-controls="template" aria-selected="false">Template</a>
-							</li>
-						</ul>
 						<div class="tab-content" id="pills-tabContent">
 							<div class="tab-pane fade show active" id="import" role="tabpanel" aria-labelledby="import-tab">
-								<div class="custom-file mb-3">
-									<input type="file" class="custom-file-input" id="yamlFile" name="yaml_file" accept=".yaml, .yml" required>
-									<label class="custom-file-label" for="yamlFile">Choisir un fichier YAML</label>
-								</div>
-								<div class="form-group">
-									<label for="resourceType">Type de ressource Kubernetes :</label>
-									<select class="form-control" id="resourceType" name="resource_type" required>
-										<option value="pods">Pod</option>
-										<option value="deployments">Deployments</option>
-										<option value="secret">Secrets</option>
-										<option value="configmap">ConfigMaps</option>
-										<option value="services">Service</option>
-									</select>
-								</div>
-							</div>
-							<div class="tab-pane fade" id="edit" role="tabpanel" aria-labelledby="edit-tab">
-								<div class="form-group">
-									<label for="yamlTextarea">Modifier le YAML :</label>
-									<textarea class="form-control" id="yamlTextarea" rows="10"></textarea>
-								</div>
-							</div>
-							<div class="tab-pane fade" id="template" role="tabpanel" aria-labelledby="template-tab">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-								</p>
+                                <div class="form-group">
+                                    <label for="namespace">Namespace:</label>
+                                    <input type="text" id="namespace_name" name="namespace_name" class="form-control" required>
+                                </div>
 							</div>
 						</div>
 					</div>
@@ -785,14 +703,9 @@
 			</div>
 		</div>
 	</div>
-					</div>
-			</form>
-			</div>
-		</div>
-	</div>
+	
 
-				<div class="title pb-20 pt-20">
-				</div>
+	</div>
 
 						    <!-- Terminal Modal -->
 							<div class="modal fade" id="terminalModal" tabindex="-1" role="dialog" aria-labelledby="terminalModalLabel" aria-hidden="true">
@@ -815,26 +728,48 @@
 								</div>
 							</div>
 
-							<div class="modal fade" id="replicatsetDetailsModal" tabindex="-1" role="dialog" aria-labelledby="replicatsetDetailsModalLabel" aria-hidden="true">
+							<div class="modal fade" id="clusterDetailsModal" tabindex="-1" role="dialog" aria-labelledby="clusterDetailsModalLabel" aria-hidden="true">
 								<div class="modal-dialog modal-lg" role="document">
 									<div class="modal-content">
 										<div class="modal-header">
-											<h5 class="modal-title" id="replicatsetDetailsModalLabel">Détails du replicatset</h5>
-											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+											<h5 class="modal-title" id="clusterDetailsModalLabel">Détails du Cluster</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 												<span aria-hidden="true">&times;</span>
 											</button>
 										</div>
-										<div class="modal-body">
-											<div id="replicatsetDetails">
-												<!-- Les détails du pod seront insérés ici -->
-											</div>
-										</div>
+										<div class="modal-body" style="max-height: 600px; overflow-y: auto;"></div>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
 										</div>
 									</div>
 								</div>
 							</div>
+
+                            <div class="modal" id="myModal">
+                                <div class="modal-dialog modal-lg">
+                                  <div class="modal-content">
+                          
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                      <h4 class="modal-title">Détails du Namespace</h4>
+                                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    </div>
+                          
+                                    <!-- Modal Body -->
+                                    <div class="modal-body">
+                                      <pre id="namespaceDetails"></pre>
+                                    </div>
+                          
+                                    <!-- Modal Footer -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                                    </div>
+                          
+                                  </div>
+                                </div>
+                              </div>
+
+
 
 				<!-- welcome modal end -->
 		<!-- js -->
@@ -849,7 +784,78 @@
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
 		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
 
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+
+		<script>
+			$(document).ready(function() {
+				$('#searchInput').on('input', function() {
+					var searchText = $(this).val().toLowerCase();
+					$('.user-data tr').each(function() {
+						var username = $(this).find('td:first-child').text().toLowerCase();
+						if (username.includes(searchText)) {
+							$(this).show(); 
+						} else {
+							$(this).hide();
+						}
+					});
+				});
+			});
+		</script>
+
+        <script>
+            function getNamespaceDetails(namespace) {
+                fetch('/namespace_details?namespace_name=' + namespace, { method: 'GET' })
+                    .then(response => response.text())
+                    .then(data => {
+                        document.getElementById("namespaceDetails").textContent = data;
+                        $('#myModal').modal('show'); // Afficher le modal après avoir obtenu les détails
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        alert('Erreur lors de la récupération des détails du namespace.');
+                    });
+            }
+        </script>
+
+        <script>
+            function confirmDelete(namespace) {
+              var confirmDelete = confirm("Voulez-vous vraiment supprimer le namespace '" + namespace + "' ?");
+              if (confirmDelete) {
+                fetch('/delete_namespace?namespace_name=' + namespace, { method: 'GET' })
+                  .then(response => response.json())
+                  .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                      window.location.reload();
+                    }
+                  })
+                  .catch(error => {
+                    console.error(error);
+                    alert('Erreur lors de la suppression du namespace.');
+                  });
+              }
+            }
+          </script>
+
+		<script>
+			function showClusterDetailsModal() {
+				// Faites une requête AJAX pour récupérer les détails du cluster
+				$.ajax({
+					type: 'GET',
+					url: '/cluster_details',
+					success: function (data) {
+						// Affichez les détails du cluster dans le modal
+						$('#clusterDetailsModal .modal-body').html('<pre>' + data + '</pre>');
+						$('#clusterDetailsModal').modal('show');
+					},
+					error: function (xhr, status, error) {
+						// En cas d'erreur, affichez un message d'erreur
+						$('#errorModal .modal-body').text('Erreur lors de la récupération des détails du cluster : ' + error);
+						$('#errorModal').modal('show');
+					}
+				});
+			}
+		</script>
+		
 		
 		<script>
     		setTimeout(function() {
@@ -860,74 +866,10 @@
     			}, 6000); 
 		</script>
 
-<script>
-	function showReplicatsetDetails(namespace, replicatsetName) {
-		fetch(`/replicatset_details/${namespace}/${replicatsetName}`)
-			.then(response => response.text())
-			.then(data => {
-				const replicatsetDetailsModal = document.getElementById('replicatsetDetailsModal');
-				const replicatsetDetails = document.querySelector('#replicatsetDetails');
-		
-		// Utilisez join('\n') pour ajouter des retours à la ligne
-				replicatsetDetails.innerText = data;
-		
-		// Affichez le modal
-			$(replicatsetDetailsModal).modal('show');
-		});
-
-	}
-	</script>
-
-
 		<script>
-			var socket = io.connect('http://' + document.domain + ':' + location.port);
-	
-			socket.on('connect', function() {
-				console.log('Connected to server');
-			});
-	
-			socket.on('disconnect', function() {
-				console.log('Disconnected from server');
-			});
-	
-			// Function to append text to the terminal textarea
-			function appendToTerminal(text) {
-				var terminal = document.getElementById('terminal');
-				terminal.value += text + '\n';
-				terminal.scrollTop = terminal.scrollHeight;
-			}
-	
-			// Handle data received from the server and display it in the terminal textarea.
-			socket.on('terminal_output', function(data) {
-				appendToTerminal(data);
-			});
-	
-			// Handle user input and send it to the server when they press Enter.
-			document.getElementById('user-input').addEventListener('keydown', function(event) {
-				if (event.key === 'Enter') {
-					var input = document.getElementById('user-input').value;
-					appendToTerminal('User input: ' + input);
-					socket.emit('user_input', input);
-					document.getElementById('user-input').value = '';
-				}
-			});
-		</script>
 
-		<script>
-			function deleteReplicaset(namespace, name) {
-				var formId = 'deleteForm_' + namespace + '_' + name;
-				if (confirm("Êtes-vous sûr de vouloir supprimer ce replicaset ?")) {
-					document.getElementById(formId).submit();
-				}
-			}
-
-			function changeNamespace(select) {
-            const selectedNamespace = select.value;
-            window.location.href = `/replicatset?namespace=${selectedNamespace}`;
-		}
-
-		function searchReplicaset() {
-        const input = document.getElementById('replicatsetSearch');
+		function searchDeploy() {
+        const input = document.getElementById('deploySearch');
         const filter = input.value.toLowerCase();
         const table = document.querySelector('table tbody');
         const rows = table.getElementsByTagName('tr');
@@ -952,13 +894,14 @@
 
 			$.ajax({
 				type: 'POST',
-				url: '{{ url_for("install") }}',
+				url: '{{ url_for("add_namespace") }}',
 				data: formData,
 				processData: false,
 				contentType: false,
 				success: function (response) {
 					if (response.success) {
 						Swal.fire('Succès', response.success, 'success');
+						$('#uploadForm').modal('hide');
 					} else if (response.error) {
 						Swal.fire('Erreur', response.error, 'error');
 					}
@@ -971,16 +914,42 @@
 	});
 </script>
 
-        
-		<!-- Google Tag Manager (noscript) -->
-		<noscript
-			><iframe
-				src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS"
-				height="0"
-				width="0"
-				style="display: none; visibility: hidden"
-			></iframe
-		></noscript>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<script>
+	var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-	</body>
-	</html>
+	socket.on('connect', function() {
+		console.log('Connected to server');
+	});
+
+	socket.on('disconnect', function() {
+		console.log('Disconnected from server');
+	});
+
+	// Function to append text to the terminal textarea
+	function appendToTerminal(text) {
+		var terminal = document.getElementById('terminal');
+		terminal.value += text + '\n';
+		terminal.scrollTop = terminal.scrollHeight;
+	}
+
+	// Handle data received from the server and display it in the terminal textarea.
+	socket.on('terminal_output', function(data) {
+		appendToTerminal(data);
+	});
+
+	// Handle user input and send it to the server when they press Enter.
+	document.getElementById('user-input').addEventListener('keydown', function(event) {
+		if (event.key === 'Enter') {
+			var input = document.getElementById('user-input').value;
+			appendToTerminal('User input: ' + input);
+			socket.emit('user_input', input);
+			document.getElementById('user-input').value = '';
+		}
+	});
+</script>
+
+
+
+</body>
+</html>

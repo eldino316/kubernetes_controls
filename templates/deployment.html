@@ -160,8 +160,7 @@
 								type="text"
 								class="form-control search-input"
 								placeholder="Search Here"
-								id="deploySearch" 
-								oninput="searchDeploy()"
+								id="searchInput"
 							/>
 							<div class="dropdown">
 								<a
@@ -233,72 +232,20 @@
 							role="button"
 							data-toggle="dropdown"
 						>
-							<i class="icon-copy dw dw-notification"></i>
+							<i class="icon-copy dw dw-server"></i>
 							<span class="badge notification-active"></span>
 						</a>
 						<div class="dropdown-menu dropdown-menu-right">
 							<div class="notification-list mx-h-350 customscroll">
 								<ul>
+									{% for cluster in cluster %}
 									<li>
-										<a href="#">
-											<img src="vendors/images/img.jpg" alt="" />
-											<h3>John Doe</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
+										<a href="#" onclick="showClusterDetailsModal()">
+											<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
+											<h3>{{ cluster[0] }}</h3>	
 										</a>
 									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo1.jpg" alt="" />
-											<h3>Lea R. Frith</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo2.jpg" alt="" />
-											<h3>Erik L. Richards</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo3.jpg" alt="" />
-											<h3>John Doe</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo4.jpg" alt="" />
-											<h3>Renee I. Hansen</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/img.jpg" alt="" />
-											<h3>Vicki M. Coleman</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
+									{% endfor %}
 								</ul>
 							</div>
 						</div>
@@ -313,20 +260,20 @@
 							data-toggle="dropdown"
 						>
 							<span class="user-icon">
-								<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
+								<img src="{{ url_for('static', filename='images/user2.png') }}" alt="" />
 							</span>
-							<span class="user-name">Minikube</span>
+							<span class="user-name">{{ username }}</span>
 						</a>
 						<div
 							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 						>
-							<a class="dropdown-item" href="#" onclick="showClusterDetailsModal()"
+							<a class="dropdown-item" href="#"
 								><i class="dw dw-user1"></i>Infos</a
 							>
 							<a class="dropdown-item" href="profile.html"
 								><i class="dw dw-settings2"></i>Paramètres</a
 							>
-							<a class="dropdown-item" href="/"
+							<a class="dropdown-item" href="/logout"
 								><i class="dw dw-logout"></i>se déconnecter</a
 							>
 						</div>
@@ -334,7 +281,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="right-sidebar">
 			<div class="sidebar-title">
 				<h3 class="weight-600 font-16 text-blue">
@@ -525,7 +471,7 @@
 							</a>
 						</li>
 						<li>
-							<a href="javascript:;" class="dropdown-toggle">
+							<a href="/namespace" class="dropdown-toggle">
 								<span class="micon bi bi-file-earmark-text-fill"></span
 								><span class="mtext">Namespace</span>
 							</a>
@@ -715,7 +661,7 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="user-data">
                                     {% for deployment in deployments %}
                                     <tr>
                                         <td class="table-plus">
@@ -992,6 +938,22 @@
 		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
 
 		<script>
+			$(document).ready(function() {
+				$('#searchInput').on('input', function() {
+					var searchText = $(this).val().toLowerCase();
+					$('.user-data tr').each(function() {
+						var username = $(this).find('td:first-child').text().toLowerCase();
+						if (username.includes(searchText)) {
+							$(this).show(); 
+						} else {
+							$(this).hide();
+						}
+					});
+				});
+			});
+		</script>
+
+		<script>
 			function showClusterDetailsModal() {
 				// Faites une requête AJAX pour récupérer les détails du cluster
 				$.ajax({
@@ -1075,11 +1037,7 @@
 					.then(data => {
 						const deployDetailsModal = document.getElementById('deployDetailsModal');
 						const deployDetails = document.querySelector('#deployDetails');
-				
-				// Utilisez join('\n') pour ajouter des retours à la ligne
 						deployDetails.innerText = data;
-				
-				// Affichez le modal
 					$(deployDetailsModal).modal('show');
 				});
 	
@@ -1133,6 +1091,7 @@
 					if (response.success) {
 						Swal.fire('Succès', response.success, 'success');
 						$('#uploadForm').modal('hide');
+						window.location.reload();
 					} else if (response.error) {
 						Swal.fire('Erreur', response.error, 'error');
 					}

@@ -187,14 +187,87 @@ def cluster_details():
 @app.route('/user', methods=['GET'])
 def user():
     if 'username' in session:   
-        mycursor.execute("SELECT * FROM prs_info")
-        users=mycursor.fetchall()
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('SELECT * FROM prs_info')
+        utilisateur = mycursor.fetchall()
+
         contexts, _ = config.list_kube_config_contexts()
         clusters = [context['name'] for context in contexts]
 
-        return render_template('user.html', users=users, clusters=clusters)
+        return render_template('user.html', clusters=clusters, user=user, username=username, utilisateur=utilisateur)
     
     return redirect(url_for('login'))
+
+@app.route('/historique', methods=['GET'])
+def get_historique():
+    username = request.args.get('username')
+    mycursor.execute('''
+            SELECT action
+            FROM tracking
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+    
+    historique = mycursor.fetchall()
+    return jsonify(historique)
+
+                                    #lancement du socket pour le namespace  
+
+@app.route('/namespace', methods=['GET'])
+def namespace():
+    if 'username' in session:   
+        username = session['username']
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall()  
+
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        namespace = get_namespace()
+
+        return render_template('namespace.html', user=user, cluster=cluster, username=username, namespace=namespace)
+    
+    return redirect(url_for('login'))
+
+@app.route('/add_namespace', methods=['POST'])
+def add_namespace():
+    namespace_name = request.form['namespace_name']
+    try:
+        v1 = client.CoreV1Api()
+        body = client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace_name))
+        v1.create_namespace(body=body)
+        return jsonify(success=f"namespace créé avec succès!")
+    except Exception as e:
+        return jsonify(error=f"Erreur lors de la création du namespace")
+
+@app.route('/delete_namespace', methods=['GET'])
+def delete_namespace():
+    namespace_name = request.args.get('namespace_name')
+    try:
+        subprocess.run(["kubectl", "delete", "namespace", namespace_name])
+        return jsonify(success=True, message=f"Le namespace '{namespace_name}' a été supprimé avec succès.")
+    except Exception as e:
+            return jsonify(success=False, message=f"Erreur lors de la suppression du namespace : {e}")
+
+@app.route('/namespace_details', methods=['GET'])
+def get_namespace_details():
+    namespace_name = request.args.get('namespace_name')
+    try:
+        process = subprocess.Popen(["kubectl", "describe", "namespace", namespace_name], stdout=subprocess.PIPE)
+        output, _ = process.communicate()
+        return output.decode('utf-8')
+    except Exception as e:
+        return f"Erreur lors de la récupération des détails du namespace : {e}"         
+
 
                                          #lancement du socket pour le terminale       
 
@@ -287,7 +360,7 @@ def install():
 
 @app.route('/open_pod_shell/<pod_name>')
 def open_pod_shell(pod_name):
-    command = f'kubectl exec -it {pod_name} -- /bin/bash'
+    command = f'kubectl exec -ti {pod_name} /bin/bash'
     try:
         subprocess.run(command, shell=True, check=True)
     except subprocess.CalledProcessError as e:
@@ -328,11 +401,25 @@ def logs(namespace, pod_name):
 @app.route('/pods', methods=['GET', 'POST'])
 def pods():
     if 'username' in session:
+
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')  # Récupère le namespace sélectionné depuis les paramètres d'URL
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()
         pods = get_pods_in_namespace(selected_namespace)  # Utilisez le namespace sélectionné ici pour récupérer les pods
-        return render_template('pods.html', pods=pods, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('pods.html', pods=pods, user=user, username=username, cluster=cluster, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     
     return redirect(url_for('login'))
 
@@ -371,12 +458,26 @@ def update_pod():
 
 @app.route('/deployment', methods=['GET', 'POST'])
 def deployment():
-    if 'username' in session: 
+    if 'username' in session:
+
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()
         deployments = get_deployments_in_namespace(selected_namespace)
-        return render_template('deployment.html', deployments=deployments, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('deployment.html', deployments=deployments, user=user, cluster=cluster, username=username, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     
     return redirect(url_for('login'))   
 @app.route('/delete_deployment', methods=['POST'])
@@ -420,11 +521,25 @@ def update_deployment():
 @app.route('/configmap', methods=['GET', 'POST'])
 def configmap():
     if 'username' in session:
+
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()     
         configmap_list = get_configmap_in_namespace(selected_namespace)
-        return render_template('configmap.html', configmaps=configmap_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('configmap.html', user=user, cluster=cluster, username=username, configmaps=configmap_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
 
     return redirect(url_for('login')) 
 
@@ -439,11 +554,25 @@ def config_details(namespace, configMap_name):
 @app.route('/secret', methods=['GET', 'POST'])
 def secret():
     if 'username' in session:
+
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()           
         secrets = get_secret_in_namespace(selected_namespace)
-        return render_template('secret.html', secrets=secrets, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('secret.html', secrets=secrets, user=user, username=username, cluster=cluster, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     return redirect(url_for('login')) 
 
 @app.route('/secret_details/<namespace>/<secret_name>', methods=['GET'])
@@ -457,11 +586,24 @@ def secret_details(namespace, secret_name):
 @app.route('/service', methods=['GET', 'POST'])
 def service():
     if 'username' in session:
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces() 
         service_list = get_service_in_namespace(selected_namespace)
-        return render_template('service.html', services=service_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('service.html', services=service_list, username=username, cluster=cluster, user=user, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     return redirect(url_for('login')) 
 
 @app.route('/service_details/<namespace>/<service_name>', methods=['GET'])
@@ -474,11 +616,24 @@ def service_details(namespace, service_name):
 @app.route('/ingress', methods=['GET', 'POST'])
 def ingress():
     if 'username' in session:
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]   
         namespaces = get_available_namespaces()
         ingress_list = get_ingresses_in_namespace(selected_namespace)        
-        return render_template('ingress.html', ingresses=ingress_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('ingress.html', ingresses=ingress_list, username=username, user=user, cluster=cluster, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     return redirect(url_for('login')) 
 
 @app.route('/ingress_details/<namespace>/<ingress_name>', methods=['GET'])
@@ -492,11 +647,24 @@ def ingress_details(namespace, ingress_name):
 @app.route('/pvc', methods=['GET', 'POST'])
 def pvc():
     if 'username' in session:
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()
         pvc_list = get_persistent_volume_claims_in_namespace(selected_namespace)
-        return render_template('pvc.html', pvc_list=pvc_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('pvc.html', pvc_list=pvc_list, username=username, user=user, cluster=cluster, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     return redirect(url_for('login')) 
 
 @app.route('/pvc_details/<namespace>/<pvc_name>', methods=['GET'])
@@ -512,11 +680,24 @@ def pvc_details(namespace, pvc_name):
 @app.route('/pv', methods=['GET', 'POST'])
 def pv():
     if 'username' in session:
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()
         pv_list = get_persistent_volume_in_namespace(selected_namespace)
-        return render_template('pv.html', pv_list=pv_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('pv.html', pv_list=pv_list, username=username, user=user, cluster=cluster, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     return redirect(url_for('login')) 
 
 @app.route('/pv_details/<namespace>/<pv_name>', methods=['GET'])
@@ -530,11 +711,24 @@ def pv_details(namespace, pv_name):
 @app.route('/statefullset', methods=['GET', 'POST'])
 def statefullset():
     if 'username' in session:
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()
         statefullset_list = get_statefulsets_in_namespace(selected_namespace)
-        return render_template('statefullset.html', statefullset_list=statefullset_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('statefullset.html', statefullset_list=statefullset_list, user=user, username=username, cluster=cluster, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     return redirect(url_for('login')) 
 
 @app.route('/statefullset_details/<namespace>/<statefullset_name>', methods=['GET'])
@@ -548,11 +742,24 @@ def statefullset_details(namespace, statefullset_name):
 @app.route('/replicatset', methods=['GET', 'POST'])
 def replicatset():
     if 'username' in session:
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()
         replicatset_list = get_replicasets_in_namespace(selected_namespace)
-        return render_template('replicatset.html', replicatset_list=replicatset_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('replicatset.html', replicatset_list=replicatset_list, username=username, user=user, cluster=cluster, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     return redirect(url_for('login')) 
 
 @app.route('/replicatset_details/<namespace>/<statefullset_name>', methods=['GET'])
@@ -566,11 +773,24 @@ def replicatset_details(namespace, replicatset_name):
 @app.route('/jobs', methods=['GET', 'POST'])
 def jobs():
     if 'username' in session:
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()
         jobs_list = get_jobs_in_namespace(selected_namespace)
-        return render_template('jobs.html', jobs_listt=jobs_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('jobs.html', jobs_listt=jobs_list, user=user, username=username, cluster=cluster, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     return redirect(url_for('login')) 
 
                                         #route pour les opérations sur le cronjobs
@@ -579,11 +799,24 @@ def jobs():
 @app.route('/cronjobs', methods=['GET', 'POST'])
 def cronjobs():
     if 'username' in session:
+        username = session['username']
+        mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+        user = mycursor.fetchone()
+
+        mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+        cluster = mycursor.fetchall() 
+
         selected_namespace = request.args.get('namespace', 'default')
         yaml_files = [f for f in os.listdir(yaml_dir) if f.endswith(('.yaml', '.yml'))]
         namespaces = get_available_namespaces()
         cronjobs_list = get_cronjobs_in_namespace(selected_namespace)
-        return render_template('cronjobs.html', cronjobs_listt=cronjobs_list, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
+        return render_template('cronjobs.html', cronjobs_listt=cronjobs_list, user=user, username=username, cluster=cluster, yaml_files=yaml_files, namespaces=namespaces, selected_namespace=selected_namespace)
     return redirect(url_for('login')) 
 
 if __name__ == '__main__':

@@ -1,120 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informations sur le Déploiement Kubernetes</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-
-<body>
-    <div class="container mt-5">
-        <h1>Informations sur le Déploiement Kubernetes</h1>
-        <hr>
-        <div>
-            <strong>Namespace:</strong> {{ deployment_info.metadata.namespace }}<br>
-            <strong>Nom du Déploiement:</strong> {{ deployment_info.metadata.name }}<br>
-            <strong>Nombre de Réplicas:</strong> {{ deployment_info.spec.replicas }}
-        </div>
-
-        <hr>
-
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#deploymentModal"
-        data-namespace="{{ deployment_info.metadata.namespace }}" data-deploymentname="{{ deployment_info.metadata.name }}"
-        data-image="{{ deployment_info.spec.template.spec.containers[0].image }}"
-        data-replicas="{{ deployment_info.spec.replicas }}">
-        Mettre à jour le Déploiement
-    </button>
-
-        <!-- Modal -->
-    <div class="modal fade" id="deploymentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Mise à jour du Déploiement Kubernetes</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="deploymentForm">
-                        <div class="form-group">
-                            <label for="namespace">Namespace:</label>
-                            <input type="text" class="form-control" id="namespace" name="namespace" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="deploymentName">Nom du Déploiement:</label>
-                            <input type="text" class="form-control" id="deploymentName" name="deploymentName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="image">Image:</label>
-                            <input type="text" class="form-control" id="image" name="image" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="replicas">Nouveau Nombre de Réplicas:</label>
-                            <input type="number" class="form-control" id="replicas" name="replicas" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Mettre à jour</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <!-- jQuery and Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('#deploymentModal').on('show.bs.modal', function(event) {
-                var button = $(event.relatedTarget);
-                var namespace = button.data('namespace');
-                var deploymentName = button.data('deploymentname');
-                var image = button.data('image');
-                var replicas = button.data('replicas');
-    
-                var modal = $(this);
-                modal.find('.modal-title').text('Mise à jour du Déploiement Kubernetes (' + deploymentName + ')');
-                modal.find('.modal-body #namespace').val(namespace);
-                modal.find('.modal-body #deploymentName').val(deploymentName);
-                modal.find('.modal-body #image').val(image);
-                modal.find('.modal-body #replicas').val(replicas);
-            });
-    
-            $('#deploymentForm').submit(function(event) {
-                event.preventDefault();
-                var namespace = $('#namespace').val();
-                var deploymentName = $('#deploymentName').val();
-                var image = $('#image').val();
-                var replicas = $('#replicas').val();
-    
-                $.ajax({
-                    url: '/update_deployment',
-                    type: 'PATCH',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        namespace: namespace,
-                        deploymentName: deploymentName,
-                        image: image,
-                        replicas: replicas
-                    }),
-                    success: function(response) {
-                        console.log('Déploiement mis à jour avec succès');
-                        $('#deploymentModal').modal('hide');
-                        // Actualiser la page ou effectuer toute autre action nécessaire après la mise à jour
-                    },
-                    error: function(error) {
-                        console.error('Erreur lors de la mise à jour du déploiement:', error);
-                        // Gérez les erreurs si nécessaire
-                    }
-                });
-            });
-        });
-    </script>
-</body>
-
+  <head>
+    <meta charset="utf-8">
+    <title>Namespaces Kubernetes</title>
+  </head>
+  <body>
+    <h1>Namespaces Kubernetes</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Namespace</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for namespace in namespaces %}
+        <tr>
+          <td>{{ namespace }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
 </html>

@@ -58,6 +58,7 @@
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 		
 		<style>
@@ -165,8 +166,7 @@
 								type="text"
 								class="form-control search-input"
 								placeholder="Search Here"
-								id="deploySearch" 
-								oninput="searchDeploy()"
+								id="searchInput"
 							/>
 							<div class="dropdown">
 								<a
@@ -238,72 +238,20 @@
 							role="button"
 							data-toggle="dropdown"
 						>
-							<i class="icon-copy dw dw-notification"></i>
+							<i class="icon-copy dw dw-server"></i>
 							<span class="badge notification-active"></span>
 						</a>
 						<div class="dropdown-menu dropdown-menu-right">
 							<div class="notification-list mx-h-350 customscroll">
 								<ul>
+									{% for cluster in cluster %}
 									<li>
-										<a href="#">
-											<img src="vendors/images/img.jpg" alt="" />
-											<h3>John Doe</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
+										<a href="#" onclick="showClusterDetailsModal()">
+											<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
+											<h3>{{ cluster[0] }}</h3>	
 										</a>
 									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo1.jpg" alt="" />
-											<h3>Lea R. Frith</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo2.jpg" alt="" />
-											<h3>Erik L. Richards</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo3.jpg" alt="" />
-											<h3>John Doe</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/photo4.jpg" alt="" />
-											<h3>Renee I. Hansen</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
-									<li>
-										<a href="#">
-											<img src="vendors/images/img.jpg" alt="" />
-											<h3>Vicki M. Coleman</h3>
-											<p>
-												Lorem ipsum dolor sit amet, consectetur adipisicing
-												elit, sed...
-											</p>
-										</a>
-									</li>
+									{% endfor %}
 								</ul>
 							</div>
 						</div>
@@ -318,20 +266,20 @@
 							data-toggle="dropdown"
 						>
 							<span class="user-icon">
-								<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
+								<img src="{{ url_for('static', filename='images/user2.png') }}" alt="" />
 							</span>
-							<span class="user-name">Minikube</span>
+							<span class="user-name">{{ username }}</span>
 						</a>
 						<div
 							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
 						>
-							<a class="dropdown-item" href="#" onclick="showClusterDetailsModal()"
+							<a class="dropdown-item" href="#"
 								><i class="dw dw-user1"></i>Infos</a
 							>
 							<a class="dropdown-item" href="profile.html"
 								><i class="dw dw-settings2"></i>Paramètres</a
 							>
-							<a class="dropdown-item" href="/"
+							<a class="dropdown-item" href="/logout"
 								><i class="dw dw-logout"></i>se déconnecter</a
 							>
 						</div>
@@ -530,7 +478,7 @@
 							</a>
 						</li>
 						<li>
-							<a href="javascript:;" class="dropdown-toggle">
+							<a href="/namespace" class="dropdown-toggle">
 								<span class="micon bi bi-file-earmark-text-fill"></span
 								><span class="mtext">Namespace</span>
 							</a>
@@ -702,8 +650,8 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {% for users in users %}
+                                <tbody class="user-data">
+                                    {% for users in utilisateur %}
                                     <tr>
                                         <td class="table-plus">
                                             <div class="name-avatar d-flex align-items-center">
@@ -735,15 +683,15 @@
 													<i class="dw dw-more"></i>
 												</a>
 												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-													<a class="dropdown-item" href="#">
-														<i class="icon-copy bi bi-card-list"></i>Mots de passe
+													<a class="dropdown-item" href="#" onclick="getHistorique('{{ users[1] }}')">
+														<i class="icon-copy bi bi-card-list"></i> Historique
 													</a>
 													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>Modifier</a>
 													<a
 					                                    class="dropdown-item"
 														href="#"
 													> 
-														<i class="dw dw-delete-3"></i> supprimer
+														<i class="dw dw-delete-3"></i> Supprimer
 													</a>
 												</div>
 											</div>
@@ -964,19 +912,17 @@
 								</div>
 							</div>
 
-							<div class="modal fade" id="deployDetailsModal" tabindex="-1" role="dialog" aria-labelledby="deployDetailsModalLabel" aria-hidden="true">
-								<div class="modal-dialog modal-lg" role="document">
+							<div class="modal fade" id="historiqueModal" tabindex="-1" role="dialog" aria-labelledby="historiqueModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
 									<div class="modal-content">
 										<div class="modal-header">
-											<h5 class="modal-title" id="deployDetailsModalLabel">Détails du déployments</h5>
-											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+											<h5 class="modal-title" id="historiqueModalLabel">Historique de l'utilisateur</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 												<span aria-hidden="true">&times;</span>
 											</button>
 										</div>
 										<div class="modal-body">
-											<div id="deployDetails">
-												<!-- Les détails du pod seront insérés ici -->
-											</div>
+											<pre id="historiqueDetails"></pre>
 										</div>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
@@ -984,6 +930,10 @@
 									</div>
 								</div>
 							</div>
+							
+							
+
+
 
 				<!-- welcome modal end -->
 		<!-- js -->
@@ -1025,7 +975,53 @@
                     });
                 });
             });
-            </script>        
+        </script>
+			
+		<script>
+				function getHistorique(username) {
+					fetch('/historique?username=' + username, { method: 'GET' })
+						.then(response => response.json())
+						.then(data => {
+							// Affichez l'historique dans le modal sous forme de liste stylisée
+							var historiqueModal = document.getElementById('historiqueDetails');
+							historiqueModal.innerHTML = ''; // Réinitialisez le contenu du modal
+							var ul = document.createElement('ul');
+							ul.className = "list-group"; // Ajoutez la classe Bootstrap list-group
+							data.forEach(item => {
+								var li = document.createElement('li');
+								li.className = "list-group-item d-flex justify-content-between align-items-center";
+								var icon = document.createElement('i');
+								icon.className = "fas fa-history mr-2"; // Ajoutez une icône d'historique (Font Awesome)
+								li.appendChild(icon);
+								li.appendChild(document.createTextNode(item[0])); // Ajoutez chaque élément du tableau comme un élément de liste
+								ul.appendChild(li);
+							});
+							historiqueModal.appendChild(ul); // Ajoutez la liste au modal
+							$('#historiqueModal').modal('show');
+						})
+						.catch(error => {
+							console.error(error);
+							alert('Erreur lors de la récupération de l\'historique.');
+						});
+				}
+		</script>
+			
+			
+			<script>
+				$(document).ready(function() {
+					$('#searchInput').on('input', function() {
+						var searchText = $(this).val().toLowerCase();
+						$('.user-data tr').each(function() {
+							var username = $(this).find('td:first-child').text().toLowerCase();
+							if (username.includes(searchText)) {
+								$(this).show(); 
+							} else {
+								$(this).hide();
+							}
+						});
+					});
+				});
+			</script>		
 		
 		
 		<script>
@@ -1085,34 +1081,6 @@
     	}
 		</script>
 
-<script>
-	$(document).ready(function () {
-		$('#uploadForm').submit(function (event) {
-			event.preventDefault();
-
-			var formData = new FormData(this);
-
-			$.ajax({
-				type: 'POST',
-				url: '{{ url_for("install") }}',
-				data: formData,
-				processData: false,
-				contentType: false,
-				success: function (response) {
-					if (response.success) {
-						Swal.fire('Succès', response.success, 'success');
-						$('#uploadForm').modal('hide');
-					} else if (response.error) {
-						Swal.fire('Erreur', response.error, 'error');
-					}
-				},
-				error: function () {
-					Swal.fire('Erreur', 'Une erreur s\'est produite lors de la requête.', 'error');
-				}
-			});
-		});
-	});
-</script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 <script>
