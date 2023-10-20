@@ -31,17 +31,17 @@ def formuledepolitesse(text):
     response = openai.Completion.create(
         engine="text-davinci-003",
         prompt=f"Répondre à la formule de politesse suivante : '{text}'",
-        max_tokens=350
+        max_tokens=200
     )
 
     return response
 
 def creation_template():
-    openai.api_key = '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'
+    openai.api_key = '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'
     response = openai.Completion.create(
         engine="text-davinci-003",
-        prompt=f"Donnez-moi un template de déploiement dans un fichier .yml d'un MySQL sur kubernetes.",
-        max_tokens=400
+        prompt=f"Donnez-moi un template de déploiement dans un fichier .yml d'un nginx sur kubernetes.",
+        max_tokens=300
     )
 
     return response

@@ -23,6 +23,7 @@ from replicaset import *
 from jobs import *
 from cronjobs import *
 from secret import *
+from trigger import *
 
 
 app = Flask(__name__)
@@ -183,6 +184,9 @@ def cluster_details():
     except subprocess.CalledProcessError as e:
         error_message = f"Erreur : {e.stderr}"
         return jsonify({"error": error_message})
+    
+
+                        #route pour les opérations sur le user    
 
 @app.route('/user', methods=['GET'])
 def user():
@@ -214,7 +218,8 @@ def get_historique():
     historique = mycursor.fetchall()
     return jsonify(historique)
 
-                                    #lancement du socket pour le namespace  
+
+                                    #route pour les opérations sur le namespace  
 
 @app.route('/namespace', methods=['GET'])
 def namespace():
@@ -241,19 +246,35 @@ def namespace():
 @app.route('/add_namespace', methods=['POST'])
 def add_namespace():
     namespace_name = request.form['namespace_name']
+    username = session['username']       
     try:
         v1 = client.CoreV1Api()
         body = client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace_name))
         v1.create_namespace(body=body)
+
+        cluster_name = get_clustername(username)
+
+        action = f"L'utilisateur {username} a ajouté un namespace sous le nom {namespace_name} sur le cluster {cluster_name}"
+
+        add_tracking(username, action)
+
         return jsonify(success=f"namespace créé avec succès!")
     except Exception as e:
-        return jsonify(error=f"Erreur lors de la création du namespace")
+        return jsonify(error=f"Erreur lors de la création du namespace")    
 
 @app.route('/delete_namespace', methods=['GET'])
 def delete_namespace():
     namespace_name = request.args.get('namespace_name')
+    username = session['username']
     try:
         subprocess.run(["kubectl", "delete", "namespace", namespace_name])
+
+        cluster_name = get_clustername(username)
+
+        action = f"L'utilisateur {username} a supprimé un namespace sous le nom {namespace_name} sur le cluster {cluster_name}"
+
+        add_tracking(username, action)
+
         return jsonify(success=True, message=f"Le namespace '{namespace_name}' a été supprimé avec succès.")
     except Exception as e:
             return jsonify(success=False, message=f"Erreur lors de la suppression du namespace : {e}")
@@ -336,6 +357,7 @@ def network_data():
 
 @app.route('/install', methods=['GET', 'POST'])
 def install():
+    username = session['username']
     if request.method == 'POST':
         file = request.files['yaml_file']
         resource_type = request.form.get('resource_type')
@@ -347,8 +369,15 @@ def install():
                 message = f'L\'objet YAML "{yaml_object_name}" existe déjà dans le cluster.'
                 return jsonify({'error': message})
             success, error_message = install_yaml(file_path)
+
+            cluster_name = get_clustername(username)
+
+            action = f"L'utilisateur {username} a installé un {resource_type} sous le nom {yaml_object_name} sur le cluster {cluster_name}"
+
+            add_tracking(username, action)
+
             os.remove(file_path)
-            if success:
+            if success:         
                 message = f'Fichier YAML "{yaml_object_name}" installé avec succès dans le cluster.'
                 return jsonify({'success': message})
             else:
@@ -383,9 +412,17 @@ def delete_pod():
     namespace = request.form.get('namespace')
     pod_name = request.form.get('name')
     core_api = client.CoreV1Api()
+    username = session['username']
     try:
         delete_options = client.V1DeleteOptions()
         core_api.delete_namespaced_pod(pod_name, namespace, body=delete_options)
+
+        cluster_name = get_clustername(username)
+
+        action = f"L'utilisateur {username} a supprimer un pod sous le nom {pod_name} sur le cluster {cluster_name}"
+
+        add_tracking(username, action)
+
         return redirect(url_for('pods', success_message='Le pod a été supprimé avec succès.'))
     except client.rest.ApiException as e:
         error_message = f"Erreur lors de la suppression du pod : {e.reason}"
@@ -485,9 +522,17 @@ def delete_deployment():
     namespace = request.form.get('namespace')
     name = request.form.get('name')
     k8s_apps_v1 = client.AppsV1Api()
+    username = session['username']
     try:
         delete_options = client.V1DeleteOptions()
         k8s_apps_v1.delete_namespaced_deployment(name, namespace, body=delete_options)
+
+        cluster_name = get_clustername(username)
+
+        action = f"L'utilisateur {username} a supprimé un déploiment sous le nom {name} sur le cluster {cluster_name}"
+
+        add_tracking(username, action)
+
         return redirect(url_for('deployment', success_message='Le déploiement a été supprimé avec succès.'))
     except client.rest.ApiException as e:
         error_message = f"Erreur lors de la suppression du déploiement : {e.reason}"
@@ -505,12 +550,19 @@ def update_deployment():
     namespace = data.get('namespace')
     deployment_name = data.get('deploymentName')
     replicas = int(data.get('replicas'))
-
+    username = session['username']
     try:
         v1 = client.AppsV1Api()
         deployment = v1.read_namespaced_deployment(name=deployment_name, namespace=namespace)
         deployment.spec.replicas = replicas
         v1.patch_namespaced_deployment(name=deployment_name, namespace=namespace, body=deployment)
+
+        cluster_name = get_clustername(username)
+
+        action = f"L'utilisateur {username} a mis à jour un déploiment sous le nom {deployment_name} sur le cluster {cluster_name}"
+
+        add_tracking(username, action)
+
         return jsonify({'message': 'Déploiement mis à jour avec succès'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500 

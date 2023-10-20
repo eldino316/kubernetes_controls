@@ -994,6 +994,8 @@
 				success: function (response) {
 					if (response.success) {
 						Swal.fire('Succès', response.success, 'success');
+						$('#uploadForm').modal('hide');
+						window.location.reload();
 					} else if (response.error) {
 						Swal.fire('Erreur', response.error, 'error');
 					}

@@ -579,12 +579,6 @@
 					<div class="card-box pb-10">
 						<div class="d-flex justify-content-between align-items-center mb-3">
 							<div class="h5 pd-20 mb-0">Recente Utilisateurs</div>
-							<!-- Barre de recherche -->
-							<div class="form-group pd-20 row align-items-center">
-								<label class="col-form-label" for="namespace">Namespace:</label>
-								<div class="col">
-								</div>
-							</div>
 						</div>
 						<table class="data-table table nowrap skeleton-loader">
 							<thead>
@@ -633,12 +627,6 @@
 
 							<div class="d-flex justify-content-between align-items-center mb-3">
 								<div class="h5 pd-20 mb-0">Recente utilisateurs</div>
-								<!-- Barre de recherche -->
-								<div class="form-group pd-20 row align-items-center">
-									<label class="col-form-label" for="namespace">Namespace:</label>
-									<div class="col">
-									</div>
-								</div>
 							</div>
 
                             <table class="data-table table nowrap">
@@ -771,7 +759,6 @@
                                                             <div class="col-sm-8">
                                                                 <select
                                                                     class="form-control selectpicker"
-                                                                    title="Select Card Type"
                                                                 >
 																{% for cluster in clusters %}
 																<option value="{{ cluster }}">{{ cluster }}</option>
@@ -795,7 +782,7 @@
                                                         </div>
                                                         <div class="form-group row">
                                                             <label class="col-sm-4 col-form-label"
-                                                                >Expiration Date</label
+                                                                >Dates d'expiration</label
                                                             >
                                                             <div class="col-sm-8">
                                                                 <div class="row">
