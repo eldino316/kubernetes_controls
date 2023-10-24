@@ -1,24 +1,14 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Namespaces Kubernetes</title>
-  </head>
-  <body>
-    <h1>Namespaces Kubernetes</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Namespace</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for namespace in namespaces %}
-        <tr>
-          <td>{{ namespace }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Installation de Composant Kubernetes</title>
+</head>
+<body>
+    <h1>Installation de Composant Kubernetes</h1>
+    <form action="/install_component" method="post">
+        <label for="component_yaml">Configuration YAML du Composant :</label><br>
+        <textarea id="component_yaml" name="component_yaml" rows="10" cols="50"></textarea><br><br>
+        <input type="submit" value="Installer le Composant">
+    </form>
+</body>
 </html>

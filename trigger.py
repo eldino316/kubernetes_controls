@@ -25,4 +25,21 @@ def get_clustername(username):
     mycursor.execute('SELECT cluster.name_cluster FROM cluster JOIN tracking ON cluster.id = tracking.cluster_id JOIN prs_info ON tracking.prs_info_id = prs_info.id WHERE prs_info.prs_name = %s', (username,))
     cluster_name = mycursor.fetchall()[0][0]
 
-    return cluster_name  
+    return cluster_name
+
+def get_user_info(username):
+    mycursor.execute('SELECT * FROM prs_info WHERE prs_name = %s', (username,))
+    user = mycursor.fetchone()
+
+    return user
+
+def get_clusterall(username):
+    mycursor.execute('''
+            SELECT cluster.name_cluster
+            FROM cluster
+            JOIN tracking ON cluster.id = tracking.cluster_id
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+    cluster = mycursor.fetchall()
+    return cluster 

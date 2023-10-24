@@ -128,20 +128,6 @@
 
 			gtag("config", "G-GBZ3SGGX85");
 		</script>
-		<!-- Google Tag Manager -->
-		<script>
-			(function (w, d, s, l, i) {
-				w[l] = w[l] || [];
-				w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-				var f = d.getElementsByTagName(s)[0],
-					j = d.createElement(s),
-					dl = l != "dataLayer" ? "&l=" + l : "";
-				j.async = true;
-				j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-				f.parentNode.insertBefore(j, f);
-			})(window, document, "script", "dataLayer", "GTM-NXZMQSS");
-		</script>
-		<!-- End Google Tag Manager -->
 	</head>
 	<body>
 		<div class="header">
@@ -159,6 +145,7 @@
 								type="text"
 								class="form-control search-input"
 								placeholder="Search Here"
+								id="searchInput"
 							/>
 							<div class="dropdown">
 								<a
@@ -542,7 +529,9 @@
 							</a>
 							<ul class="submenu">
 								<li><a href="/chart">chart</a></li>
-								<li><a href="release">Release</a></li>
+								<li><a href="/ia">Intelligence Artificiel</a></li>
+								<li><a href="/repository">Repository</a></li>
+								<li><a href="/Infra">Infrastructure cloud</a></li>
 							</ul>
 						</li>
 						<li>
@@ -652,7 +641,7 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="user-data">
                                     {% for service in services %}
                                     <tr>
                                         <td class="table-plus">
@@ -733,32 +722,32 @@
                             </table>
                         </div>
 						</div>
+				</div>
 	<!-- modale ajout -->
-	
-	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
 			<div class="modal-content">
-				<form id="uploadForm" action="/install" method="post" enctype="multipart/form-data">
-					<div class="modal-header">
-						<h5 class="modal-title text-primary">Ajout d'un nouveau deploiment</h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
-							<li class="nav-item">
-								<a class="nav-link active" id="import-tab" data-toggle="pill" href="#import" role="tab" aria-controls="import" aria-selected="true">Importer</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" id="edit-tab" data-toggle="pill" href="#edit" role="tab" aria-controls="edit" aria-selected="false">Editer</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" id="template-tab" data-toggle="pill" href="#template" role="tab" aria-controls="template" aria-selected="false">Template</a>
-							</li>
-						</ul>
-						<div class="tab-content" id="pills-tabContent">
-							<div class="tab-pane fade show active" id="import" role="tabpanel" aria-labelledby="import-tab">
+				<div class="modal-header">
+					<h5 class="modal-title text-primary">Ajout d'un nouveau composant</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" id="import-tab" data-toggle="pill" href="#import" role="tab" aria-controls="import" aria-selected="true">Importer</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="edit-tab" data-toggle="pill" href="#edit" role="tab" aria-controls="edit" aria-selected="false">Éditer</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="template-tab" data-toggle="pill" href="#template" role="tab" aria-controls="template" aria-selected="false">Template</a>
+						</li>
+					</ul>
+					<div class="tab-content" id="pills-tabContent">
+						<div class="tab-pane fade show active" id="import" role="tabpanel" aria-labelledby="import-tab">
+							<form id="uploadForm" action="/install" method="post" enctype="multipart/form-data">
 								<div class="custom-file mb-3">
 									<input type="file" class="custom-file-input" id="yamlFile" name="yaml_file" accept=".yaml, .yml" required>
 									<label class="custom-file-label" for="yamlFile">Choisir un fichier YAML</label>
@@ -767,55 +756,63 @@
 									<label for="resourceType">Type de ressource Kubernetes :</label>
 									<select class="form-control" id="resourceType" name="resource_type" required>
 										<option value="pods">Pod</option>
-										<option value="deployments">Deployments</option>
+										<option value="deployments">Déploiements</option>
 										<option value="secret">Secrets</option>
 										<option value="configmap">ConfigMaps</option>
 										<option value="services">Service</option>
 									</select>
 								</div>
-							</div>
-							<div class="tab-pane fade" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-primary">Ajouter</button>
+									<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+								</div>
+							</form>
+						</div>
+						<div class="tab-pane fade" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+							<form id="uploadForm2" action="/install_component" method="post" enctype="multipart/form-data">
 								<div class="form-group">
 									<label for="yamlTextarea">Modifier le YAML :</label>
-									<textarea class="form-control" id="yamlTextarea" rows="10"></textarea>
+									<textarea class="form-control" id="component_yaml" name="component_yaml" rows="10" required></textarea>
 								</div>
-							</div>
-							<div class="tab-pane fade" id="template" role="tabpanel" aria-labelledby="template-tab">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-								</p>
-							</div>
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-primary">Ajouter</button>
+									<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+								</div>
+							</form>
+						</div>
+						<div class="tab-pane fade" id="template" role="tabpanel" aria-labelledby="template-tab">
+							<p>
+								Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+							</p>
 						</div>
 					</div>
-					<div class="modal-footer">
-						<button type="submit" class="btn btn-primary">Ajouter</button>
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+	<div class="modal fade" id="serviceDetailsModal" tabindex="-1" role="dialog" aria-labelledby="serviceDetailsModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="serviceDetailsModalLabel">Détails du service</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div id="serviceDetails">
+						<!-- Les détails du pod seront insérés ici -->
 					</div>
-				</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+				</div>
 			</div>
 		</div>
 	</div>
 
-    <div class="modal fade" id="logsModal" tabindex="-1" role="dialog" aria-labelledby="logsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="logsModalLabel">Logs du service</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <pre id="logsContent"></pre>
-                </div>
-            </div>
-        </div>
-    </div>
-
-	
-
-				<div class="title pb-20 pt-20">
-				</div>
 
 						    <!-- Terminal Modal -->
 							<div class="modal fade" id="terminalModal" tabindex="-1" role="dialog" aria-labelledby="terminalModalLabel" aria-hidden="true">
@@ -838,26 +835,7 @@
 								</div>
 							</div>
 
-							<div class="modal fade" id="serviceDetailsModal" tabindex="-1" role="dialog" aria-labelledby="serviceDetailsModalLabel" aria-hidden="true">
-								<div class="modal-dialog modal-lg" role="document">
-									<div class="modal-content">
-										<div class="modal-header">
-											<h5 class="modal-title" id="serviceDetailsModalLabel">Détails du service</h5>
-											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-												<span aria-hidden="true">&times;</span>
-											</button>
-										</div>
-										<div class="modal-body">
-											<div id="serviceDetails">
-												<!-- Les détails du pod seront insérés ici -->
-											</div>
-										</div>
-										<div class="modal-footer">
-											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-										</div>
-									</div>
-								</div>
-							</div>
+
 
 				<!-- welcome modal end -->
 		<!-- js -->
@@ -875,6 +853,22 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 
 		<script>
+			$(document).ready(function() {
+				$('#searchInput').on('input', function() {
+					var searchText = $(this).val().toLowerCase();
+					$('.user-data tr').each(function() {
+						var username = $(this).find('td:first-child').text().toLowerCase();
+						if (username.includes(searchText)) {
+							$(this).show(); 
+						} else {
+							$(this).hide();
+						}
+					});
+				});
+			});
+		</script>
+
+		<script>
     		setTimeout(function() {
         		const skeletonContainer = document.querySelector('.skeleton-container');
         		const contentContainer = document.querySelector('.content-container');
@@ -883,22 +877,18 @@
     			}, 6000); 
 		</script>
 
-<script>
-	function showServiceDetails(namespace, serviceName) {
+	<script>
+		function showServiceDetails(namespace, serviceName) {
 		fetch(`/service_details/${namespace}/${serviceName}`)
 			.then(response => response.text())
 			.then(data => {
 				const serviceDetailsModal = document.getElementById('serviceDetailsModal');
 				const serviceDetails = document.querySelector('#serviceDetails');
-		
-		// Utilisez join('\n') pour ajouter des retours à la ligne
 				serviceDetails.innerText = data;
-		
-		// Affichez le modal
 			$(serviceDetailsModal).modal('show');
 		});
 
-	}
+		}
 	</script>
 
 		<script>
@@ -911,20 +901,14 @@
 			socket.on('disconnect', function() {
 				console.log('Disconnected from server');
 			});
-	
-			// Function to append text to the terminal textarea
 			function appendToTerminal(text) {
 				var terminal = document.getElementById('terminal');
 				terminal.value += text + '\n';
 				terminal.scrollTop = terminal.scrollHeight;
 			}
-	
-			// Handle data received from the server and display it in the terminal textarea.
 			socket.on('terminal_output', function(data) {
 				appendToTerminal(data);
 			});
-	
-			// Handle user input and send it to the server when they press Enter.
 			document.getElementById('user-input').addEventListener('keydown', function(event) {
 				if (event.key === 'Enter') {
 					var input = document.getElementById('user-input').value;
@@ -937,17 +921,6 @@
 				
 
 		<script>
-			function showLogsModal(namespace, podName) {
-				// Utilisez une requête AJAX pour récupérer les logs du pod
-				// Supposons que les logs sont stockés dans la variable 'logs' après la requête
-				var logs = "Logs du pod " + podName + " dans le namespace " + namespace;
-			
-				// Affichez les logs dans la fenêtre modale
-				document.getElementById('logsContent').textContent = logs;
-			
-				// Ouvrez la fenêtre modale
-				$('#logsModal').modal('show');
-			}
 		function changeNamespace(select) {
             const selectedNamespace = select.value;
             window.location.href = `/service?namespace=${selectedNamespace}`;
@@ -970,14 +943,7 @@
     }
 			</script>
 
-<script>
-	function deleteService(namespace, name) {
-		var formId = 'deleteForm_' + namespace + '_' + name;
-		if (confirm("Êtes-vous sûr de vouloir supprimer ce service ?")) {
-			document.getElementById(formId).submit();
-		}
-	}
-</script>
+
 <script>
 	$(document).ready(function () {
 		$('#uploadForm').submit(function (event) {
@@ -1007,17 +973,62 @@
 		});
 	});
 </script>
+
+<script>
+	$(document).ready(function () {
+		$('#uploadForm2').submit(function (event) {
+			event.preventDefault();
+
+			var formData = new FormData(this);
+
+			$.ajax({
+				type: 'POST',
+				url: '{{ url_for("install_component") }}',
+				data: formData,
+				processData: false,
+				contentType: false,
+				success: function (response) {
+					if (response.success) {
+						Swal.fire('Succès', response.success, 'success');
+						$('#uploadForm').modal('hide');
+						window.location.reload();
+					} else if (response.error) {
+						Swal.fire('Erreur', response.error, 'error');
+					}
+				},
+				error: function () {
+					Swal.fire('Erreur', 'Une erreur s\'est produite lors de la requête.', 'error');
+				}
+			});
+		});
+	});
+</script>
+
+<script>
+    function deleteService(namespace, serviceName) {
+        var confirmation = confirm("Êtes-vous sûr de vouloir supprimer ce service ?");
+        if (confirmation) {
+            var formId = 'deleteForm_' + namespace + '_' + serviceName;
+            var deleteForm = document.getElementById(formId);
+            if (deleteForm) {
+                deleteForm.submit();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Succès!',
+                    text: 'Service supprimé avec succès!',
+                    timer: 2000 
+                });				
+            } else {
+				Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur!',
+                    text: 'La suppression a échoué.'
+                });
+			}
+        }
+    }
+</script>
 			
-        
-		<!-- Google Tag Manager (noscript) -->
-		<noscript
-			><iframe
-				src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS"
-				height="0"
-				width="0"
-				style="display: none; visibility: hidden"
-			></iframe
-		></noscript>
 
 	</body>
 	</html>

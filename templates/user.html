@@ -775,14 +775,14 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group row">
-                                                            <label class="col-sm-4 col-form-label">CVC</label>
+                                                            <label class="col-sm-4 col-form-label">Code de récuperations</label>
                                                             <div class="col-sm-3">
                                                                 <input type="text" class="form-control" />
                                                             </div>
                                                         </div>
                                                         <div class="form-group row">
                                                             <label class="col-sm-4 col-form-label"
-                                                                >Dates d'expiration</label
+                                                                >Dates d'expiration du hash</label
                                                             >
                                                             <div class="col-sm-8">
                                                                 <div class="row">
@@ -952,6 +952,8 @@
                         success: function (response) {
                             if (response.success) {
                                 Swal.fire('Succès', response.success, 'success');
+								$('#form2').modal('hide');
+								window.location.reload();
                             } else if (response.error) {
                                 Swal.fire('Erreur', response.error, 'error');
                             }
@@ -1020,53 +1022,10 @@
     			}, 6000); 
 		</script>
 
-		<script>
-			function showDeployDetails(namespace, deployName) {
-				fetch(`/deploy_details/${namespace}/${deployName}`)
-					.then(response => response.text())
-					.then(data => {
-						const deployDetailsModal = document.getElementById('deployDetailsModal');
-						const deployDetails = document.querySelector('#deployDetails');
-				
-				// Utilisez join('\n') pour ajouter des retours à la ligne
-						deployDetails.innerText = data;
-				
-				// Affichez le modal
-					$(deployDetailsModal).modal('show');
-				});
-	
-			}
-			</script>
 
-		<script>
-			function deleteDeployment(namespace, name) {
-				var formId = 'deleteForm_' + namespace + '_' + name;
-				if (confirm("Êtes-vous sûr de vouloir supprimer ce déploiement ?")) {
-					document.getElementById(formId).submit();
-				}
-			}
 
-			function changeNamespace(select) {
-            const selectedNamespace = select.value;
-            window.location.href = `/deployment?namespace=${selectedNamespace}`;
-		}
 
-		function searchDeploy() {
-        const input = document.getElementById('deploySearch');
-        const filter = input.value.toLowerCase();
-        const table = document.querySelector('table tbody');
-        const rows = table.getElementsByTagName('tr');
 
-        for (let i = 0; i < rows.length; i++) {
-            const podName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
-            if (podName.includes(filter)) {
-                rows[i].style.display = '';
-            } else {
-                rows[i].style.display = 'none';
-            }
-        }
-    	}
-		</script>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>

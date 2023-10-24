@@ -49,7 +49,12 @@
 			rel="stylesheet"
             href=" {{ url_for('static', filename='src/plugins/datatables/css/responsive.bootstrap4.min.css') }}"
 		/>
-
+		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
+		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		
 		<style>
 			/* Style for the terminal textarea */
 			#terminal {
@@ -68,9 +73,34 @@
 				border: none;
 				outline: none;
 			}
+
+            /* Style pour le message de l'utilisateur à gauche */
+        .admin_chat_left {
+    background-color: #f1f0f0;
+    color: #000;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    clear: both;
+    float: left;
+    max-width: 70%;
+}
+
+/* Style pour le message de la réponse à droite */
+.admin_chat_right {
+    background-color: #4caf50;
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    clear: both;
+    float: right;
+    max-width: 70%;
+}
+
 		</style>
 
-<style>
+		<style>
 	/* Styles pour le squelette de chargement */
 			.skeleton-container {
 				animation: loading 2s infinite;
@@ -104,11 +134,6 @@
 			}
 		</style>
 
-		<link rel="stylesheet" href=" {{ url_for('static', filename='vendors/styles/style.css') }}" />
-		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
-		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script
@@ -160,6 +185,7 @@
 								type="text"
 								class="form-control search-input"
 								placeholder="Search Here"
+								id="searchInput"
 							/>
 							<div class="dropdown">
 								<a
@@ -234,20 +260,6 @@
 							<i class="icon-copy dw dw-server"></i>
 							<span class="badge notification-active"></span>
 						</a>
-						<div class="dropdown-menu dropdown-menu-right">
-							<div class="notification-list mx-h-350 customscroll">
-								<ul>
-									{% for cluster in cluster %}
-									<li>
-										<a href="#" onclick="showClusterDetailsModal()">
-											<img src="{{ url_for('static', filename='images/share.png') }}" alt="" />
-											<h3>{{ cluster[0] }}</h3>	
-										</a>
-									</li>
-									{% endfor %}
-								</ul>
-							</div>
-						</div>
 					</div>
 				</div>
 				<div class="user-info-dropdown">
@@ -280,7 +292,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="right-sidebar">
 			<div class="sidebar-title">
 				<h3 class="weight-600 font-16 text-blue">
@@ -452,7 +463,6 @@
 		</div>
 
 
-
 		<div class="left-side-bar">
 			<div class="">
 				<a href="/home">
@@ -558,252 +568,330 @@
 				</div>
 			</div>
 		</div>
+		
 
 		<div class="skeleton-container main-container">
-			<div class="xs-pd-20-10 pd-ltr-20">
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<div class="title pb-20">
-						<h2 class="h3 mb-0">Listes des pods</h2>
-					</div>
-					<div class="d-flex add-box ml-3">
-						<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal">
-							<i class="dw dw-add add-icon"></i>  Ajouter un configmap
-						</a>
-					</div>
-				</div>
-					<div class="card-box pb-10">
-						<div class="d-flex justify-content-between align-items-center mb-3">
-							<div class="h5 pd-20 mb-0">Recente ConfigMap</div>
-							<!-- Barre de recherche -->
-							<div class="form-group pd-20 row align-items-center">
-								<label class="col-form-label" for="namespace">Namespace:</label>
-								<div class="col">
-									<select class="custom-select col-12" id="namespace" name="namespace" onchange="changeNamespace(this)">
-										{% for ns in namespaces %}
-										<option value="{{ ns }}" {% if ns == selected_namespace %}selected{% endif %}>{{ ns }}</option>
-										{% endfor %}
-									</select>
+			<div class="pd-ltr-20 xs-pd-20-10">
+				<div class="min-height-200px">
+					<div class="page-header">
+						<div class="row">
+							<div class="col-md-6 col-sm-12">
+								<div class="title">
+									<h4>Assistance intelligente</h4>
 								</div>
 							</div>
 						</div>
-						<table class="data-table table nowrap skeleton-loader">
-							<thead>
-								<tr>
-									<th class="table-plus">ConfigMap Name</th>
-									<th>Création</th>
-									<th>Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-								<!-- Première ligne de squelette -->
-								<tr class="skeleton-row">
-									<td>chargemnt...</td>
-									<td>chargement...</td>
-									<td>chargement...</td>
-								</tr>
-								<!-- Deuxième ligne de squelette -->
-								<tr class="skeleton-row">
-									<td>chargement...</td>
-									<td>chargement...</td>
-									<td>chargement...</td>
-								</tr>
-								<!-- Ajoutez autant de lignes de squelette que nécessaire -->
-							</tbody>
-						</table>
 					</div>
-			</div>
-	</div>
-
-                <div class="content-container main-container">
-                    <div class="xs-pd-20-10 pd-ltr-20">
-						<div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="title pb-20">
-                            <h2 class="h3 mb-0">Listes des configmaps</h2>
-                        </div>
-						<div class="d-flex add-box ml-3">
-							<a href="#" type="button" class="btn btn-primary" data-toggle="modal" data-target="#Medium-modal"><i class="dw dw-add add-icon"></i>  Ajouter un configmap</a>
-						</div>
-					</div>
-        
-                        <div class="card-box pb-10">
-
-							<div class="d-flex justify-content-between align-items-center mb-3">
-								<div class="h5 pd-20 mb-0">Recente ConfigMap</div>
-								<!-- Barre de recherche -->
-								<div class="form-group pd-20 row align-items-center">
-									<label class="col-form-label" for="namespace">Namespace:</label>
-									<div class="col">
-										<select class="custom-select col-12" id="namespace" name="namespace" onchange="changeNamespace(this)">
-											{% for ns in namespaces %}
-											<option value="{{ ns }}" {% if ns == selected_namespace %}selected{% endif %}>{{ ns }}</option>
-											{% endfor %}
-										</select>
+					<div class="bg-white border-radius-4 box-shadow mb-30">
+						<div class="row no-gutters">
+							<div class="col-lg-3 col-md-4 col-sm-12">
+								<div class="chat-list bg-light-gray">
+									<div class="chat-search">
+										<span class="ti-search"></span>
+										<input type="text" placeholder="Search Contact" />
+									</div>
+									<div
+										class="notification-list chat-notification-list customscroll"
+									>
+										<ul>
+											<li>
+												<a href="#">
+													<img src="vendors/images/img.jpg" alt="" />
+													<h3 class="clearfix">chargement....</h3>
+													<p>
+														<i class="fa fa-circle text-light-green"></i> chargement....
+													</p>
+												</a>
+											</li>
+											<li class="active">
+												<a href="#">
+													<img src="vendors/images/img.jpg" alt="" />
+													<h3 class="clearfix">chargement.....</h3>
+													<p>
+														<i class="fa fa-circle text-light-green"></i> chargement....
+													</p>
+												</a>
+											</li>
+											<li>
+												<a href="#">
+													<img src="vendors/images/img.jpg" alt="" />
+													<h3 class="clearfix">chargement.....</h3>
+													<p>
+														<i class="fa fa-circle text-light-green"></i> chargement....
+													</p>
+												</a>
+											</li>
+											<li>
+												<a href="#">
+													<img src="vendors/images/img.jpg" alt="" />
+													<h3 class="clearfix">chargement....</h3>
+													<p>
+														<i class="fa fa-circle text-warning"></i> chargement....
+													</p>
+												</a>
+											</li>
+											<li>
+												<a href="#">
+													<img src="vendors/images/img.jpg" alt="" />
+													<h3 class="clearfix">chargement....</h3>
+													<p>
+														<i class="fa fa-circle text-warning"></i> chargement....
+													</p>
+												</a>
+											</li>
+											<li>
+												<a href="#">
+													<img src="vendors/images/img.jpg" alt="" />
+													<h3 class="clearfix">chargement....</h3>
+													<p>
+														<i class="fa fa-circle text-warning"></i> chargement....
+													</p>
+												</a>
+											</li>
+											<li>
+												<a href="#">
+													<img src="vendors/images/img.jpg" alt="" />
+													<h3 class="clearfix">chargement....</h3>
+													<p>
+														<i class="fa fa-circle text-light-orange"></i>
+														chargement....
+													</p>
+												</a>
+											</li>
+										</ul>
 									</div>
 								</div>
 							</div>
-                            <table class="data-table table nowrap">
-                                <thead>
-                                    <tr>
-                                        <th class="table-plus">ConfigMap Name</th>
-                                        <th>Création</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for configmap in configmaps %}
-                                    <tr>
-                                        <td class="table-plus">
-                                            <div class="name-avatar d-flex align-items-center">
-                                                <div class="avatar mr-2 flex-shrink-0">
-                                                    <img
-                                                        src="{{ url_for('static', filename='images/pods.png') }}"
-                                                        class="border-radius-100 shadow"
-                                                        width="40"
-                                                        height="40"
-                                                        alt=""
-                                                    />
-                                                </div>
-                                                <div class="txt">
-                                                    <div class="weight-600">{{ configmap.metadata.name }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>{{ configmap.metadata.creation_timestamp }}</td>
-                                        <td>
+							<div class="col-lg-9 col-md-8 col-sm-12">
+								<div class="chat-detail">
+									<div class="chat-profile-header clearfix">
+										<div class="left">
+											<div class="clearfix">
+												<div class="chat-profile-photo">
+													<img src="{{ url_for('static', filename='images/IA.jpeg') }}" alt="" />
+												</div>
+												<div class="chat-profile-name">
+													<h3>Assistance virtuel</h3>
+												</div>
+											</div>
+										</div>
+										<div class="right text-right">
 											<div class="dropdown">
 												<a
-													class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
-													data-color="#1b3133"
+													class="btn btn-outline-primary dropdown-toggle"
 													href="#"
 													role="button"
 													data-toggle="dropdown"
 												>
-													<i class="dw dw-more"></i>
+													Setting
 												</a>
-												<div
-													class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
-												>
-												<a class="dropdown-item" href="#" onclick="showConfigDetails('{{ configmap.metadata.namespace  }}', '{{ configmap.metadata.name }}')">
-													<i class="icon-copy bi bi-card-list"></i>info
-												</a>
-													<a class="dropdown-item" href="#"
-														><i class="dw dw-edit2"></i>modifier</a
-													>
-													<a class="dropdown-item" href="#"
-													onclick="deleteConfig('{{ configmap.metadata.namespace  }}', '{{configmap.metadata.name }}')"
-														><i class="dw dw-delete-3"></i>supprimer</a
+												<div class="dropdown-menu dropdown-menu-right">
+													<a class="dropdown-item" href="#">Export Chat</a>
+													<a class="dropdown-item" href="#">Search</a>
+													<a class="dropdown-item text-light-orange" href="#"
+														>Delete Chat</a
 													>
 												</div>
 											</div>
-											<form
-											id="deleteForm_{{ configmap.metadata.namespace  }}_{{ configmap.metadata.name  }}"
-											action="/delete_config"
-											method="POST"
-											style="display: none;"
-										>
-											<input
-												type="hidden"
-												name="namespace"
-												value="{{ configmap.metadata.namespace  }}"
-											/>
-											<input
-												type="hidden"
-												name="name"
-												value="{{ configmap.metadata.name  }}"
-											/>
-										</form>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-	<!-- modale ajout -->
-	
-	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content">
-				<form id="uploadForm" action="/install" method="post" enctype="multipart/form-data">
-					<div class="modal-header">
-						<h5 class="modal-title text-primary">Ajout d'un nouveau configmap</h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
-							<li class="nav-item">
-								<a class="nav-link active" id="import-tab" data-toggle="pill" href="#import" role="tab" aria-controls="import" aria-selected="true">Importer</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" id="edit-tab" data-toggle="pill" href="#edit" role="tab" aria-controls="edit" aria-selected="false">Editer</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" id="template-tab" data-toggle="pill" href="#template" role="tab" aria-controls="template" aria-selected="false">Template</a>
-							</li>
-						</ul>
-						<div class="tab-content" id="pills-tabContent">
-							<div class="tab-pane fade show active" id="import" role="tabpanel" aria-labelledby="import-tab">
-								<div class="custom-file mb-3">
-									<input type="file" class="custom-file-input" id="yamlFile" name="yaml_file" accept=".yaml, .yml" required>
-									<label class="custom-file-label" for="yamlFile">Choisir un fichier YAML</label>
+										</div>
+									</div>
+									<div class="chat-box">
+										<div class="chat-desc customscroll">
+											<ul >
+												
+											</ul>
+										</div>
+										<div class="chat-footer">
+											<div class="file-upload">
+												<a href="#"><i class="fa fa-paperclip"></i></a>
+											</div>
+											<div class="">
+												<textarea placeholder="Taper votre message.…"></textarea>
+											</div>
+											<div class="chat_send">
+												<button class="btn btn-link" type="submit">
+													<i class="icon-copy ion-paper-airplane"></i>
+												</button>
+											</div>
+										</div>
+									</div>
 								</div>
-								<div class="form-group">
-									<label for="resourceType">Type de ressource Kubernetes :</label>
-									<select class="form-control" id="resourceType" name="resource_type" required>
-										<option value="pods">Pod</option>
-										<option value="deployments">Deployments</option>
-										<option value="secret">Secrets</option>
-										<option value="configmap">ConfigMaps</option>
-										<option value="services">Service</option>
-									</select>
-								</div>
-							</div>
-							<div class="tab-pane fade" id="edit" role="tabpanel" aria-labelledby="edit-tab">
-								<div class="form-group">
-									<label for="yamlTextarea">Modifier le YAML :</label>
-									<textarea class="form-control" id="yamlTextarea" rows="10"></textarea>
-								</div>
-							</div>
-							<div class="tab-pane fade" id="template" role="tabpanel" aria-labelledby="template-tab">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-								</p>
 							</div>
 						</div>
 					</div>
-					<div class="modal-footer">
-						<button type="submit" class="btn btn-primary">Ajouter</button>
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-					</div>
-				</form>
+				</div>
+				<div class="footer-wrap pd-20 mb-20 card-box">
+					chargement....
+					<a href="https://github.com/dropways" target="_blank"
+						>chargement....</a
+					>
+				</div>
 			</div>
-		</div>
 	</div>
 
 
-    <div class="modal fade" id="logsModal" tabindex="-1" role="dialog" aria-labelledby="logsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="logsModalLabel">Logs du Pod</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+    <div class="content-container main-container">
+        <div class="pd-ltr-20 xs-pd-20-10">
+            <div class="min-height-200px">
+                <div class="page-header">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <div class="title">
+                                <h4>Assistance intelligente</h4>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <pre id="logsContent"></pre>
+                <div class="bg-white border-radius-4 box-shadow mb-30">
+                    <div class="row no-gutters">
+                        <div class="col-lg-3 col-md-4 col-sm-12">
+                            <div class="chat-list bg-light-gray">
+                                <div class="chat-search">
+                                    <span class="ti-search"></span>
+                                    <input type="text" placeholder="Search Contact" />
+                                </div>
+                                <div
+                                    class="notification-list chat-notification-list customscroll"
+                                >
+                                    <ul>
+                                        <li>
+                                            <a href="#">
+                                                <img src="vendors/images/img.jpg" alt="" />
+                                                <h3 class="clearfix">John Doe</h3>
+                                                <p>
+                                                    <i class="fa fa-circle text-light-green"></i> online
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li class="active">
+                                            <a href="#">
+                                                <img src="vendors/images/img.jpg" alt="" />
+                                                <h3 class="clearfix">John Doe</h3>
+                                                <p>
+                                                    <i class="fa fa-circle text-light-green"></i> online
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <img src="vendors/images/img.jpg" alt="" />
+                                                <h3 class="clearfix">John Doe</h3>
+                                                <p>
+                                                    <i class="fa fa-circle text-light-green"></i> online
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <img src="vendors/images/img.jpg" alt="" />
+                                                <h3 class="clearfix">John Doe</h3>
+                                                <p>
+                                                    <i class="fa fa-circle text-warning"></i> active 5
+                                                    min
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <img src="vendors/images/img.jpg" alt="" />
+                                                <h3 class="clearfix">John Doe</h3>
+                                                <p>
+                                                    <i class="fa fa-circle text-warning"></i> active 4
+                                                    min
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <img src="vendors/images/img.jpg" alt="" />
+                                                <h3 class="clearfix">John Doe</h3>
+                                                <p>
+                                                    <i class="fa fa-circle text-warning"></i> active 3
+                                                    min
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <img src="vendors/images/img.jpg" alt="" />
+                                                <h3 class="clearfix">John Doe</h3>
+                                                <p>
+                                                    <i class="fa fa-circle text-light-orange"></i>
+                                                    offline
+                                                </p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-8 col-sm-12">
+                            <div class="chat-detail">
+                                <div class="chat-profile-header clearfix">
+                                    <div class="left">
+                                        <div class="clearfix">
+                                            <div class="chat-profile-photo">
+                                                <img src="{{ url_for('static', filename='images/IA.jpeg') }}" alt="" />
+                                            </div>
+                                            <div class="chat-profile-name">
+                                                <h3>Assistance virtuel</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="right text-right">
+                                        <div class="dropdown">
+                                            <a
+                                                class="btn btn-outline-primary dropdown-toggle"
+                                                href="#"
+                                                role="button"
+                                                data-toggle="dropdown"
+                                            >
+                                                Setting
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">Export Chat</a>
+                                                <a class="dropdown-item" href="#">Search</a>
+                                                <a class="dropdown-item text-light-orange" href="#" onclick="clearMessages()"
+                                                    >Delete Chat</a
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chat-box">
+                                    <div class="chat-desc customscroll">
+                                        <ul id="chat-messages">
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="chat-footer">
+                                        <div class="file-upload">
+                                            <a href="#"><i class="fa fa-paperclip"></i></a>
+                                        </div>
+                                        <div class="chat_text_area">
+                                            <textarea placeholder="Taper votre message.…"></textarea>
+                                        </div>
+                                        <div class="chat_send">
+                                            <button onclick="sendMessage()" class="btn btn-link" type="submit">
+                                                <i class="icon-copy ion-paper-airplane"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            <div class="footer-wrap pd-20 mb-20 card-box">
+                DeskApp - Bootstrap 4 Admin Template By
+                <a href="https://github.com/dropways" target="_blank"
+                    >Ankit Hingarajiya</a
+                >
             </div>
         </div>
     </div>
 
-	
-
-				<div class="title pb-20 pt-20">
-				</div>
-
-				
 
 						    <!-- Terminal Modal -->
 							<div class="modal fade" id="terminalModal" tabindex="-1" role="dialog" aria-labelledby="terminalModalLabel" aria-hidden="true">
@@ -826,26 +914,42 @@
 								</div>
 							</div>
 
-							<div class="modal fade" id="configDetailsModal" tabindex="-1" role="dialog" aria-labelledby="configDetailsModalLabel" aria-hidden="true">
+							<div class="modal fade" id="clusterDetailsModal" tabindex="-1" role="dialog" aria-labelledby="clusterDetailsModalLabel" aria-hidden="true">
 								<div class="modal-dialog modal-lg" role="document">
 									<div class="modal-content">
 										<div class="modal-header">
-											<h5 class="modal-title" id="configDetailsModalLabel">Détails du configmap</h5>
-											<button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+											<h5 class="modal-title" id="clusterDetailsModalLabel">Détails du Cluster</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 												<span aria-hidden="true">&times;</span>
 											</button>
 										</div>
-										<div class="modal-body">
-											<div id="configDetails">
-												<!-- Les détails du pod seront insérés ici -->
-											</div>
-										</div>
+										<div class="modal-body" style="max-height: 600px; overflow-y: auto;"></div>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
 										</div>
 									</div>
 								</div>
 							</div>
+							
+							<!-- Modal d'erreur -->
+							<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+								<div class="modal-dialog modal-lg" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="errorModalLabel">Erreur</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body"></div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+
 
 				<!-- welcome modal end -->
 		<!-- js -->
@@ -859,8 +963,44 @@
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
 		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 
+		<script>
+			$(document).ready(function() {
+				$('#searchInput').on('input', function() {
+					var searchText = $(this).val().toLowerCase();
+					$('.user-data tr').each(function() {
+						var username = $(this).find('td:first-child').text().toLowerCase();
+						if (username.includes(searchText)) {
+							$(this).show(); 
+						} else {
+							$(this).hide();
+						}
+					});
+				});
+			});
+		</script>
 
+		<script>
+			function showClusterDetailsModal() {
+				// Faites une requête AJAX pour récupérer les détails du cluster
+				$.ajax({
+					type: 'GET',
+					url: '/cluster_details',
+					success: function (data) {
+						// Affichez les détails du cluster dans le modal
+						$('#clusterDetailsModal .modal-body').html('<pre>' + data + '</pre>');
+						$('#clusterDetailsModal').modal('show');
+					},
+					error: function (xhr, status, error) {
+						// En cas d'erreur, affichez un message d'erreur
+						$('#errorModal .modal-body').text('Erreur lors de la récupération des détails du cluster : ' + error);
+						$('#errorModal').modal('show');
+					}
+				});
+			}
+		</script>
+		
 		<script>
     		setTimeout(function() {
         		const skeletonContainer = document.querySelector('.skeleton-container');
@@ -869,66 +1009,9 @@
         		contentContainer.style.display = 'block';
     			}, 6000); 
 		</script>
-		
-		<script>
-			function showConfigDetails(namespace, configName) {
-				fetch(`/configmap_details/${namespace}/${configName}`)
-					.then(response => response.text())
-					.then(data => {
-						const configDetailsModal = document.getElementById('configDetailsModal');
-						const configDetails = document.querySelector('#configDetails');
-						configDetails.innerText = data;
-					$(configDetailsModal).modal('show');
-				});
-	
-			}
-		</script>
-				
 
-		<script>
-			function showLogsModal(namespace, podName) {
-				// Utilisez une requête AJAX pour récupérer les logs du pod
-				// Supposons que les logs sont stockés dans la variable 'logs' après la requête
-				var logs = "Logs du pod " + podName + " dans le namespace " + namespace;
-			
-				// Affichez les logs dans la fenêtre modale
-				document.getElementById('logsContent').textContent = logs;
-			
-				// Ouvrez la fenêtre modale
-				$('#logsModal').modal('show');
-			}
-			function changeNamespace(select) {
-            const selectedNamespace = select.value;
-            window.location.href = `/configmap?namespace=${selectedNamespace}`;
-        }
 
-        function searchConfig() {
-        const input = document.getElementById('ConfigSearch');
-        const filter = input.value.toLowerCase();
-        const table = document.querySelector('table tbody');
-        const rows = table.getElementsByTagName('tr');
 
-        for (let i = 0; i < rows.length; i++) {
-            const podName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
-            if (podName.includes(filter)) {
-                rows[i].style.display = '';
-            } else {
-                rows[i].style.display = 'none';
-            }
-        }
-    }
-			</script>
-
-<script>
-	function deleteConfig(namespace, name) {
-		var formId = 'deleteForm_' + namespace + '_' + name;
-		if (confirm("Êtes-vous sûr de vouloir supprimer ce déploiement ?")) {
-			document.getElementById(formId).submit();
-		}
-	}
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 <script>
 	var socket = io.connect('http://' + document.domain + ':' + location.port);
 
@@ -961,33 +1044,74 @@
 			document.getElementById('user-input').value = '';
 		}
 	});
-	$(document).ready(function () {
-		$('#uploadForm').submit(function (event) {
-			event.preventDefault();
-
-			var formData = new FormData(this);
-
-			$.ajax({
-				type: 'POST',
-				url: '{{ url_for("install") }}',
-				data: formData,
-				processData: false,
-				contentType: false,
-				success: function (response) {
-					if (response.success) {
-						Swal.fire('Succès', response.success, 'success');
-					} else if (response.error) {
-						Swal.fire('Erreur', response.error, 'error');
-					}
-				},
-				error: function () {
-					Swal.fire('Erreur', 'Une erreur s\'est produite lors de la requête.', 'error');
-				}
-			});
-		});
-	});
 </script>
-			
+
+<script>
+    // Fonction pour ajouter un message dans le chat
+    function appendMessage(message, isUser = true) {
+        var ul = document.getElementById("chat-messages");
+        var li = document.createElement("li");
+
+        if (isUser) {
+        li.className = "clearfix admin_chat_left"; // Style pour le message de l'utilisateur à gauche
+        } else {
+        li.className = "clearfix admin_chat_right"; // Style pour le message de la réponse à droite
+        }
+
+        li.appendChild(document.createTextNode(message));
+        ul.appendChild(li);
+    }
+
+    var isRequestPending = false;
+
+    function sendMessage() {
+        if (isRequestPending) {
+            // Si une demande est déjà en cours, ne rien faire
+            return;
+        }
+
+        var messageInput = document.querySelector('.chat_text_area textarea');
+        var message = messageInput.value;
+        appendMessage("Vous : " + message); // Afficher le message de l'utilisateur dans le chat
+        messageInput.value = ''; // Effacer le champ de texte
+
+        isRequestPending = true; // Marquer qu'une demande est en cours
+
+        // Envoyer la requête à Flask
+        fetch('/get_openai_response', {
+            method: 'POST',
+            body: JSON.stringify({ message: message }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            var openaiResponse = data.message;
+            appendMessage("Assistance virtuelle : " + openaiResponse); // Afficher la réponse d'OpenAI dans le chat
+            isRequestPending = false; // Marquer que la demande est terminée
+        })
+        .catch(error => {
+            console.error(error);
+            isRequestPending = false; // Marquer que la demande est terminée en cas d'erreur
+        });
+    }
+
+    function clearMessages() {
+        var chatMessages = document.getElementById("chat-messages");
+        chatMessages.innerHTML = "";
+    }
+
+    // Attacher la fonction sendMessage() au bouton d'envoi
+    document.querySelector('.chat_send button').addEventListener('click', sendMessage);
+
+    document.querySelector('.clear-messages button').addEventListener('click', clearMessages);
+</script>
+
+<!-- ... Votre code HTML précédent ... -->
+
+
+
         
 		<!-- Google Tag Manager (noscript) -->
 		<noscript
