@@ -107,7 +107,8 @@
 		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='src/Styles/style.css') }}" type="text/css"> 
 
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script
@@ -725,6 +726,59 @@
                             </table>
                         </div>
 						</div>
+
+						<div id="chat-btn" class="chat-btn">
+							<i class="fa fa-comments"></i>
+						</div>
+						
+						<div id="chat-container" class="chat-container">
+							<div class="chat-profile-header clearfix">
+								<div class="left">
+									<div class="clearfix">
+										<div class="chat-profile-photo">
+											<img src="{{ url_for('static', filename='images/IA.jpeg') }}" alt="" />
+										</div>
+											<h5>Assistance </h5>
+									</div>
+								</div>
+								<div class="right text-right">
+									<div class="dropdown">
+										<a
+											class="btn btn-outline-primary dropdown-toggle"
+											href="#"
+											role="button"
+											data-toggle="dropdown"
+										>
+											Setting
+										</a>
+										<div class="dropdown-menu dropdown-menu-right">
+											<a class="dropdown-item" href="#">Export Chat</a>
+											<a class="dropdown-item" href="#">Search</a>
+											<a class="dropdown-item text-light-orange" href="#" onclick="clearMessages()"
+												>Delete Chat</a
+											>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="chat-box">
+								<div class="chat-desc customscroll">
+									<ul id="chat-messages">
+										<!-- Messages seront ajoutés ici -->
+									</ul>
+								</div>
+								<div class="chat-footer">
+									<div class="chat_input_area">
+										<input type="text" placeholder="Taper votre message…" required>
+									</div>
+									<div class="chat_send">
+										<button onclick="sendMessage()" class="btn btn-link" type="submit">
+											<i class="icon-copy ion-paper-airplane"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
 	<!-- modale ajout -->
 	
 	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -850,6 +904,7 @@
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
 		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/chat.js') }}"></script>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 		
@@ -971,6 +1026,68 @@
 			});
 		});
 	});
+</script>
+
+<script>
+    // Fonction pour ajouter un message dans le chat
+    function appendMessage(message, isUser = true) {
+        var ul = document.getElementById("chat-messages");
+        var li = document.createElement("li");
+
+        if (isUser) {
+        li.className = "clearfix admin_chat_left"; // Style pour le message de l'utilisateur à gauche
+        } else {
+        li.className = "clearfix admin_chat_right"; // Style pour le message de la réponse à droite
+        }
+
+        li.appendChild(document.createTextNode(message));
+        ul.appendChild(li);
+    }
+
+    var isRequestPending = false;
+
+    function sendMessage() {
+        if (isRequestPending) {
+            // Si une demande est déjà en cours, ne rien faire
+            return;
+        }
+
+        var messageInput = document.querySelector('.chat_input_area input');
+        var message = messageInput.value;
+        appendMessage("Vous : " + message); // Afficher le message de l'utilisateur dans le chat
+        messageInput.value = ''; // Effacer le champ de texte
+
+        isRequestPending = true; // Marquer qu'une demande est en cours
+
+        // Envoyer la requête à Flask
+        fetch('/get_openai_response', {
+            method: 'POST',
+            body: JSON.stringify({ message: message }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            var openaiResponse = data.message;
+            appendMessage("Assistance virtuelle : " + openaiResponse); // Afficher la réponse d'OpenAI dans le chat
+            isRequestPending = false; // Marquer que la demande est terminée
+        })
+        .catch(error => {
+            console.error(error);
+            isRequestPending = false; // Marquer que la demande est terminée en cas d'erreur
+        });
+    }
+
+    function clearMessages() {
+        var chatMessages = document.getElementById("chat-messages");
+        chatMessages.innerHTML = "";
+    }
+
+    // Attacher la fonction sendMessage() au bouton d'envoi
+    document.querySelector('.chat_send button').addEventListener('click', sendMessage);
+
+    document.querySelector('.clear-messages button').addEventListener('click', clearMessages);
 </script>
 
         

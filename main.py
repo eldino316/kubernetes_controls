@@ -38,7 +38,7 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 
-openai.api_key = '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'
+openai.api_key = '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'
 
                                            #route index de l'application
 
@@ -93,6 +93,16 @@ def register():
                 mycursor.execute('INSERT INTO tracking (action, prs_info_id, cluster_id) VALUES (%s, %s, %s)',(action, mycursor.lastrowid, cluster[0]))
 
                 return jsonify(success=f"Compte enregistré avec succès!")
+            
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+    if request.method == 'POST':
+        user_id = request.form['user_id']  # Récupérez l'ID de l'utilisateur à supprimer depuis le formulaire
+        # Effectuez la suppression de l'utilisateur dans la base de données
+        mycursor.execute('DELETE FROM prs_info WHERE id = %s', (user_id,))
+        mydb.commit()
+
+        return jsonify(success="Utilisateur supprimé avec succès!")
 
 @app.route('/logout')
 def logout():
@@ -640,6 +650,30 @@ def delete_service():
         return "Service supprimé avec succès!"
     except Exception as e:
         return f"Erreur lors de la suppression du service : {str(e)}"
+    
+
+@app.route('/update_service', methods=['PATCH'])
+def update_service():
+    try:
+        namespace = request.json.get('namespace')
+        service_name = request.json.get('serviceName')
+        cluster_ip = request.json.get('clusterIP')
+        port = int(request.json.get('port'))
+        node_port = int(request.json.get('nodePort'))
+        service_type = request.json.get('serviceType')
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+        service = v1.read_namespaced_service(name=service_name, namespace=namespace)
+        service.spec.cluster_ip = cluster_ip
+        service.spec.ports[0].port = port
+        service.spec.ports[0].node_port = node_port
+        service.spec.type = service_type
+        v1.replace_namespaced_service(name=service_name, namespace=namespace, body=service)
+
+        return jsonify(success=True, message="Service mis à jour avec succès.")
+
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
                                         
                                         #route pour les opérations sur l'ingress
 

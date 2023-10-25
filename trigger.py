@@ -42,4 +42,20 @@ def get_clusterall(username):
             WHERE prs_info.prs_name = %s                          
         ''', (username,))
     cluster = mycursor.fetchall()
-    return cluster 
+    return cluster
+
+def get_historique(username):
+    mycursor.execute('''
+            SELECT action
+            FROM tracking
+            JOIN prs_info ON tracking.prs_info_id = prs_info.id
+            WHERE prs_info.prs_name = %s                          
+        ''', (username,))
+    historique = mycursor.fetchall()
+    return historique
+
+def get_all_user():
+    mycursor.execute('SELECT * FROM prs_info')
+    utilisateur = mycursor.fetchall()
+
+    return utilisateur 

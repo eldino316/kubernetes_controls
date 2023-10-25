@@ -53,7 +53,8 @@
 		<script src="{{ url_for('static', filename='js/w3.js') }}"></script>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}" type="text/css">
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='src/Styles/style.css') }}" type="text/css"> 
 
 		<style>
 			/* Style for the terminal textarea */
@@ -689,9 +690,19 @@
 												<a class="dropdown-item" href="#" onclick="showServiceDetails('{{ service.metadata.namespace  }}', '{{ service.metadata.name }}')">
 													<i class="icon-copy bi bi-card-list"></i>info
 												</a>
-													<a class="dropdown-item" href="#"
-														><i class="dw dw-edit2"></i>modifier</a
-													>
+												<a class="dropdown-item" href="#" data-toggle="modal" data-target="#serviceModal"
+												data-namespace="{{ service.metadata.namespace }}"
+												data-servicename="{{ service.metadata.name }}"
+												data-clusterip="{{ service.spec.cluster_ip }}"
+												data-port="{{ service.spec.ports[0].port }}"
+												data-nodeport="{{ service.spec.ports[0].node_port }}"
+												data-servicetype="{{ service.spec.type }}"
+											 ><i class="dw dw-edit2"></i>Modifier</a>
+											 
+											
+											
+											
+											 
 													<a class="dropdown-item" href="#"
 													onclick="deleteService('{{ service.metadata.namespace }}', '{{ service.metadata.name }}')"
 														><i class="dw dw-delete-3"></i>supprimer</a
@@ -722,6 +733,59 @@
                             </table>
                         </div>
 						</div>
+				</div>
+
+				<div id="chat-btn" class="chat-btn">
+					<i class="fa fa-comments"></i>
+				</div>
+				
+				<div id="chat-container" class="chat-container">
+					<div class="chat-profile-header clearfix">
+						<div class="left">
+							<div class="clearfix">
+								<div class="chat-profile-photo">
+									<img src="{{ url_for('static', filename='images/IA.jpeg') }}" alt="" />
+								</div>
+									<h5>Assistance </h5>
+							</div>
+						</div>
+						<div class="right text-right">
+							<div class="dropdown">
+								<a
+									class="btn btn-outline-primary dropdown-toggle"
+									href="#"
+									role="button"
+									data-toggle="dropdown"
+								>
+									Setting
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="#">Export Chat</a>
+									<a class="dropdown-item" href="#">Search</a>
+									<a class="dropdown-item text-light-orange" href="#" onclick="clearMessages()"
+										>Delete Chat</a
+									>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="chat-box">
+						<div class="chat-desc customscroll">
+							<ul id="chat-messages">
+								<!-- Messages seront ajoutés ici -->
+							</ul>
+						</div>
+						<div class="chat-footer">
+							<div class="chat_input_area">
+								<input type="text" placeholder="Taper votre message…" required>
+							</div>
+							<div class="chat_send">
+								<button onclick="sendMessage()" class="btn btn-link" type="submit">
+									<i class="icon-copy ion-paper-airplane"></i>
+								</button>
+							</div>
+						</div>
+					</div>
 				</div>
 	<!-- modale ajout -->
 	<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -835,6 +899,56 @@
 								</div>
 							</div>
 
+							<div class="modal fade" id="serviceModal" tabindex="-1" role="dialog" aria-labelledby="serviceModalLabel" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="serviceModalLabel">Modifier le Service</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<form id="serviceForm">
+												<div class="form-group">
+													<label for="namespace">Namespace :</label>
+													<input type="text" class="form-control" id="namespace" name="namespace" readonly>
+												</div>
+												<div class="form-group">
+													<label for="serviceName">Nom du Service :</label>
+													<input type="text" class="form-control" id="serviceName" name="serviceName" readonly>
+												</div>
+												<div class="form-group">
+													<label for="clusterIP">IP du Cluster :</label>
+													<input type="text" class="form-control" id="clusterIP" name="clusterIP">
+												</div>
+												<div class="form-group">
+													<label for="port">Port :</label>
+													<input type="text" class="form-control" id="port" name="port">
+												</div>
+												<div class="form-group">
+													<label for="nodePort">Port NodePort :</label>
+													<input type="text" class="form-control" id="nodePort" name="nodePort">
+												</div>
+												<div class="form-group">
+													<label for="serviceType">Type de Service :</label>
+													<select class="form-control" id="serviceType" name="serviceType">
+														<option value="NodePort">NodePort</option>
+														<option value="LoadBalancer">LoadBalancer</option>
+														<option value="ClusterIP">ClusterIP</option>
+													</select>
+												</div>
+												<button type="submit" class="btn btn-primary">Modifier</button>
+											</form>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							
+							
+							
+
 
 
 				<!-- welcome modal end -->
@@ -849,6 +963,7 @@
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='src/plugins/datatables/js/responsive.bootstrap4.min.jss') }}"></script>
 		<script src="{{ url_for('static', filename='vendors/scripts/dashboard3.js') }}"></script>
+		<script src="{{ url_for('static', filename='vendors/scripts/chat.js') }}"></script>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 
@@ -1028,6 +1143,126 @@
         }
     }
 </script>
+
+<script>
+    // Fonction pour ajouter un message dans le chat
+    function appendMessage(message, isUser = true) {
+        var ul = document.getElementById("chat-messages");
+        var li = document.createElement("li");
+
+        if (isUser) {
+        li.className = "clearfix admin_chat_left"; // Style pour le message de l'utilisateur à gauche
+        } else {
+        li.className = "clearfix admin_chat_right"; // Style pour le message de la réponse à droite
+        }
+
+        li.appendChild(document.createTextNode(message));
+        ul.appendChild(li);
+    }
+
+    var isRequestPending = false;
+
+    function sendMessage() {
+        if (isRequestPending) {
+            // Si une demande est déjà en cours, ne rien faire
+            return;
+        }
+
+        var messageInput = document.querySelector('.chat_input_area input');
+        var message = messageInput.value;
+        appendMessage("Vous : " + message); // Afficher le message de l'utilisateur dans le chat
+        messageInput.value = ''; // Effacer le champ de texte
+
+        isRequestPending = true; // Marquer qu'une demande est en cours
+
+        // Envoyer la requête à Flask
+        fetch('/get_openai_response', {
+            method: 'POST',
+            body: JSON.stringify({ message: message }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            var openaiResponse = data.message;
+            appendMessage("Assistance virtuelle : " + openaiResponse); // Afficher la réponse d'OpenAI dans le chat
+            isRequestPending = false; // Marquer que la demande est terminée
+        })
+        .catch(error => {
+            console.error(error);
+            isRequestPending = false; // Marquer que la demande est terminée en cas d'erreur
+        });
+    }
+
+    function clearMessages() {
+        var chatMessages = document.getElementById("chat-messages");
+        chatMessages.innerHTML = "";
+    }
+
+    // Attacher la fonction sendMessage() au bouton d'envoi
+    document.querySelector('.chat_send button').addEventListener('click', sendMessage);
+
+    document.querySelector('.clear-messages button').addEventListener('click', clearMessages);
+</script>
+
+
+
+<script>
+$('#serviceModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var namespace = button.data('namespace');
+    var serviceName = button.data('servicename');
+    var clusterIP = button.data('clusterip');
+    var port = button.data('port');
+    var nodePort = button.data('nodeport');
+    var serviceType = button.data('servicetype');
+
+    var modal = $(this);
+    modal.find('.modal-title').text('Modifier le Service ' + serviceName);
+    modal.find('.modal-body #namespace').val(namespace);
+    modal.find('.modal-body #serviceName').val(serviceName);
+    modal.find('.modal-body #clusterIP').val(clusterIP);
+    modal.find('.modal-body #port').val(port);
+    modal.find('.modal-body #nodePort').val(nodePort);
+    modal.find('.modal-body #serviceType').val(serviceType);
+});
+
+$('#updateServiceForm').submit(function(event) {
+    event.preventDefault();
+    var namespace = $('#namespace').val();
+    var serviceName = $('#serviceName').val();
+    var clusterIP = $('#clusterIP').val();
+    var port = $('#port').val();
+    var nodePort = $('#nodePort').val();
+    var serviceType = $('#serviceType').val();
+
+    $.ajax({
+        url: '/update_service',
+        type: 'PATCH',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            namespace: namespace,
+            serviceName: serviceName,
+            clusterIP: clusterIP,
+            port: port,
+            nodePort: nodePort,
+            serviceType: serviceType
+        }),
+        success: function(response) {
+            Swal.fire('Succès', 'Service mis à jour avec succès', 'success');
+            $('#serviceModal').modal('hide');
+            // Ajoutez ici le code pour mettre à jour l'affichage du tableau si nécessaire
+        },
+        error: function(error) {
+            Swal.fire('Erreur', 'Erreur lors de la mise à jour du service: ' + error.responseText, 'error');
+        }
+    });
+});
+
+</script>
+
+
 			
 
 	</body>

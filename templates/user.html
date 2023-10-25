@@ -675,12 +675,10 @@
 														<i class="icon-copy bi bi-card-list"></i> Historique
 													</a>
 													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>Modifier</a>
-													<a
-					                                    class="dropdown-item"
-														href="#"
-													> 
+													<a class="dropdown-item" href="#" onclick="confirmDelete('{{ users[0] }}')">
 														<i class="dw dw-delete-3"></i> Supprimer
 													</a>
+													
 												</div>
 											</div>
 										</td>
@@ -1010,6 +1008,34 @@
 						});
 					});
 				});
+				function confirmDelete(userId) {
+        // Demande la confirmation de l'utilisateur avant de supprimer
+        if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur?")) {
+            // Si l'utilisateur confirme, appelez la fonction deleteUser pour effectuer la suppression
+            deleteUser(userId);
+        }
+    }
+
+    function deleteUser(userId) {
+        // Effectuez la suppression de l'utilisateur en utilisant une requête AJAX ou toute autre méthode appropriée
+        $.ajax({
+            url: '/delete_user', // Assurez-vous d'ajuster l'URL en fonction de votre application
+            type: 'POST',
+            data: { user_id: userId },
+            success: function(response) {
+                // Traitez la réponse de la suppression ici, par exemple, actualisez la page ou effectuez d'autres actions nécessaires
+                console.log(response);
+                alert("Utilisateur supprimé avec succès!");
+                // Actualisez la page ou effectuez d'autres actions nécessaires après la suppression réussie
+                window.location.reload(); // Actualisez la page pour refléter les changements
+            },
+            error: function(error) {
+                // Gérez les erreurs de suppression ici
+                console.error(error);
+                alert("Erreur lors de la suppression de l'utilisateur.");
+            }
+        });
+    }
 			</script>		
 		
 		
