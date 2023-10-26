@@ -38,7 +38,7 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 
-openai.api_key = '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'
+openai.api_key = ''
 
                                            #route index de l'application
 
@@ -123,7 +123,31 @@ def home():
         contexts, _ = config.list_kube_config_contexts()
         clusters = [context['name'] for context in contexts]
 
-        return render_template('admin.html', clusters=clusters, logs=logs, cluster_details=cluster_details, user=user, username=username, Cluster=Cluster)
+
+        v1 = client.CoreV1Api()
+        top_pods = v1.list_namespaced_pod(namespace='default', watch=False)
+        pods_data = []
+        for pod in top_pods.items:
+            pods_data.append({
+            "namespace": pod.metadata.namespace,
+            "name": pod.metadata.name,
+            "status": pod.status.phase
+            })
+        
+        nodes = v1.list_node(watch=False)
+        nodes_data = []
+        for node in nodes.items:
+                nodes_data.append({
+                    "name": node.metadata.name,
+                    "labels": node.metadata.labels,
+                    "status": node.status.conditions,
+                    "capacity": node.status.capacity,
+                    "operating_system": node.status.node_info.os_image,
+                    "addresses": [address.address for address in node.status.addresses],
+                    "pod_cidr": node.spec.pod_cidr
+                })
+
+        return render_template('admin.html',nodes=nodes_data, pods=pods_data, clusters=clusters, logs=logs, cluster_details=cluster_details, user=user, username=username, Cluster=Cluster)
     
     return redirect(url_for('login'))
 
@@ -229,6 +253,25 @@ def get_historique():
     
     historique = mycursor.fetchall()
     return jsonify(historique)
+
+@app.route('/update_user', methods=['POST'])
+def update_user():
+    try:
+        user_id = request.form.get('user_id')
+        new_name = request.form.get('new_name')
+        new_email = request.form.get('new_email')
+        mycursor.execute('SELECT * FROM prs_info WHERE id = %s', (user_id,))
+        existing_user = mycursor.fetchone()
+
+        if not existing_user:
+            return jsonify(success=False, error="Utilisateur non trouvé.")
+
+        mycursor.execute('UPDATE prs_info SET prs_name = %s, prs_mail = %s WHERE id = %s', (new_name, new_email, user_id))
+        mydb.commit()
+
+        return jsonify(success=True, message="Utilisateur mis à jour avec succès.")
+    except Exception as e:
+        return jsonify(success=False, error=str(e))
 
 
                                     #route pour les opérations sur le namespace  

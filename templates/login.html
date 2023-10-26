@@ -63,16 +63,76 @@
         
         $.ajax({
             type: 'POST',
-            url: '{{ url_for("login") }}', // Change to the correct URL for your login route
+            url: '{{ url_for("login") }}', 
             data: $(this).serialize(),
             success: function (response) {
                 if (response.success) {
-                    // Redirect to the appropriate page based on role
                     if (response.role === 'admin') {
+                        let timerInterval
+                        Swal.fire({
+                            title: 'Verifications du kubeconfig',
+                            timer: 2500,
+                            timerProgressBar: true,
+                            didOpen: () => {
+                                Swal.showLoading()
+                                const b = Swal.getHtmlContainer().querySelector('b')
+                                timerInterval = setInterval(() => {
+                                b.textContent = Swal.getTimerLeft()
+                            }, 100)
+                            },
+                            willClose: () => {
+                                clearInterval(timerInterval)
+                            }
+                            }).then((result) => {
+
+                                if (result.dismiss === Swal.DismissReason.timer) {
+                                console.log('I was closed by the timer')
+                            }
+                            })
                         window.location.href = '{{ url_for("home") }}';
                     } else if (response.role === 'devOps') {
+                        Swal.fire({
+                            title: 'Verifications du kubeconfig',
+                            timer: 2500,
+                            timerProgressBar: true,
+                            didOpen: () => {
+                                Swal.showLoading()
+                                const b = Swal.getHtmlContainer().querySelector('b')
+                                timerInterval = setInterval(() => {
+                                b.textContent = Swal.getTimerLeft()
+                            }, 100)
+                            },
+                            willClose: () => {
+                                clearInterval(timerInterval)
+                            }
+                            }).then((result) => {
+
+                                if (result.dismiss === Swal.DismissReason.timer) {
+                                console.log('I was closed by the timer')
+                            }
+                            })                        
                         window.location.href = '{{ url_for("devOps") }}';
                     } else if (response.role === 'testeur') {
+                        Swal.fire({
+                            title: 'Verifications du kubeconfig',
+                            timer: 2500,
+                            timerProgressBar: true,
+                            didOpen: () => {
+                                Swal.showLoading()
+                                const b = Swal.getHtmlContainer().querySelector('b')
+                                timerInterval = setInterval(() => {
+                                b.textContent = Swal.getTimerLeft()
+                            }, 100)
+                            },
+                            willClose: () => {
+                                clearInterval(timerInterval)
+                            }
+                            }).then((result) => {
+
+                                if (result.dismiss === Swal.DismissReason.timer) {
+                                console.log('I was closed by the timer')
+                            }
+                            })                        
                         window.location.href = '{{ url_for("testeur") }}';
                     }
                 } else if (response.error) {
@@ -96,6 +156,7 @@
                 success: function (response) {
                     if (response.success) {
                         Swal.fire('Succès', response.success, 'success');
+                        window.location.reload();
                     } else if (response.error) {
                         Swal.fire('Erreur', response.error, 'error');
                     }
@@ -107,7 +168,5 @@
         });
     });
     </script>
-    
-
 </body>
 </html>

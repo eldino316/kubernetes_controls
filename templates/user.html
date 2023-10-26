@@ -674,7 +674,10 @@
 													<a class="dropdown-item" href="#" onclick="getHistorique('{{ users[1] }}')">
 														<i class="icon-copy bi bi-card-list"></i> Historique
 													</a>
-													<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>Modifier</a>
+													<a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateUserModal"
+													data-user-id="{{ users[0] }}" data-current-name="{{ users[1] }}" data-current-email="{{ users[3] }}">
+													 <i class="dw dw-edit2"></i> Modifier
+												 	</a>
 													<a class="dropdown-item" href="#" onclick="confirmDelete('{{ users[0] }}')">
 														<i class="dw dw-delete-3"></i> Supprimer
 													</a>
@@ -915,6 +918,35 @@
 									</div>
 								</div>
 							</div>
+
+
+							<div class="modal fade" id="updateUserModal" tabindex="-1" role="dialog" aria-labelledby="updateUserModalLabel" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="updateUserModalLabel">Modifier l'utilisateur</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<form id="updateUserForm">
+												<input type="hidden" id="user_id" name="user_id" value="">
+												<div class="form-group">
+													<label for="new_name">Nouveau nom :</label>
+													<input type="text" class="form-control" id="new_name" name="new_name">
+												</div>
+												<div class="form-group">
+													<label for="new_email">Nouvel e-mail :</label>
+													<input type="email" class="form-control" id="new_email" name="new_email">
+												</div>
+												<button type="submit" class="btn btn-primary">Modifier</button>
+											</form>
+										</div>
+									</div>
+								</div>
+							</div>
+							
 							
 							
 
@@ -1087,6 +1119,48 @@
 			document.getElementById('user-input').value = '';
 		}
 	});
+</script>
+
+<script>
+	$(document).ready(function() {
+    $('#updateUserModal').on('show.bs.modal', function(event) {
+        var button = $(event.relatedTarget);
+        var user_id = button.data('user-id');
+        var current_name = button.data('current-name');
+        var current_email = button.data('current-email');
+
+        var modal = $(this);
+        modal.find('.modal-body #user_id').val(user_id);
+        modal.find('.modal-body #new_name').val(current_name);
+        modal.find('.modal-body #new_email').val(current_email);
+    });
+
+    $('#updateUserForm').submit(function(event) {
+        event.preventDefault();
+        var user_id = $('#user_id').val();
+        var new_name = $('#new_name').val();
+        var new_email = $('#new_email').val();
+
+        $.ajax({
+            url: '/update_user',
+            type: 'POST',
+            data: {
+                user_id: user_id,
+                new_name: new_name,
+                new_email: new_email
+            },
+            success: function(response) {
+				Swal.fire('Succès', response.success, 'success');
+				$('#updateUserModal').modal('hide');
+				window.location.reload();
+            },
+            error: function(error) {
+				Swal.fire('Erreur', response.success, 'error');
+            }
+        });
+    });
+});
+
 </script>
 
         
