@@ -265,6 +265,11 @@
 						</div>
 					</div>
 				</div>
+				<div class="github-link" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden;">
+					<a href="https://github.com/dropways/deskapp" target="_blank">
+						<img src="{{ url_for('static', filename='images/relia.png') }}" alt="" style="width: 98%; height: 66%; object-fit: cover;">
+					</a>
+				</div>
 			</div>
 		</div>
 
@@ -777,10 +782,10 @@
 						</div>
 						<div class="chat-footer">
 							<div class="chat_input_area">
-								<input type="text" placeholder="Taper votre message…" required>
+								<input type="text" id="message-input" placeholder="Taper votre message…" required>
 							</div>
 							<div class="chat_send">
-								<button onclick="sendMessage()" class="btn btn-link" type="submit">
+								<button onclick="sendMessage()" class="btn btn-link" type="button">
 									<i class="icon-copy ion-paper-airplane"></i>
 								</button>
 							</div>
@@ -893,7 +898,6 @@
 											<textarea id="terminal" readonly></textarea>
 										</div>
 										<div class="modal-footer">
-											<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 										</div>
 									</div>
 								</div>
@@ -1145,63 +1149,60 @@
 </script>
 
 <script>
-    // Fonction pour ajouter un message dans le chat
-    function appendMessage(message, isUser = true) {
-        var ul = document.getElementById("chat-messages");
-        var li = document.createElement("li");
+	function appendMessage(message, isUser = true) {
+		var ul = document.getElementById("chat-messages");
+		var li = document.createElement("li");
+	
+		if (isUser) {
+			li.className = "clearfix admin_chat_left"; // Style pour le message de l'utilisateur à gauche
+		} else {
+			li.className = "clearfix admin_chat_right"; // Style pour le message de la réponse à droite
+		}
+	
+		li.appendChild(document.createTextNode(message));
+		ul.appendChild(li);
+	}
+	
+	// Fonction pour envoyer le message à l'API Flask
+	function sendMessage() {
+		var messageInput = document.getElementById('message-input');
+		var message = messageInput.value;
+	
+		// Vérifier si le champ de texte n'est pas vide
+		if (message.trim() === "") {
+			// Ne rien faire si le champ est vide
+			return;
+		}
+	
+		appendMessage("Vous : " + message); // Afficher le message de l'utilisateur dans le chat
+		messageInput.value = ''; // Effacer le champ de texte
+	
+		// Envoyer la requête à Flask
+		fetch('/get_openai_response', {
+			method: 'POST',
+			body: JSON.stringify({ message: message }),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			var openaiResponse = data.message;
+			appendMessage("Assistance virtuelle : " + openaiResponse, false); // Afficher la réponse d'OpenAI dans le chat
+		})
+		.catch(error => {
+			console.error(error);
+		});
+	}
 
-        if (isUser) {
-        li.className = "clearfix admin_chat_left"; // Style pour le message de l'utilisateur à gauche
-        } else {
-        li.className = "clearfix admin_chat_right"; // Style pour le message de la réponse à droite
-        }
-
-        li.appendChild(document.createTextNode(message));
-        ul.appendChild(li);
-    }
-
-    var isRequestPending = false;
-
-    function sendMessage() {
-        if (isRequestPending) {
-            // Si une demande est déjà en cours, ne rien faire
-            return;
-        }
-
-        var messageInput = document.querySelector('.chat_input_area input');
-        var message = messageInput.value;
-        appendMessage("Vous : " + message); // Afficher le message de l'utilisateur dans le chat
-        messageInput.value = ''; // Effacer le champ de texte
-
-        isRequestPending = true; // Marquer qu'une demande est en cours
-
-        // Envoyer la requête à Flask
-        fetch('/get_openai_response', {
-            method: 'POST',
-            body: JSON.stringify({ message: message }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            var openaiResponse = data.message;
-            appendMessage("Assistance virtuelle : " + openaiResponse); // Afficher la réponse d'OpenAI dans le chat
-            isRequestPending = false; // Marquer que la demande est terminée
-        })
-        .catch(error => {
-            console.error(error);
-            isRequestPending = false; // Marquer que la demande est terminée en cas d'erreur
-        });
-    }
-
-    function clearMessages() {
-        var chatMessages = document.getElementById("chat-messages");
-        chatMessages.innerHTML = "";
-    }
-
-    // Attacher la fonction sendMessage() au bouton d'envoi
-    document.querySelector('.chat_send button').addEventListener('click', sendMessage);
+	function clearMessages() {
+		var chatMessages = document.getElementById("chat-messages");
+		chatMessages.innerHTML = "";
+	}
+	
+	
+	document.querySelector('.chat_send button').addEventListener('click', sendMessage);
+	
 
     document.querySelector('.clear-messages button').addEventListener('click', clearMessages);
 </script>

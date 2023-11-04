@@ -1,20 +1,12 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
-  name: node-deployment-datacenter
-  namespace: default
+  name: mysql
 spec:
-  replicas: 2
+  type: NodePort
   selector:
-    matchLabels:
-      app: node-app-datacenter
-  template:
-    metadata:
-      labels:
-        app: node-app-datacenter
-    spec:
-      containers:
-        - name: node-container-datacenter
-          image: gcr.io/kodekloud/centos-ssh-enabled:node
-          ports:
-            - containerPort: 80
+    app: mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30007

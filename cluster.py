@@ -11,12 +11,6 @@ try:
 except Exception as e:
     print(f"Erreur lors du chargement de la configuration Kubernetes : {str(e)}")
 
-def start_minikube_proxy():
-    try:
-        subprocess.Popen(["minikube", "kubectl", "proxy"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, start_new_session=True)
-        print("La commande minikube kubectl proxy a été lancée en arrière-plan.")
-    except Exception as e:
-        print(f"Une erreur s'est produite : {str(e)}")
 
 def apply_yaml(file_path):
     try:
@@ -46,7 +40,7 @@ def install_yaml(file_path):
 
 def get_cluster_details():
     try:
-        command = ["kubectl", "describe", "nodes", "minikube"]
+        command = ["kubectl", "describe", "nodes"]
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
         cluster_details = result.stdout
         return cluster_details
@@ -61,5 +55,4 @@ def get_cluster():
         return Cluster
     except subprocess.CalledProcessError as e:
         return {"error": f"Erreur : {e.stderr}"}               
-
-start_minikube_proxy()    
+    

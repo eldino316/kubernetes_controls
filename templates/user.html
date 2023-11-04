@@ -62,22 +62,40 @@
 
 		
 		<style>
-			/* Style for the terminal textarea */
+
 			#terminal {
 				width: 100%;
-				height: 300px;
+				height: calc(100% - 40px); /* Réduire la hauteur de la sortie du terminal */
 				background-color: black;
 				color: white;
 				font-family: monospace;
 				border: none;
 				outline: none;
 				overflow: auto;
+				margin: 0;
+				padding: 10px;
+				box-sizing: border-box;
 			}
+			
 			#user-input {
 				width: 100%;
 				font-family: monospace;
+				background-color: black;
+				color: white;
 				border: none;
 				outline: none;
+				margin: 0;
+				padding: 10px;
+				box-sizing: border-box;
+			}
+			
+			.modal-content {
+				height: 80vh; /* Définir la hauteur du contenu du modal */
+			}
+			
+
+			.align-left {
+				text-align: left;
 			}
 		</style>
 
@@ -284,6 +302,11 @@
 							>
 						</div>
 					</div>
+				</div>
+				<div class="github-link" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden;">
+					<a href="https://github.com/dropways/deskapp" target="_blank">
+						<img src="{{ url_for('static', filename='images/relia.png') }}" alt="" style="width: 98%; height: 66%; object-fit: cover;">
+					</a>
 				</div>
 			</div>
 		</div>
@@ -894,7 +917,6 @@
 											<textarea id="terminal" readonly></textarea>
 										</div>
 										<div class="modal-footer">
-											<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 										</div>
 									</div>
 								</div>
@@ -910,7 +932,7 @@
 											</button>
 										</div>
 										<div class="modal-body">
-											<pre id="historiqueDetails"></pre>
+											<ul class="list-group align-left" id="historiqueDetails"></ul>
 										</div>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
@@ -918,6 +940,7 @@
 									</div>
 								</div>
 							</div>
+							
 
 
 							<div class="modal fade" id="updateUserModal" tabindex="-1" role="dialog" aria-labelledby="updateUserModalLabel" aria-hidden="true">
@@ -997,32 +1020,32 @@
         </script>
 			
 		<script>
-				function getHistorique(username) {
-					fetch('/historique?username=' + username, { method: 'GET' })
-						.then(response => response.json())
-						.then(data => {
-							// Affichez l'historique dans le modal sous forme de liste stylisée
-							var historiqueModal = document.getElementById('historiqueDetails');
-							historiqueModal.innerHTML = ''; // Réinitialisez le contenu du modal
-							var ul = document.createElement('ul');
-							ul.className = "list-group"; // Ajoutez la classe Bootstrap list-group
-							data.forEach(item => {
-								var li = document.createElement('li');
-								li.className = "list-group-item d-flex justify-content-between align-items-center";
-								var icon = document.createElement('i');
-								icon.className = "fas fa-history mr-2"; // Ajoutez une icône d'historique (Font Awesome)
-								li.appendChild(icon);
-								li.appendChild(document.createTextNode(item[0])); // Ajoutez chaque élément du tableau comme un élément de liste
-								ul.appendChild(li);
-							});
-							historiqueModal.appendChild(ul); // Ajoutez la liste au modal
-							$('#historiqueModal').modal('show');
-						})
-						.catch(error => {
-							console.error(error);
-							alert('Erreur lors de la récupération de l\'historique.');
+			function getHistorique(username) {
+				fetch('/historique?username=' + username, { method: 'GET' })
+					.then(response => response.json())
+					.then(data => {
+						var historiqueModal = document.getElementById('historiqueDetails');
+						historiqueModal.innerHTML = ''; // Réinitialisez le contenu du modal
+						var ul = document.createElement('ul');
+						ul.className = "list-group align-left"; // Ajoutez la classe Bootstrap list-group et la classe align-left
+						data.forEach(item => {
+							var li = document.createElement('li');
+							li.className = "list-group-item d-flex align-items-center"; // Supprimez justify-content-between
+							var icon = document.createElement('i');
+							icon.className = "fas fa-history mr-2"; // Ajoutez l'icône d'historique (Font Awesome)
+							li.appendChild(icon);
+							li.appendChild(document.createTextNode(item[0])); // Ajoutez chaque élément du tableau comme un élément de liste
+							ul.appendChild(li);
 						});
-				}
+						historiqueModal.appendChild(ul); // Ajoutez la liste au modal
+						$('#historiqueModal').modal('show');
+					})
+					.catch(error => {
+						console.error(error);
+						alert('Erreur lors de la récupération de l\'historique.');
+					});
+			}
+			
 		</script>
 			
 			

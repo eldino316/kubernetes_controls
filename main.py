@@ -24,6 +24,7 @@ from secret import *
 from trigger import *
 from kubeconfig_generator import *
 import openai
+from endpoint import *
 
 
 app = Flask(__name__)
@@ -97,8 +98,7 @@ def register():
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
     if request.method == 'POST':
-        user_id = request.form['user_id']  # Récupérez l'ID de l'utilisateur à supprimer depuis le formulaire
-        # Effectuez la suppression de l'utilisateur dans la base de données
+        user_id = request.form['user_id'] 
         mycursor.execute('DELETE FROM prs_info WHERE id = %s', (user_id,))
         mydb.commit()
 
@@ -213,7 +213,7 @@ def connect():
 @app.route('/cluster_details')
 def cluster_details():
     try:
-        command = ["kubectl", "describe", "nodes", "minikube"]
+        command = ["kubectl", "describe", "nodes"]
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
         cluster_details = result.stdout
         return cluster_details
@@ -467,7 +467,7 @@ def execute_command():
     command = data['command']
     pod_name = data['podName']
     try:
-        result = subprocess.check_output(f'kubectl exec -it {pod_name} -- {command}', shell=True, stderr=subprocess.STDOUT, text=True)
+        result = subprocess.check_output(f'kubectl exec -it {pod_name} /bin/bash -- {command}', shell=True, stderr=subprocess.STDOUT, text=True)
         return jsonify(result)
     except subprocess.CalledProcessError as e:
         return jsonify(e.output)
@@ -593,11 +593,13 @@ def update_deployment():
     namespace = data.get('namespace')
     deployment_name = data.get('deploymentName')
     replicas = int(data.get('replicas'))
+    new_image = data.get('image')
     username = session['username']
     try:
         v1 = client.AppsV1Api()
         deployment = v1.read_namespaced_deployment(name=deployment_name, namespace=namespace)
         deployment.spec.replicas = replicas
+        deployment.spec.template.spec.containers[0].image = new_image
         v1.patch_namespaced_deployment(name=deployment_name, namespace=namespace, body=deployment)
         cluster_name = get_clustername(username)
 
@@ -689,8 +691,9 @@ def delete_service():
         action = f"L'utilisateur {username} a supprimé un service sous le nom {service_name} sur le cluster {cluster_name}"
 
         add_tracking(username, action)
+        
+        return redirect(url_for('service', success_message='Le déploiement a été supprimé avec succès.'))
 
-        return "Service supprimé avec succès!"
     except Exception as e:
         return f"Erreur lors de la suppression du service : {str(e)}"
     
@@ -868,7 +871,6 @@ def generate_kubeconfig_route():
     response.headers['Content-Disposition'] = f'attachment; filename={username}_kubeconfig.yaml'
     return response
 
-
 @app.route('/ia')
 def ia():
     return render_template('ia.html')
@@ -890,6 +892,19 @@ def get_openai_response():
     except Exception as e:
         print(f"Erreur OpenAI : {str(e)}")
         return jsonify({'message': "Erreur lors de la génération de la réponse."})
+
+@app.route('/endpoint', methods=['GET', 'POST'])
+def endpoint():
+    if 'username' in session:
+        username = session['username']
+        user = get_user_info(username)
+        cluster = get_clusterall(username)
+        selected_namespace = request.args.get('namespace', 'default')
+        namespaces = get_available_namespaces()
+        endpoints = get_endpoints(selected_namespace)
+        return render_template('endpoint.html', endpoint=endpoints, user=user, username=username, cluster=cluster, namespaces=namespaces, selected_namespace=selected_namespace)
+    return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     socketio.run(app, host='relia-kubernetes.controls', debug=True)

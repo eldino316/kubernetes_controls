@@ -4197,3 +4197,34 @@ body.IE .register-page-wrap .container{
     float: right;
     max-width: 70%;
 }
+
+#terminal {
+	width: 100%;
+	height: calc(100% - 40px); /* Réduire la hauteur de la sortie du terminal */
+	background-color: black;
+	color: white;
+	font-family: monospace;
+	border: none;
+	outline: none;
+	overflow: auto;
+	margin: 0;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+#user-input {
+	width: 100%;
+	font-family: monospace;
+	background-color: black;
+	color: white;
+	border: none;
+	outline: none;
+	margin: 0;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+.modal-content {
+	height: 80vh; /* Définir la hauteur du contenu du modal */
+}
+
